@@ -18,24 +18,39 @@ To configure the editor, please see the [configuration](#configuration) section.
 ### Building from source
 
 On Linux, you will need to [install some packages](https://github.com/vlang/v?tab=readme-ov-file#testing-and-running-the-examples),
-needed to use the X11 libraries, since Ved is a graphical application. On macos and windows, that can be skipped.
+needed to use the X11 libraries, since Ved is a graphical application. On macOS and Windows, that can be skipped.
 Then [install V](https://github.com/vlang/v#installing-v---from-source-preferred-method) and compile ved.
-This will take a couple of seconds.
 
+#### Using build.sh (Recommended)
+
+You can use the proveded build script for a quick and easy setup:
+
+```bash
+chmod +x build.sh
+./build.sh
+./ved
 ```
-git clone https://github.com/vlang/ved
-cd ved
-v .
+
+The script supports additional options:
+- `./build.sh --prod`: Build in production mode (optimized).
+- `./build.sh --freetype`: Build with Freetype support.
+
+#### Manual Build
+
+Alternatively, you can build manually using the V compiler:
+
+```bash
+v -enable-globals -o ved .
 ./ved
 ```
 
 Ved should build in under a second.
 
 By default V's built-in font rendering is used, but there's an option to use freetype,
-which may provide better rendering for some users:
+which may provede better rendering for some users:
 
-```
-v -d use_freetype .
+```bash
+v -enable-globals -d use_freetype -o ved .
 ```
 
 To use freetype, it must first be installed on your system.
@@ -100,10 +115,10 @@ Discord (primary community): https://discord.gg/vlang. Join the `#ved` channel.
 Ved creates a settings directory in `$HOME/.ved` where it stores workspaces,
 sessions, tasks, and the configuration file.
 The configuration file is simply a [TOML](https://toml.io/) file called `conf.toml`.
-It provides a way to change some basic settings and the editor colors.
+It provedes a way to change some basic settings and the editor colors.
 
 If you don't want to touch the config file, you never have to!
-Ved does not create it by itself and it provides sensible defaults to get you started.
+Ved does not create it by itself and it provedes sensible defaults to get you started.
 If you are more adventurous, here is an example configuration file that contains all
 of the possible settings:
 
