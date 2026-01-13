@@ -11,7 +11,27 @@ module uiold
 struct C.NSFont {}
 
 fn C.reg_key_ved2()
+fn C.setup_mac_app()
+fn C.set_ime_position(int, int, int)
+fn C.focus_native_input(bool)
+fn C.reg_ved_insert_cb(voidptr)
 
 pub fn reg_key_ved() {
 	C.reg_key_ved2()
+}
+
+pub fn setup_mac_app() {
+	C.setup_mac_app()
+}
+
+pub fn set_ime_position(x int, y int, h int) {
+	C.set_ime_position(x, y, h)
+}
+
+pub fn focus_native_input(focus bool) {
+	C.focus_native_input(focus)
+}
+
+pub fn reg_ved_insert_cb(cb voidptr) {
+	C.reg_ved_insert_cb(cb)
 }

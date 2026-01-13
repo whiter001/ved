@@ -2,6 +2,7 @@ module main
 
 import gg
 import os
+import uiold
 
 fn (mut ved Ved) draw() {
 	mut view := ved.view
@@ -319,6 +320,10 @@ fn (ved &Ved) draw_cursor(cursor_x int, y int) {
 					ved.cfg.cursor_color)
 			}
 		}
+	}
+	// Sync IME position for macOS/Linux
+	$if macos {
+		uiold.set_ime_position(cursor_x, y, ved.cfg.line_height)
 	}
 }
 

@@ -2,6 +2,7 @@ module main
 
 import os
 import gg
+import uiold
 
 fn (mut ved Ved) on_event(e &gg.Event) {
 	// println('on_event ${ved.win_width}')
@@ -98,6 +99,9 @@ fn key_down(key gg.KeyCode, mod gg.Modifier, mut ved Ved) {
 			ved.exit_visual()
 		}
 		ved.mode = .normal
+		$if macos {
+			uiold.focus_native_input(false)
+		}
 	}
 	// Reset error line
 	ved.view.error_y = -1
@@ -560,14 +564,20 @@ fn (mut ved Ved) key_normal(key gg.KeyCode, mod gg.Modifier) {
 
 @[manualfree]
 fn on_char(code u32, mut ved Ved) {
+	$if macos {
+		if ved.mode == .insert || ved.mode == .autocomplete {
+			// In insert mode on macOS, we use the Native NSTextView bridge.
+			// This avoids duplicate input and correctly handles IME.
+			return
+		}
+	}
 	if ved.just_switched {
 		ved.just_switched = false
 		return
 	}
 	mut buf := [5]u8{}
 	s := unsafe { utf32_to_str_no_malloc(code, mut &buf[0]) }
-	// s := utf32_to_str(code)
-	// println('s="$s" code="$code"')
+	println('on_char s="${s}" code="${code}"')
 	match ved.mode {
 		.insert, .autocomplete {
 			ved.char_insert(s)

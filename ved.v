@@ -10,6 +10,35 @@ import uiold
 import clipboard
 import x.json2
 
+__global g_ved &Ved
+
+// Callback from C for IME input
+fn ved_insert_text(text &char) {
+	s := unsafe { text.vstring() }
+	if s.len > 0 {
+		mut ved := unsafe { g_ved }
+		match s {
+			'[ENTER]' {
+				ved.view.enter()
+			}
+			'[BACKSPACE]' {
+				ved.view.backspace()
+			}
+			'[ESC]' {
+				ved.exit_visual()
+			}
+			'[TAB]' {
+				ved.view.insert_text('\t')
+			}
+			else {
+				ved.view.insert_text(s)
+			}
+		}
+		ved.refresh = true
+		ved.gg.refresh_ui()
+	}
+}
+
 const exe_dir = os.dir(os.executable())
 const home_dir = os.home_dir()
 const settings_dir = os.join_path(home_dir, '.ved')
@@ -172,6 +201,9 @@ fn main() {
 		cb:         clipboard.new()
 		open_paths: [][]string{len: max_nr_workspaces}
 	}
+	unsafe {
+		g_ved = ved
+	}
 	ved.handle_segfault()
 
 	// ved.cfg.set_settings(config_path)
@@ -208,8 +240,16 @@ fn main() {
 	ved.load_all_tasks()
 	// TODO linux and windows
 	// C.AXUIElementCreateApplication(234)
-	uiold.reg_key_ved()
+	// uiold.reg_key_ved()
+	
 	// Open workspaces or a file
+	$if macos {
+		spawn fn() {
+			time.sleep(1 * time.second)
+			uiold.setup_mac_app()
+			uiold.reg_ved_insert_cb(ved_insert_text)
+		}()
+	}
 	$if debug {
 		println('args:')
 		println(args)
@@ -494,6 +534,9 @@ fn (mut ved Ved) set_insert() {
 	ved.mode = .insert
 	ved.prev_insert = ''
 	ved.just_switched = true
+	$if macos {
+		uiold.focus_native_input(true)
+	}
 }
 
 // exit_visual switches the editor from Visual mode back to Normal mode and clears the selection.
@@ -503,6 +546,9 @@ fn (mut ved Ved) exit_visual() {
 	mut view := ved.view
 	view.vstart = -1
 	view.vend = -1
+	$if macos {
+		uiold.focus_native_input(false)
+	}
 }
 
 // dot implements the '.' key functionality from Vim: repeat the last change command.

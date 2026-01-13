@@ -4,3 +4,4 @@
 - remember line pos for each file on t
 - 测试中文显示
 -
+-测试中文输入

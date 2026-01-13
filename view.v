@@ -533,30 +533,18 @@ fn (mut view View) shift_c() string {
 fn (mut view View) insert_text(s string) {
 	line := view.line()
 	if line.len == 0 {
-		view.set_line('${s} ')
+		view.set_line(s)
+		view.x = s.len
 	} else {
 		if view.x > line.len {
 			view.x = line.len
 		}
-		uline := line.runes()
-		if view.x > uline.len {
-			return
-		}
-		left := uline[..view.x].string()
-		right := uline[view.x..uline.len].string()
+		left := line[..view.x]
+		right := line[view.x..]
 		// Insert char in the middle
 		res := '${left}${s}${right}'
 		view.set_line(res)
-	}
-	view.x += s.runes().len
-	view.changed = true
-	// Show autocomplete window on `.`
-	if s == '.' {
-		println('DOOOT, SHOW WINDOW')
-		view.ved.mode = .autocomplete
-		view.ved.refresh = true
-		view.ved.gg.refresh_ui()
-		go view.ved.get_line_info()
+		view.x += s.len
 	}
 }
 

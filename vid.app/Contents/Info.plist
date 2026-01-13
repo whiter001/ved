@@ -7,7 +7,7 @@
 	<key>CFBundleIconFile</key>
 	<string>vid</string>
 	<key>CFBundleIdentifier</key>
-	<string>ExampleApp</string>
+	<string>com.alex.ved</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleURLTypes</key>
@@ -24,7 +24,7 @@
 	<key>LSMinimumSystemVersion</key>
 	<string>10.7.0</string>
 	<key>LSUIElement</key>
-	<string>1</string>
+	<string>0</string>
 	<key>NSApplicationSupportsAutomaticGraphicsSwitching</key>
 <string>YES</string>
 	<key>NSHighResolutionCapable</key>
