@@ -8,44 +8,36 @@ static ved_insert_text_fn g_insert_cb = NULL;
 @end
 
 @implementation VedImeView
-// This is called when the user FINALLY commits the text (e.g. presses space or chooses a candidate)
 - (void)insertText:(id)string replacementRange:(NSRange)replacementRange {
     NSString *text = ([string isKindOfClass:[NSAttributedString class]]) ? [string string] : (NSString *)string;
-    
-    // We only send the text to V if it's not empty.
     if (text.length > 0 && g_insert_cb) {
-        printf("DEBUG: insertText (committed): %s\n", [text UTF8String]);
         g_insert_cb([text UTF8String]);
     }
-    
-    // Crucially, clear everything to avoid state accumulation
     [self setString:@""];
     [self unmarkText];
 }
 
-// This is called while the user is still typing pinyin
 - (void)setMarkedText:(id)string selectedRange:(NSRange)selectedRange replacementRange:(NSRange)replacementRange {
-    // We don't send marked text to V yet to avoid duplicates.
-    // But we let super handle it so the system IME popup shows up correctly.
     [super setMarkedText:string selectedRange:selectedRange replacementRange:replacementRange];
+    // Optional: could send marked text to V here for preview
 }
 
-// Handle special keys like Backspace, Enter, Esc while focused
 - (void)doCommandBySelector:(SEL)selector {
     if (g_insert_cb) {
-        if (selector == @selector(insertNewline:)) {
-            g_insert_cb("[ENTER]");
-            return;
-        } else if (selector == @selector(deleteBackward:)) {
-            g_insert_cb("[BACKSPACE]");
-            return;
-        } else if (selector == @selector(cancelOperation:)) { // ESC
-            g_insert_cb("[ESC]");
-            return;
-        } else if (selector == @selector(insertTab:)) {
-            g_insert_cb("[TAB]");
-            return;
-        }
+        if (selector == @selector(insertNewline:)) { g_insert_cb("[ENTER]"); return; }
+        if (selector == @selector(deleteBackward:)) { g_insert_cb("[BACKSPACE]"); return; }
+        if (selector == @selector(cancelOperation:)) { g_insert_cb("[ESC]"); return; }
+        if (selector == @selector(insertTab:)) { g_insert_cb("[TAB]"); return; }
+        
+        // Movement keys
+        if (selector == @selector(moveUp:)) { g_insert_cb("[UP]"); return; }
+        if (selector == @selector(moveDown:)) { g_insert_cb("[DOWN]"); return; }
+        if (selector == @selector(moveLeft:)) { g_insert_cb("[LEFT]"); return; }
+        if (selector == @selector(moveRight:)) { g_insert_cb("[RIGHT]"); return; }
+        if (selector == @selector(moveToBeginningOfLine:)) { g_insert_cb("[HOME]"); return; }
+        if (selector == @selector(moveToEndOfLine:)) { g_insert_cb("[END]"); return; }
+        if (selector == @selector(scrollPageUp:)) { g_insert_cb("[PGUP]"); return; }
+        if (selector == @selector(scrollPageDown:)) { g_insert_cb("[PGDN]"); return; }
     }
     [super doCommandBySelector:selector];
 }
@@ -66,12 +58,10 @@ void setup_mac_app() {
     dispatch_async(dispatch_get_main_queue(), ^{
         NSWindow *window = [[NSApplication sharedApplication] keyWindow];
         if (window) {
-            // Setup a proper container for the IME view
             g_ime_view = [[VedImeView alloc] initWithFrame:NSMakeRect(-10, -10, 1, 1)];
             [g_ime_view setEditable:YES];
-            [g_ime_view setSelectable:YES];
             [[window contentView] addSubview:g_ime_view];
-            puts("macOS App Environment Setup - Version 13 (Fine-grained IME)");
+            puts("macOS App Environment Setup - Version 14 (Full Control Bridge)");
         }
     });
 }
@@ -82,11 +72,13 @@ void reg_ved_insert_cb(ved_insert_text_fn cb) {
 
 void set_ime_position(int x, int y, int h) {
     if (!g_ime_view) return;
-    dispatch_async(dispatch_get_main_queue(), ^{ 
+    dispatch_async(dispatch_get_main_queue(), ^{
         NSWindow *window = [g_ime_view window];
         if (window) {
-            NSRect frame = [[window contentView] frame];
-            float flipped_y = frame.size.height - y - h;
+            NSRect content_rect = [[window contentView] frame];
+            // macOS Y is bottom-up. Ved Y is top-down.
+            // Adjusting for line height to put candidate window UNDER the text
+            float flipped_y = content_rect.size.height - y;
             [g_ime_view setFrame:NSMakeRect(x, flipped_y, 100, h)];
         }
     });
@@ -94,14 +86,11 @@ void set_ime_position(int x, int y, int h) {
 
 void focus_native_input(bool focus) {
     if (!g_ime_view) return;
-    dispatch_async(dispatch_get_main_queue(), ^{ 
+    dispatch_async(dispatch_get_main_queue(), ^{
         NSWindow *window = [g_ime_view window];
         if (window) {
-            if (focus) {
-                [window makeFirstResponder:g_ime_view];
-            } else {
-                [window makeFirstResponder:[window contentView]];
-            }
+            if (focus) [window makeFirstResponder:g_ime_view];
+            else [window makeFirstResponder:[window contentView]];
         }
     });
 }

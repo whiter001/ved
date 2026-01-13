@@ -30,6 +30,30 @@ fn ved_insert_text(text &char) {
 			'[TAB]' {
 				ved.view.insert_text('\t')
 			}
+			'[UP]' {
+				ved.view.k()
+			}
+			'[DOWN]' {
+				ved.view.j()
+			}
+			'[LEFT]' {
+				ved.view.h()
+			}
+			'[RIGHT]' {
+				ved.view.l()
+			}
+			'[HOME]' {
+				ved.view.x = 0
+			}
+			'[END]' {
+				ved.view.x = ved.view.line().len
+			}
+			'[PGUP]' {
+				ved.view.shift_b()
+			}
+			'[PGDN]' {
+				ved.view.shift_f()
+			}
 			else {
 				ved.view.insert_text(s)
 			}
