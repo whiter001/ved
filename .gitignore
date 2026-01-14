@@ -1,5 +1,10 @@
 ved.exe
 ved
+vid
 *.code-workspace
 .DS_Store
+Thumbs.db
 out
+*.log
+*.tmp
+

@@ -205,6 +205,7 @@ C t    show the Timer/Pomodoro window
 Supported vim bindings:
 ```
 j k h l         down, up, left, right (moves cursor)
+0 $ ^           go to absolute start, end, and first non-blank char of line
 C-F C-B         page down, page up
 L H             go to top/bottom of the page
 w b             next/previous word
