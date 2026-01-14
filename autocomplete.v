@@ -1,53 +1,53 @@
-// Copyright (c) 2019 Alexander Medvednikov. All rights reserved.
-// Use of this source code is governed by a GPL license
-// that can be found in the LICENSE file.
-module main
+// Copyright (c) 2019 Alexander Medvednikov. All rights reserved. // 版权所有 (c) 2019 Alexander Medvednikov。保留所有权利
+// Use of this source code is governed by a GPL license // 本源代码的使用受 GPL 许可证约束
+// that can be found in the LICENSE file. // 可在 LICENSE 文件中找到
+module main // 主模块
 
-import gg
-import os
-import time
+import gg // 导入 gg 图形库
+import os // 导入 os 操作系统库
+import time // 导入 time 时间库
 
-const nr_elems_to_show_in_autocomplete = 12
+const nr_elems_to_show_in_autocomplete = 12 // nr_elems_to_show_in_autocomplete 常量，自动完成中显示的元素数量
 
-struct AutocompleteInfo {
+struct AutocompleteInfo { // AutocompleteInfo 结构体，自动完成信息
 mut:
-	vars []AutocompleteVar
+	vars []AutocompleteVar // 变量
 }
 
-struct AutocompleteVar {
-	name string
-	typ  string
+struct AutocompleteVar { // AutocompleteVar 结构体，自动完成变量
+	name string // 名称
+	typ  string // 类型
 mut:
-	fields []AutocompleteField
+	fields []AutocompleteField // 字段
 }
 
-struct AutocompleteField {
-	name string
-	typ  string
+struct AutocompleteField { // AutocompleteField 结构体，自动完成字段
+	name string // 名称
+	typ  string // 类型
 }
 
-fn (ved &Ved) draw_autocomplete_window() {
-	max_col_len := 45
-	cur_word := ved.word_under_cursor_no_right()
-	// println('1DRAW WINDOW cur word="${cur_word}"')
-	mut width := int(f64(ved.cfg.char_width * max_col_len) * 1.5)
-	mut height := nr_elems_to_show_in_autocomplete * ved.cfg.line_height
-	// Calculate position of the autocomplete box (next to the cursor)
-	x := ved.calc_cursor_x()
-	y := ved.calc_cursor_y() + ved.cfg.line_height
+fn (ved &Ved) draw_autocomplete_window() { // draw_autocomplete_window 函数，绘制自动完成窗口
+	max_col_len := 45 // 最大列长度
+	cur_word := ved.word_under_cursor_no_right() // 获取光标下单词（无右边）
+	// println('1DRAW WINDOW cur word="${cur_word}"') // 打印（注释）
+	mut width := int(f64(ved.cfg.char_width * max_col_len) * 1.5) // 宽度
+	mut height := nr_elems_to_show_in_autocomplete * ved.cfg.line_height // 高度
+	// Calculate position of the autocomplete box (next to the cursor) // 计算自动完成框的位置（光标旁边）
+	x := ved.calc_cursor_x() // x
+	y := ved.calc_cursor_y() + ved.cfg.line_height // y
 
-	if cur_word != '' && ved.autocomplete_info.vars.len == 0 {
-		// Do not draw empty autocomplete window if there are no results and the user
-		// started typing after `.`
-		// println("NO RES, RET word='${cur_word}'")
-		return
+	if cur_word != '' && ved.autocomplete_info.vars.len == 0 { // 如果当前单词不为空且变量长度为 0
+		// Do not draw empty autocomplete window if there are no results and the user // 如果没有结果且用户在 `.` 后开始输入，不要绘制空的自动完成窗口
+		// started typing after `.` // （注释）
+		// println("NO RES, RET word='${cur_word}'") // 打印（注释）
+		return // 返回
 	}
 
-	if ved.autocomplete_info.vars.len == 0 {
-		return
+	if ved.autocomplete_info.vars.len == 0 { // 如果变量长度为 0
+		return // 返回
 	}
-	ved.gg.draw_rect_filled(x, y, width, height, gg.white)
-	// ved.gg.draw_text(x + 10, y + 30, 'AUTOCOMPLETE', txt_cfg)
+	ved.gg.draw_rect_filled(x, y, width, height, gg.white) // 绘制填充矩形
+	// ved.gg.draw_text(x + 10, y + 30, 'AUTOCOMPLETE', txt_cfg) // 绘制文本（注释）
 
 	// for i, var in ved.autocomplete_info.vars {
 	if ved.autocomplete_info.vars.len > 0 {

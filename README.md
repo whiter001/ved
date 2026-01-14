@@ -1,29 +1,29 @@
 <h1 align="center">Ved</h1>
-<h3 align="center">A small and fast text editor written in V</h3>
+<h3 align="center">一个用 V 编写的轻量级快速文本编辑器</h3>
 
-<img src="https://user-images.githubusercontent.com/47652746/199333211-ee78f600-039c-4d96-85ec-e5580fca6736.jpg" alt="Screenshot of the editor">
+<img src="https://user-images.githubusercontent.com/47652746/199333211-ee78f600-039c-4d96-85ec-e5580fca6736.jpg" alt="编辑器截图">
 
 [![Patreon-badge](https://img.shields.io/badge/Patreon-F96854?logo=patreon&logoColor=white)](https://www.patreon.com/vlang)
 ![GitHub Workflow Status (event)](https://img.shields.io/github/actions/workflow/status/vlang/ved/ci.yml?branch=master)
 
-### This is pre-alpha software.
+### 这是预 alpha 软件。
 
-I've been using Ved as my main editor since June 2017 (it was re-written in V in June 2018).
+自 2017 年 6 月以来，我一直在使用 Ved 作为我的主要编辑器（2018 年 6 月用 V 重写）。
 
-It may not work for everyone. There are currently limitations that must be worked around.
-We are working on slowly improving the ved stability and user experience.
+它可能不适合所有人。目前存在一些必须解决的限制。
+我们正在逐步改进 Ved 的稳定性和用户体验。
 
-To configure the editor, please see the [configuration](#configuration) section.
+要配置编辑器，请参阅[配置](#configuration)部分。
 
-### Building from source
+### 从源码构建
 
-On Linux, you will need to [install some packages](https://github.com/vlang/v?tab=readme-ov-file#testing-and-running-the-examples),
-needed to use the X11 libraries, since Ved is a graphical application. On macOS and Windows, that can be skipped.
-Then [install V](https://github.com/vlang/v#installing-v---from-source-preferred-method) and compile ved.
+在 Linux 上，您需要[安装一些包](https://github.com/vlang/v?tab=readme-ov-file#testing-and-running-the-examples)，
+以使用 X11 库，因为 Ved 是一个图形应用程序。在 macOS 和 Windows 上，可以跳过此步骤。
+然后[安装 V](https://github.com/vlang/v#installing-v---from-source-preferred-method) 并编译 ved。
 
-#### Using build.sh (Recommended)
+#### 使用 build.sh（推荐）
 
-You can use the proveded build script for a quick and easy setup:
+您可以使用提供的构建脚本进行快速简单设置：
 
 ```bash
 chmod +x build.sh
@@ -31,115 +31,112 @@ chmod +x build.sh
 ./ved
 ```
 
-The script supports additional options:
-- `./build.sh --prod`: Build in production mode (optimized).
-- `./build.sh --freetype`: Build with Freetype support.
+脚本支持其他选项：
+- `./build.sh --prod`：以生产模式构建（优化）。
+- `./build.sh --freetype`：使用 Freetype 支持构建。
 
-#### Manual Build
+#### 手动构建
 
-Alternatively, you can build manually using the V compiler:
+或者，您可以使用 V 编译器手动构建：
 
 ```bash
 v -o ved .
 ./ved
 ```
 
-Ved should build in under a second.
+Ved 应该在不到一秒内构建完成。
 
-By default V's built-in font rendering is used, but there's an option to use freetype,
-which may provede better rendering for some users:
+默认情况下使用 V 的内置字体渲染，但有一个选项使用 freetype，
+这可能为某些用户提供更好的渲染：
 
 ```bash
 v -d use_freetype -o ved .
 ```
 
-To use freetype, it must first be installed on your system.
-Follow the steps for your platform below.
+要使用 freetype，必须先在您的系统上安装它。
+按照以下步骤针对您的平台操作。
 
-Ubuntu:
+Ubuntu：
 ```
 sudo apt install libfreetype6-dev libx11-dev libxrandr-dev mesa-common-dev libxi-dev libxcursor-dev
 ```
 
-Fedora:
+Fedora：
 ```
 sudo dnf install freetype-devel libXcursor-devel libXi-devel
 ```
 
-Arch:
+Arch：
 ```
 pacman -S freetype2
 ```
 
-macOS:
+macOS：
 ```
 brew install freetype
 ```
 
-Windows:
+Windows：
 ```
 v setup-freetype
 ```
 
-### Communities:
+### 社区：
 
-Discord (primary community): https://discord.gg/vlang. Join the `#ved` channel.
+Discord（主要社区）：https://discord.gg/vlang。加入 `#ved` 频道。
 
-### Main features
+### 主要功能
 
-- Small size (~ 1 MB binary, builds in <1s)
-- Hardware accelerated text rendering
-- High performance (scrolling through 300k lines with syntax highlighting without any lag)
-- WIP Vim mode
-- Easy integration with any compiler/build system
-- Go to definition
-- Fuzzy file finder
-- Fast search
-- Integration with git
-- Built-in time management system (based on Pomodoro)
-- Global bring-to-front key
-- Split view
-- Workspaces
-- Cross-platform (Windows, macOS, GNU/Linux)
+- 小尺寸（~ 1 MB 二进制文件，构建时间 <1s）
+- 硬件加速文本渲染
+- 高性能（滚动浏览 300k 行并带有语法高亮而无任何延迟）
+- 正在开发的 Vim 模式
+- 轻松集成任何编译器/构建系统
+- 转到定义
+- 模糊文件查找器
+- 快速搜索
+- 与 git 集成
+- 内置时间管理系统（基于番茄工作法）
+- 全局前置键
+- 分屏视图
+- 工作区
+- 跨平台（Windows、macOS、GNU/Linux）
 
-### Planned features
+### 计划功能
 
-- True vim mode (current implementation only implements a small subset of vim's features)
-- Emacs keybindings
-- Nano keybindings
-- Word wrap
-- Better syntax highlighting
+- 真正的 vim 模式（当前实现仅实现了 vim 功能的一小部分）
+- Emacs 键绑定
+- Nano 键绑定
+- 自动换行
+- 更好的语法高亮
 
-### Configuration
+### 配置
 
-Ved creates a settings directory in `$HOME/.ved` where it stores workspaces,
-sessions, tasks, and the configuration file.
-The configuration file is simply a [TOML](https://toml.io/) file called `conf.toml`.
-It provedes a way to change some basic settings and the editor colors.
+Ved 在 `$HOME/.ved` 中创建一个设置目录，用于存储工作区、
+会话、任务和配置文件。
+配置文件是一个简单的 [TOML](https://toml.io/) 文件，名为 `conf.toml`。
+它提供了一种更改一些基本设置和编辑器颜色的方法。
 
-If you don't want to touch the config file, you never have to!
-Ved does not create it by itself and it provedes sensible defaults to get you started.
-If you are more adventurous, here is an example configuration file that contains all
-of the possible settings:
+如果您不想触碰配置文件，您永远不必这样做！
+Ved 不会自己创建它，并提供合理的默认设置来让您开始。
+如果您更喜欢冒险，这里是一个包含所有可能设置的示例配置文件：
 
 ```toml
-# To get started, create a file called "conf.toml" in $HOME/.ved
-# Most of the settings are contained inside this "editor" table.
+# 要开始，请在 $HOME/.ved 中创建一个名为 "conf.toml" 的文件
+# 大多数设置都包含在这个 "editor" 表中。
 [editor]
-dark_mode = false       # Ved comes with a light and dark mode built-in.
-cursor = 'variable'     # Ved has three variants: Variable, block, and beam. You are probably used to "variable" or "beam".
+dark_mode = false       # Ved 内置了明亮和黑暗模式。
+cursor = 'variable'     # Ved 有三种变体：Variable、block 和 beam。您可能习惯于 "variable" 或 "beam"。
 text_size = 18          # ┌───────────────────────────────────────────────────┐
-line_height = 20        # │ These *can* be edited, but you probably shouldn't │
+line_height = 20        # │ 这些 *可以* 被编辑，但您可能不应该这样做 │
 char_width = 8          # └───────────────────────────────────────────────────┘
-tab_size = 4            # Ved uses tab characters (\t). This settings changes how many spaces a tab should be displayed as
-backspace_go_up = true  # If set to true, hitting the backspace doesn't do anything when you reach the beginning of the line
+tab_size = 4            # Ved 使用制表符 (\t)。此设置更改制表符应显示为多少个空格
+backspace_go_up = true  # 如果设置为 true，当您到达行首时，按退格键不会执行任何操作
 
-# If you do not like ved's default colorscheme, or you just want
-# something new, edit the "colors" table. Ved uses a form of base16
-# to control syntax and editor highlighting. Please note that due
-# to ved's very minimal highlighting, base16 themes copied off of
-# the internet are not going to look like very much like their
-# screenshots.
+# 如果您不喜欢 ved 的默认配色方案，或者您只是想要
+# 一些新的东西，请编辑 "colors" 表。Ved 使用一种 base16 形式
+# 来控制语法和编辑器高亮。请注意，由于 ved 的非常简化的高亮，
+# 从互联网上复制的 base16 主题不会看起来像它们的截图那样。
 [colors]
 base00 = "efecf4"
 base01 = "e2dfe7"
@@ -159,69 +156,69 @@ base0E = "955ae7"
 base0F = "bf40bf"
 ```
 
-### Basic usage
+### 基本用法
 
-Ved works best with workspaces (directories with code).
-You can have multiple workspaces and quickly switch between them with `C [` and `C ]`.
+Ved 最适合与工作区（包含代码的目录）一起使用。
+您可以有多个工作区，并使用 `C [` 和 `C ]` 在它们之间快速切换。
 
-To open multiple workspaces, run
+要打开多个工作区，请运行
 
 `ved path/to/project1 path/to/project2`
 
-Key bindings:
+键绑定：
 
-`C` is `⌘` on macOS, `Ctrl` on all other systems.
+`C` 在 macOS 上是 `⌘`，在所有其他系统上是 `Ctrl`。
 
 ```
-C q q  exit the editor
-C o    open a file
-C s    save
-C r    reload current file
-C p    open ctrlp (fuzzy search)
-/      search in current file
-C g    copy current file's path to clipboard
-t      go to the previous file
-gd     go to definition
+C q q  退出编辑器
+C o    打开文件
+C s    保存
+C r    重新加载当前文件
+C p    打开 ctrlp（模糊搜索）
+/      在当前文件中搜索
+C g    将当前文件的路径复制到剪贴板
+t      转到上一个文件
+gd     转到定义
 
 C c    git commit -am
 C -    git diff
-?      git grep (search across all files in current workspace)
+?      git grep（在当前工作区的所有文件中搜索）
 
-C u    build current project (build instructions must be located in "build")
-C y    alternative build of the current project (build instructions must be located in "build2")
-C 1    switch to Ved from any other application (only on macOS for now)
+C u    构建当前项目（构建指令必须位于 "build" 中）
+C y    当前项目的替代构建（构建指令必须位于 "build2" 中）
+C 1    从任何其他应用程序切换到 Ved（目前仅在 macOS 上）
 
-C d    go to the previous split
-C e    go to the next split
-C [    go to the previous workspace
-C ]    go to the next workspace
+C d    转到上一个分屏
+C e    转到下一个分屏
+C [    转到上一个工作区
+C ]    转到下一个工作区
 
-C a    start a new task
-C t    show the Timer/Pomodoro window
+C a    开始新任务
+C t    显示计时器/番茄工作法窗口
 
 
 ```
 
-Supported vim bindings:
+支持的 vim 绑定：
 ```
-j k h l         down, up, left, right (moves cursor)
-0 $ ^           go to absolute start, end, and first non-blank char of line
-C-F C-B         page down, page up
-L H             go to top/bottom of the page
-w b             next/previous word
-dw de cw ce     delete word
-di ci           smart delete
-A I             go to start/end of line, insert mode
-o O             new line below/above, insert mode
-v               selection mode
-zz              center current line
-y d p J         yank, delete, paste, join lines
-.               repeat last action
-< >             indent right/left
-/ * n           search, search for word under cursor, next occurence
-gg G            go to the beginning/end of the file
-x r             delete/replace character under cursor
-C-n             autocomplete
-+y              yank and copy to system clipboard
+j k h l         下、上、左、右（移动光标）
+0 $ ^           转到行的绝对开始、结束和第一个非空白字符
+C-F C-B         向下翻页、向上翻页
+L H             转到页面的顶部/底部
+w b             下一个/上一个单词
+dw de cw ce     删除单词
+di ci           智能删除
+A I             转到行首/行尾，插入模式
+o O             在下方/上方新建行，插入模式
+v               选择模式
+zz              居中当前行
+y d p J         复制、删除、粘贴、连接行
+.               重复上一个操作
+< >             向右/左缩进
+/ * n           搜索、在光标下单词中搜索、下一次出现
+gg G            转到文件的开始/结束
+x r             删除/替换光标下的字符
+C-n             自动补全
++y              复制并粘贴到系统剪贴板
 ```
 

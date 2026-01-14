@@ -1,53 +1,53 @@
-// Copyright (c) 2019 Alexander Medvednikov. All rights reserved.
-// Use of this source code is governed by a GPL license
-// that can be found in the LICENSE file.
-module main
+// Copyright (c) 2019 Alexander Medvednikov. All rights reserved. // 版权所有 (c) 2019 Alexander Medvednikov。保留所有权利
+// Use of this source code is governed by a GPL license // 本源代码的使用受 GPL 许可证约束
+// that can be found in the LICENSE file. // 可在 LICENSE 文件中找到
+module main // 主模块
 
-import os
-import gg
-import time
+import os // 导入 os 操作系统库
+import gg // 导入 gg 图形库
+import time // 导入 time 时间库
 
 /*
-const txt_cfg = gx.TextCfg{
-	size: 18
+const txt_cfg = gx.TextCfg{ // txt_cfg 常量（注释）
+	size: 18 // 大小
 }
 */
 
-enum QueryType {
-	ctrlp            = 0
-	search           = 1
-	cam              = 2
-	open             = 3
-	ctrlj            = 4
-	task             = 5
-	grep             = 6
-	open_workspace   = 7
-	run              = 8
-	alert            = 9 // e.g. "running git pull..."
-	search_in_folder = 10
+enum QueryType { // QueryType 枚举，查询类型
+	ctrlp            = 0 // ctrlp
+	search           = 1 // 搜索
+	cam              = 2 // cam
+	open             = 3 // 打开
+	ctrlj            = 4 // ctrlj
+	task             = 5 // 任务
+	grep             = 6 // grep
+	open_workspace   = 7 // 打开工作区
+	run              = 8 // 运行
+	alert            = 9 // alert，例如 "running git pull..."
+	search_in_folder = 10 // 在文件夹中搜索
 }
 
-fn (mut ved Ved) key_query(key gg.KeyCode, super bool) {
-	match key {
-		.backspace {
-			ved.gg_pos = -1
-			ved.just_switched = true
-			if ved.query_type != .search && ved.query_type != .grep {
-				if ved.query.len == 0 {
-					return
+fn (mut ved Ved) key_query(key gg.KeyCode, super bool) { // key_query 函数，查询键
+	match key { // 匹配键
+		.backspace { // 退格
+			ved.gg_pos = -1 // gg_pos = -1
+			ved.just_switched = true // just_switched = true
+			if ved.query_type != .search && ved.query_type != .grep { // 如果查询类型不是搜索且不是 grep
+				if ved.query.len == 0 { // 如果查询长度为 0
+					return // 返回
 				}
-				ved.query = ved.query[..ved.query.len - 1]
-				// Re-filter ctrlp results on backspace to update the list immediately
-				if ved.query_type == .ctrlp {
-					ved.filter_ctrlp_results()
+				ved.query = ved.query[..ved.query.len - 1] // 查询 = 查询[..查询长度 - 1]
+				// Re-filter ctrlp results on backspace to update the list immediately // 在退格时重新过滤 ctrlp 结果以立即更新列表
+				if ved.query_type == .ctrlp { // 如果查询类型为 ctrlp
+					ved.filter_ctrlp_results() // 过滤 ctrlp 结果
 				}
-			} else {
-				if ved.search_query.len == 0 {
-					return
+			} else { // 否则
+				if ved.search_query.len == 0 { // 如果搜索查询长度为 0
+					return // 返回
 				}
-				ved.search_query = ved.search_query[..ved.search_query.len - 1]
+				ved.search_query = ved.search_query[..ved.search_query.len - 1] // 搜索查询 = 搜索查询[..搜索查询长度 - 1]
 			}
-			return
+			return // 返回
 		}
 		.enter {
 			match ved.query_type {
@@ -98,156 +98,156 @@ fn (mut ved Ved) key_query(key gg.KeyCode, super bool) {
 				}
 				else {
 					// println('CALLING SEARCH ON ENTER squery=$ved.search_query')
-					ved.search(.forward)
+					ved.search(.forward) // 向前搜索
 				}
 			}
-			ved.mode = .normal
-			return
+			ved.mode = .normal // 设置正常模式
+			return // 返回
 		}
-		.escape {
-			ved.mode = .normal
-			return
+		.escape { // escape
+			ved.mode = .normal // 设置正常模式
+			return // 返回
 		}
-		.down {
-			if ved.mode == .query {
-				match ved.query_type {
-					.grep {
-						// Going thru git grep results
-						ved.gg_pos++
-						if ved.gg_pos >= ved.gg_lines.len {
-							ved.gg_pos = ved.gg_lines.len - 1
+		.down { // down
+			if ved.mode == .query { // 如果模式为查询
+				match ved.query_type { // 匹配查询类型
+					.grep { // grep
+						// Going thru git grep results // 浏览 git grep 结果
+						ved.gg_pos++ // gg_pos 加一
+						if ved.gg_pos >= ved.gg_lines.len { // 如果 gg_pos >= gg_lines 长度
+							ved.gg_pos = ved.gg_lines.len - 1 // 设置为长度 - 1
 						}
 					}
-					.ctrlp {
-						ved.gg_pos++
-						// Use ctrlp_results length for boundary check
-						if ved.gg_pos >= ved.ctrlp_results.len {
-							ved.gg_pos = ved.ctrlp_results.len - 1
+					.ctrlp { // ctrlp
+						ved.gg_pos++ // gg_pos 加一
+						// Use ctrlp_results length for boundary check // 使用 ctrlp_results 长度进行边界检查
+						if ved.gg_pos >= ved.ctrlp_results.len { // 如果 gg_pos >= ctrlp_results 长度
+							ved.gg_pos = ved.ctrlp_results.len - 1 // 设置为长度 - 1
 						}
-						if ved.gg_pos < 0 && ved.ctrlp_results.len > 0 { // Handle empty case
-							ved.gg_pos = 0
+						if ved.gg_pos < 0 && ved.ctrlp_results.len > 0 { // Handle empty case // 处理空情况
+							ved.gg_pos = 0 // 设置为 0
 						}
 					}
-					.search {
-						if ved.search_history.len > 0 {
-							// History search
-							ved.search_idx++
-							if ved.search_idx >= ved.search_history.len {
-								ved.search_idx = ved.search_history.len - 1
+					.search { // search
+						if ved.search_history.len > 0 { // 如果搜索历史长度 > 0
+							// History search // 历史搜索
+							ved.search_idx++ // search_idx 加一
+							if ved.search_idx >= ved.search_history.len { // 如果 search_idx >= 搜索历史长度
+								ved.search_idx = ved.search_history.len - 1 // 设置为长度 - 1
 							}
-							ved.search_query = ved.search_history[ved.search_idx]
+							ved.search_query = ved.search_history[ved.search_idx] // 设置搜索查询
 						}
 					}
-					else {}
+					else {} // 其他
 				}
 			}
 		}
-		.up {
-			if ved.mode == .query {
-				match ved.query_type {
-					.grep, .ctrlp { // Apply same logic to ctrlp
-						ved.gg_pos--
-						if ved.gg_pos < 0 {
-							ved.gg_pos = 0
+		.up { // up
+			if ved.mode == .query { // 如果模式为查询
+				match ved.query_type { // 匹配查询类型
+					.grep, .ctrlp { // Apply same logic to ctrlp // 对 ctrlp 应用相同逻辑
+						ved.gg_pos-- // gg_pos 减一
+						if ved.gg_pos < 0 { // 如果 gg_pos < 0
+							ved.gg_pos = 0 // 设置为 0
 						}
 					}
-					.search {
-						if ved.search_history.len > 0 {
-							ved.search_idx--
-							if ved.search_idx < 0 {
-								ved.search_idx = 0
+					.search { // search
+						if ved.search_history.len > 0 { // 如果搜索历史长度 > 0
+							ved.search_idx-- // search_idx 减一
+							if ved.search_idx < 0 { // 如果 search_idx < 0
+								ved.search_idx = 0 // 设置为 0
 							}
-							ved.search_query = ved.search_history[ved.search_idx]
+							ved.search_query = ved.search_history[ved.search_idx] // 设置搜索查询
 						}
 					}
-					else {}
+					else {} // 其他
 				}
 			}
 		}
-		.tab {
-			// TODO COPY PASTA - adapt for ctrlp if needed
-			if ved.mode == .query {
-				match ved.query_type {
-					.grep {
-						ved.gg_pos++
-						if ved.gg_pos >= ved.gg_lines.len {
-							ved.gg_pos = 0 // wrap around? or stop?
+		.tab { // tab
+			// TODO COPY PASTA - adapt for ctrlp if needed // TODO 复制粘贴 - 如果需要，为 ctrlp 调整
+			if ved.mode == .query { // 如果模式为查询
+				match ved.query_type { // 匹配查询类型
+					.grep { // grep
+						ved.gg_pos++ // gg_pos 加一
+						if ved.gg_pos >= ved.gg_lines.len { // 如果 gg_pos >= gg_lines 长度
+							ved.gg_pos = 0 // wrap around? or stop? // 环绕？还是停止？
 						}
 					}
-					.ctrlp {
-						ved.gg_pos++
-						if ved.gg_pos >= ved.ctrlp_results.len {
-							ved.gg_pos = 0 // wrap around? or stop?
+					.ctrlp { // ctrlp
+						ved.gg_pos++ // gg_pos 加一
+						if ved.gg_pos >= ved.ctrlp_results.len { // 如果 gg_pos >= ctrlp_results 长度
+							ved.gg_pos = 0 // wrap around? or stop? // 环绕？还是停止？
 						}
 					}
-					else {}
+					else {} // 其他
 				}
 			}
-			ved.just_switched = true
+			ved.just_switched = true // just_switched = true
 		}
-		.v {
-			if super {
-				clip := ved.cb.paste()
-				ved.query += clip
-				// Re-filter ctrlp results after paste
-				if ved.query_type == .ctrlp {
-					ved.filter_ctrlp_results()
+		.v { // v
+			if super { // 如果 super
+				clip := ved.cb.paste() // 粘贴剪贴板
+				ved.query += clip // 添加到查询
+				// Re-filter ctrlp results after paste // 粘贴后重新过滤 ctrlp 结果
+				if ved.query_type == .ctrlp { // 如果查询类型为 ctrlp
+					ved.filter_ctrlp_results() // 过滤 ctrlp 结果
 				}
 			}
 		}
-		else {}
+		else {} // 其他
 	}
 }
 
-fn (mut ved Ved) char_query(s string) {
-	if int(s[0]) < 32 {
-		return
+fn (mut ved Ved) char_query(s string) { // char_query 函数，查询字符
+	if int(s[0]) < 32 { // 如果字符码 < 32
+		return // 返回
 	}
-	// println('char q(${s}) ${ved.query_type}')
-	if ved.query_type in [.search, .search_in_folder, .grep] {
-		ved.search_query += s
-		println('new sq=${ved.search_query}')
-	} else if ved.query_type == .ctrlp {
-		ved.query += s
-		ved.filter_ctrlp_results() // Filter results as user types
-	} else {
-		ved.query += s
+	// println('char q(${s}) ${ved.query_type}') // 打印（注释）
+	if ved.query_type in [.search, .search_in_folder, .grep] { // 如果查询类型在搜索相关
+		ved.search_query += s // 添加到搜索查询
+		println('new sq=${ved.search_query}') // 打印新搜索查询
+	} else if ved.query_type == .ctrlp { // 否则如果查询类型为 ctrlp
+		ved.query += s // 添加到查询
+		ved.filter_ctrlp_results() // Filter results as user types // 随着用户输入过滤结果
+	} else { // 否则
+		ved.query += s // 添加到查询
 	}
 }
 
-// Loads files for the *current* workspace into `all_git_files`.
-fn (mut ved Ved) load_git_tree() {
-	ved.query = '' // Reset query when loading tree
-	ved.ctrlp_results = [] // Reset ctrlp results as well
-	ved.gg_pos = -1
+// Loads files for the *current* workspace into `all_git_files`. // 将*当前*工作区的文件加载到 `all_git_files` 中
+fn (mut ved Ved) load_git_tree() { // load_git_tree 函数，加载 git 树
+	ved.query = '' // Reset query when loading tree // 加载树时重置查询
+	ved.ctrlp_results = [] // Reset ctrlp results as well // 也重置 ctrlp 结果
+	ved.gg_pos = -1 // gg_pos = -1
 
-	mut dir := ved.workspace
-	if dir == '' {
-		dir = '.' // Should not happen if workspace is managed correctly
+	mut dir := ved.workspace // 目录
+	if dir == '' { // 如果目录为空
+		dir = '.' // Should not happen if workspace is managed correctly // 如果工作区管理正确，不应该发生
 	}
-	if ved.is_git_tree() {
-		// Cache all git files for the current workspace
-		s := os.execute('git -C ${dir} ls-files')
-		if s.exit_code == -1 {
-			ved.all_git_files = []
-			return
+	if ved.is_git_tree() { // 如果是 git 树
+		// Cache all git files for the current workspace // 为当前工作区缓存所有 git 文件
+		s := os.execute('git -C ${dir} ls-files') // 执行 git 命令
+		if s.exit_code == -1 { // 如果退出码为 -1
+			ved.all_git_files = [] // 设置为空
+			return // 返回
 		}
-		ved.all_git_files = s.output.split_into_lines()
-	} else {
+		ved.all_git_files = s.output.split_into_lines() // 分割输出为行
+	} else { // 否则
 		/*
-		// Get all files if not a git repo
-		mut files := []string{}
-		os.walk_with_context(dir, &files, fn (mut fs []string, f string) {
-			if f == '.' || f == '..' {
-				return
+		// Get all files if not a git repo // 如果不是 git 仓库，获取所有文件
+		mut files := []string{} // 文件
+		os.walk_with_context(dir, &files, fn (mut fs []string, f string) { // 遍历
+			if f == '.' || f == '..' { // 如果是 . 或 ..
+				return // 返回
 			}
-			full_path := os.join_path(dir, f) // Need full path for is_file check
-			if os.is_file(full_path) {
-				// Store relative path
-				fs << f.replace(dir + os.path_separator, '')
+			full_path := os.join_path(dir, f) // Need full path for is_file check // 需要完整路径进行文件检查
+			if os.is_file(full_path) { // 如果是文件
+				// Store relative path // 存储相对路径
+				fs << f.replace(dir + os.path_separator, '') // 添加
 			}
 		})
-		ved.all_git_files = files
+		ved.all_git_files = files // 设置所有 git 文件
 		*/
 	}
 	ved.all_git_files.sort_by_len()
