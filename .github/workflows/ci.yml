@@ -46,8 +46,8 @@ jobs:
       - name: Build ved
         run: |
           cd ved
-          v -enable-globals -prod .
-          v -enable-globals -autofree .
+          v -prod .
+          v -autofree .
 
   check-macos:
     runs-on: macos-latest
@@ -65,8 +65,8 @@ jobs:
       - name: Build ved
         run: |
           cd ved
-          v -enable-globals .
-          v -enable-globals -prod .
+          v .
+          v -prod .
 
   check-windows:
     runs-on: windows-latest
@@ -86,4 +86,4 @@ jobs:
       - name: Build ved
         run: |
           cd ved
-          v -enable-globals -prod .
+          v -prod .

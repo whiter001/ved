@@ -40,7 +40,7 @@ The script supports additional options:
 Alternatively, you can build manually using the V compiler:
 
 ```bash
-v -enable-globals -o ved .
+v -o ved .
 ./ved
 ```
 
@@ -50,7 +50,7 @@ By default V's built-in font rendering is used, but there's an option to use fre
 which may provede better rendering for some users:
 
 ```bash
-v -enable-globals -d use_freetype -o ved .
+v -d use_freetype -o ved .
 ```
 
 To use freetype, it must first be installed on your system.

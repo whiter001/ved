@@ -22,7 +22,7 @@ show_help() {
     echo "  -h, --help       Show this help message"
 }
 
-V_FLAGS="-enable-globals"
+V_FLAGS=""
 
 # Parse arguments
 while [[ "$#" -gt 0 ]]; do

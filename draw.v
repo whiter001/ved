@@ -303,27 +303,39 @@ fn (ved &Ved) max_chars(view_idx int, nr_tabs int) int {
 }
 
 fn (ved &Ved) draw_cursor(cursor_x int, y int) {
+	// Draw marked text (IME pre-edit)
+	mut cur_x := cursor_x
+	if ved.marked_text != '' {
+		// Draw a light background for marked text
+		text_w := ved.gg.text_width(ved.marked_text)
+		ved.gg.draw_rect_filled(cursor_x, y, text_w, ved.cfg.line_height, gg.rgb(60, 60, 60))
+		ved.gg.draw_text(cursor_x, y, ved.marked_text, ved.cfg.txt_cfg)
+		// Draw an underline
+		ved.gg.draw_rect_filled(cursor_x, y + ved.cfg.line_height - 2, text_w, 2, gg.white)
+		cur_x += text_w
+	}
+
 	// println('CURSOR WIDTH=${ved.cfg.char_width}')
 	match ved.cfg.cursor_style {
 		.block {
-			ved.gg.draw_rect_empty(cursor_x, y, ved.cfg.char_width, ved.cfg.line_height,
+			ved.gg.draw_rect_empty(cur_x, y, ved.cfg.char_width, ved.cfg.line_height,
 				ved.cfg.cursor_color)
 		}
 		.beam {
-			ved.gg.draw_rect_filled(cursor_x, y, 2, ved.cfg.line_height, ved.cfg.cursor_color)
+			ved.gg.draw_rect_filled(cur_x, y, 2, ved.cfg.line_height, ved.cfg.cursor_color)
 		}
 		.variable {
 			if ved.mode == .insert {
-				ved.gg.draw_rect_filled(cursor_x, y, 2, ved.cfg.line_height, ved.cfg.cursor_color)
+				ved.gg.draw_rect_filled(cur_x, y, 2, ved.cfg.line_height, ved.cfg.cursor_color)
 			} else {
-				ved.gg.draw_rect_empty(cursor_x, y, ved.cfg.char_width, ved.cfg.line_height,
+				ved.gg.draw_rect_empty(cur_x, y, ved.cfg.char_width, ved.cfg.line_height,
 					ved.cfg.cursor_color)
 			}
 		}
 	}
 	// Sync IME position for macOS/Linux
 	$if macos {
-		uiold.set_ime_position(cursor_x, y, ved.cfg.line_height)
+		uiold.set_ime_position(cur_x, y, ved.cfg.line_height)
 	}
 }
 

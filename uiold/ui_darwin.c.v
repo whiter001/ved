@@ -15,6 +15,8 @@ fn C.setup_mac_app()
 fn C.set_ime_position(int, int, int)
 fn C.focus_native_input(bool)
 fn C.reg_ved_insert_cb(voidptr)
+fn C.reg_ved_marked_cb(voidptr)
+fn C.reg_ved_instance(voidptr)
 
 pub fn reg_key_ved() {
 	C.reg_key_ved2()
@@ -34,4 +36,12 @@ pub fn focus_native_input(focus bool) {
 
 pub fn reg_ved_insert_cb(cb voidptr) {
 	C.reg_ved_insert_cb(cb)
+}
+
+pub fn reg_ved_marked_cb(cb voidptr) {
+	C.reg_ved_marked_cb(cb)
+}
+
+pub fn reg_ved_instance(ved voidptr) {
+	C.reg_ved_instance(ved)
 }

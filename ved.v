@@ -10,13 +10,11 @@ import uiold
 import clipboard
 import x.json2
 
-__global g_ved &Ved
-
 // Callback from C for IME input
-fn ved_insert_text(text &char) {
+fn ved_insert_text(ved_ptr voidptr, text &char) {
 	s := unsafe { text.vstring() }
 	if s.len > 0 {
-		mut ved := unsafe { g_ved }
+		mut ved := unsafe { &Ved(ved_ptr) }
 		match s {
 			'[ENTER]' {
 				ved.view.enter()
@@ -58,9 +56,18 @@ fn ved_insert_text(text &char) {
 				ved.view.insert_text(s)
 			}
 		}
+		ved.marked_text = ''
 		ved.refresh = true
 		ved.gg.refresh_ui()
 	}
+}
+
+fn ved_marked_text(ved_ptr voidptr, text &char) {
+	s := unsafe { text.vstring() }
+	mut ved := unsafe { &Ved(ved_ptr) }
+	ved.marked_text = s
+	ved.refresh = true
+	ved.gg.refresh_ui()
 }
 
 const exe_dir = os.dir(os.executable())
@@ -108,6 +115,7 @@ mut:
 	search_query       string
 	query_type         QueryType
 	workspace          string // full path of the current workspace (a short version of it is rendered on otp right)
+	marked_text        string // Intermediate IME text
 	workspace_idx      int
 	workspaces         []string
 	ylines             []string // for y, yy
@@ -225,8 +233,8 @@ fn main() {
 		cb:         clipboard.new()
 		open_paths: [][]string{len: max_nr_workspaces}
 	}
-	unsafe {
-		g_ved = ved
+	$if macos {
+		uiold.reg_ved_instance(ved)
 	}
 	ved.handle_segfault()
 
@@ -272,6 +280,7 @@ fn main() {
 			time.sleep(1 * time.second)
 			uiold.setup_mac_app()
 			uiold.reg_ved_insert_cb(ved_insert_text)
+			uiold.reg_ved_marked_cb(ved_marked_text)
 		}()
 	}
 	$if debug {

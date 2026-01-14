@@ -135,7 +135,7 @@ fn (mut ved Ved) run_file() {
 	// dir := ospath.dir(view.path)
 	dir := os.dir(view.path)
 	os.chdir(dir) or {}
-	out := os.execute('v -enable-globals run ${view.path}')
+	out := os.execute('v run ${view.path}')
 	os.write_file('${dir}/out', out.output) or { panic(err) }
 	// TODO COPYPASTA
 	mut last_view := ved.get_last_view()

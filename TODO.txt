@@ -6,15 +6,15 @@
 IME & 中英文输入优化:
 -------------------
 1. 架构清理 (解耦全局变量)
-    - [ ] 重构回调机制：通过 user_data 传递 Ved 引用，消除 __global g_ved
-    - [ ] 完善事件接口：支持 set_marked_text (中间态) 和 end_composition
+    - [x] 重构回调机制：通过 user_data 传递 Ved 引用，消除 __global g_ved
+    - [x] 完善事件接口：支持 set_marked_text (中间态) 和 end_composition
 
 2. 基础 IME 支持 (macOS/Native)
-    - [ ] 候选框位置同步：在 uiold.m 实现 firstRectForCharacterRange，让候选框跟随光标
-    - [ ] 预编辑捕获：实现 NSTextInputClient 捕获拼音中间态
+    - [x] 候选框位置同步：在 uiold.m 实现 firstRectForCharacterRange，让候选框跟随光标
+    - [x] 预编辑捕获：实现 NSTextInputClient 捕获拼音中间态
 
 3. 编辑器渲染层
-    - [ ] 中间态文字渲染：在 draw.v 中支持 marked_text 渲染（带下划线/背景色）
+    - [x] 中间态文字渲染：在 draw.v 中支持 marked_text 渲染（带下划线/背景色）
     - [ ] 中英文混合排版：修正中文宽度计算，确保光标对齐
 
 4. 输入体验与冲突解决
