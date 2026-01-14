@@ -419,7 +419,7 @@ fn (mut view View) shift_a() {
 // shift_i moves the cursor to the first non-whitespace character of the current line. (Vim: `^` or `I`)
 fn (mut view View) shift_i() {
 	view.x = 0
-	for view.char() == view.ved.cfg.tab {
+	for is_whitespace(u8(view.char())) {
 		view.x++
 	}
 }
@@ -428,6 +428,17 @@ fn (mut view View) shift_i() {
 fn (mut view View) gg() {
 	view.from = 0
 	view.set_y(0)
+}
+
+// zero moves the cursor to the beginning of the line. (Vim: `0`)
+fn (mut view View) zero() {
+	view.x = 0
+}
+
+// dollar moves the cursor to the end of the line. (Vim: `$`)
+fn (mut view View) dollar() {
+	line := view.line()
+	view.x = line.len
 }
 
 // shift_f scrolls the view down by one page. (Vim: `Ctrl+F`)

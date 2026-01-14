@@ -229,6 +229,8 @@ fn (mut ved Ved) key_normal(key gg.KeyCode, mod gg.Modifier) {
 				ved.mode = .query
 				ved.query_type = .task
 				ved.just_switched = true
+			} else {
+				view.zero()
 			}
 		}
 		._9 {
@@ -525,6 +527,16 @@ fn (mut ved Ved) key_normal(key gg.KeyCode, mod gg.Modifier) {
 				ved.star()
 			}
 		}
+		._4 {
+			if shift {
+				view.dollar()
+			}
+		}
+		._6 {
+			if shift {
+				view.shift_i()
+			}
+		}
 		.left {
 			if ved.view.x > 0 {
 				ved.view.x--
@@ -729,6 +741,21 @@ fn (mut ved Ved) key_visual(key gg.KeyCode, mod gg.Modifier) {
 			if shift {
 				// <
 				ved.view.shift_left()
+			}
+		}
+		._0 {
+			if !super {
+				view.zero()
+			}
+		}
+		._4 {
+			if shift {
+				view.dollar()
+			}
+		}
+		._6 {
+			if shift {
+				view.shift_i()
 			}
 		}
 		.g { // Handle 'g' in visual mode
