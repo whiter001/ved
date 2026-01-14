@@ -91,6 +91,10 @@ void setup_mac_app() {
         if (window) {
             g_ime_view = [[VedImeView alloc] initWithFrame:NSMakeRect(-10, -10, 1, 1)];
             [g_ime_view setEditable:YES];
+            [g_ime_view setDrawsBackground:NO];
+            [g_ime_view setBackgroundColor:[NSColor clearColor]];
+            [g_ime_view setTextColor:[NSColor clearColor]];
+            [g_ime_view setInsertionPointColor:[NSColor clearColor]];
             [[window contentView] addSubview:g_ime_view];
             puts("macOS App Environment Setup - Version 14 (Full Control Bridge)");
         }
@@ -119,7 +123,7 @@ void set_ime_position(int x, int y, int h) {
             // Adjusting for line height to put candidate window UNDER the text
             float flipped_y = content_rect.size.height - y;
             flipped_y -= h;
-            [g_ime_view setFrame:NSMakeRect(x, flipped_y, 100, h)];
+            [g_ime_view setFrame:NSMakeRect(x, flipped_y, 1, h)];
         }
     });
 }
