@@ -59,7 +59,7 @@ mut:
 	green_cfg       gg.TextCfg
 	red_color       gg.Color // 红色 (base08)
 	red_cfg         gg.TextCfg
-	disable_mouse   bool = true // 是否禁用鼠标
+	disable_mouse   bool = false // 是否禁用鼠标
 	show_file_tree  bool        // 是否显示文件树
 	// Config.json
 	disable_fmt bool // 是否禁用格式化

@@ -32,13 +32,17 @@ fn (mut ved Ved) on_event(e &gg.Event) {
 			ending_x := 2 * (i + 1) * sw
 
 			if e.mouse_x > starting_x && e.mouse_x < ending_x {
-				ved.cur_split = i
-				ved.update_view()
+				if ved.cur_split != i {
+					ved.cur_split = i
+					ved.update_view()
+					view = ved.view
+				}
 			}
 		}
 
-		// 计算点击的行号
-		clicked_y := int((e.mouse_y / ved.cfg.line_height - 1.5) / 2) + ved.view.from
+		// 计算点击的行号 (e.mouse_y 是逻辑坐标)
+		// 标题栏占据了 ved.cfg.line_height 的高度
+		clicked_y := int((e.mouse_y - ved.cfg.line_height) / ved.cfg.line_height) + view.from
 		if clicked_y >= view.lines.len {
 			if view.lines.len == 0 {
 				view.set_y(0)
@@ -46,28 +50,79 @@ fn (mut ved Ved) on_event(e &gg.Event) {
 				view.set_y(view.lines.len - 1)
 			}
 		} else if clicked_y < 0 {
-			view.set_y(1)
+			view.set_y(0)
 		} else {
 			view.set_y(clicked_y)
 		}
 
 		// rel_x 是相对于当前视图起始位置的像素偏移
-		rel_x := e.mouse_x - ved.cur_split * ved.split_width() * 2 - view.padding_left - 10
-		// 将像素转换为视觉列（除以字符宽度的 2 倍，因为 scale 为 2）并加上水平滚动偏移
-		visual_clicked_x := int(rel_x / (ved.cfg.char_width * 2)) + view.from_x
+		// split_width() 返回的是逻辑宽度，不需要再乘以 2
+		sw := ved.split_width()
+		rel_x := e.mouse_x - (ved.cur_split % ved.nr_splits) * sw - view.padding_left - 10
 		
-		if view.lines.len <= 0 {
-			return
+		// 将像素转换为视觉列并加上水平滚动偏移
+		visual_clicked_x := int(rel_x / ved.cfg.char_width) + view.from_x
+		
+		if view.lines.len > 0 {
+			// 根据视觉位置获取准确的字节索引
+			view.x = view.x_at_visual_pos(int_max(0, visual_clicked_x))
+			view.sync_visual_x()
 		}
-		
-		// 根据视觉位置获取准确的字节索引
-		view.x = view.x_at_visual_pos(visual_clicked_x)
-		view.sync_visual_x()
+
+		// 开始选择
+		view.vstart = view.y
+		view.vstart_x = view.x
+		view.vend = view.y
+		view.vend_x = view.x
 
 		$if macos {
 			if ved.mode == .insert {
 				uiold.focus_native_input(true)
 			}
+		}
+	}
+
+	if e.typ == .mouse_move {
+		if ved.cfg.disable_mouse {
+			return
+		}
+		// 只有在鼠标左键按下时才处理拖拽选择
+		if e.mouse_button == .left {
+			mut view := ved.view
+			
+			// 计算当前的行和列
+			clicked_y := int((e.mouse_y - ved.cfg.line_height) / ved.cfg.line_height) + view.from
+			if clicked_y >= view.lines.len {
+				view.set_y(view.lines.len - 1)
+			} else if clicked_y < 0 {
+				view.set_y(0)
+			} else {
+				view.set_y(clicked_y)
+			}
+
+			sw := ved.split_width()
+			rel_x := e.mouse_x - (ved.cur_split % ved.nr_splits) * sw - view.padding_left - 10
+			visual_clicked_x := int(rel_x / ved.cfg.char_width) + view.from_x
+			
+			if view.lines.len > 0 {
+				view.x = view.x_at_visual_pos(int_max(0, visual_clicked_x))
+				view.sync_visual_x()
+			}
+
+			// 更新选择范围并进入可视模式
+			view.vend = view.y
+			view.vend_x = view.x
+			if ved.mode != .visual && (view.vstart != view.vend || view.vstart_x != view.vend_x) {
+				ved.mode = .visual
+			}
+		}
+	}
+
+	if e.typ == .mouse_up {
+		// 如果选择范围为空，则退出可视模式
+		mut view := ved.view
+		if ved.mode == .visual && view.vstart == view.vend && view.vstart_x == view.vend_x {
+			ved.exit_visual()
 		}
 	}
 }

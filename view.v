@@ -33,7 +33,9 @@ mut:
 	redo_stack   []Snapshot // 重做栈
 	page_height  int     // 一页显示的行数
 	vstart       int     // 可视模式选择的开始行
+	vstart_x     int     // 可视模式选择的开始列 (字节索引)
 	vend         int     // 可视模式选择的结束行
+	vend_x       int     // 可视模式选择的结束列 (字节索引)
 	changed      bool    // 文件是否已被修改
 	error_y      int     // 错误行的高亮位置
 	ved          &Ved = unsafe { nil } // 对主应用程序对象的引用
@@ -55,7 +57,9 @@ fn (ved &Ved) new_view() View {
 		visual_x:     0
 		page_height:  ved.page_height
 		vstart:       -1
+		vstart_x:     -1
 		vend:         -1
+		vend_x:       -1
 		ved:          ved
 		error_y:      -1
 		prev_y:       -1
@@ -762,35 +766,95 @@ fn (mut view View) join() {
 	view.y--
 }
 
-// y_visual 复制可视选择行。
+// y_visual 复制可视选择范围。
 fn (mut v View) y_visual() {
-	mut ylines := []string{}
-	vtop, vbot := if v.vstart < v.vend { v.vstart, v.vend } else { v.vend, v.vstart }
-	for i := vtop; i <= vbot; i++ {
-		ylines << v.lines[i]
+	if v.vstart == -1 {
+		return
 	}
+	mut ylines := []string{}
+	mut v_from_y := v.vstart
+	mut v_from_x := v.vstart_x
+	mut v_to_y := v.vend
+	mut v_to_x := v.vend_x
+
+	if v_from_y > v_to_y || (v_from_y == v_to_y && v_from_x > v_to_x) {
+		v_from_y, v_to_y = v_to_y, v_from_y
+		v_from_x, v_to_x = v_to_x, v_from_x
+	}
+
+	if v_from_y == v_to_y {
+		line := v.lines[v_from_y]
+		if v_from_x < line.len {
+			end_x := if v_to_x > line.len { line.len } else { v_to_x }
+			ylines << line[v_from_x..end_x]
+		} else {
+			ylines << ''
+		}
+	} else {
+		// 起始行
+		first_line := v.lines[v_from_y]
+		ylines << if v_from_x < first_line.len { first_line[v_from_x..] } else { '' }
+		// 中间行
+		for i := v_from_y + 1; i < v_to_y; i++ {
+			ylines << v.lines[i]
+		}
+		// 结束行
+		last_line := v.lines[v_to_y]
+		end_x := if v_to_x > last_line.len { last_line.len } else { v_to_x }
+		ylines << if v_to_x > 0 { last_line[..end_x] } else { '' }
+	}
+
 	mut ved := v.ved
 	ved.ylines = ylines
-	if ved.prev_key == .equal {
-		ved.cb.copy(ylines.join('\n'))
-	}
+	ved.cb.copy(ylines.join('\n'))
+	
 	v.vstart = -1
+	v.vstart_x = -1
 	v.vend = -1
+	v.vend_x = -1
 }
 
-// d_visual 删除可视选择行。
-fn (mut view View) d_visual() {
-	vtop := if view.vstart < view.vend { view.vstart } else { view.vend }
-	view.y_visual()
-	for i := 0; i < view.ved.ylines.len; i++ {
-		view.lines.delete(vtop)
+// d_visual 删除可视选择范围。
+fn (mut v View) d_visual() {
+	if v.vstart == -1 {
+		return
 	}
-	if view.y >= view.lines.len {
-		view.y = view.lines.len
+	v.save_snapshot()
+	
+	mut v_from_y := v.vstart
+	mut v_from_x := v.vstart_x
+	mut v_to_y := v.vend
+	mut v_to_x := v.vend_x
+
+	if v_from_y > v_to_y || (v_from_y == v_to_y && v_from_x > v_to_x) {
+		v_from_y, v_to_y = v_to_y, v_from_y
+		v_from_x, v_to_x = v_to_x, v_from_x
+	}
+
+	v.y_visual() // 这也会把选中内容存入剪贴板并重置 vstart 等，所以我们需要先保留坐标
+
+	if v_from_y == v_to_y {
+		line := v.lines[v_from_y]
+		prefix := line[..v_from_x]
+		suffix := if v_to_x < line.len { line[v_to_x..] } else { '' }
+		v.lines[v_from_y] = prefix + suffix
+		v.x = v_from_x
+		v.y = v_from_y
 	} else {
-		view.y += 1
+		prefix := v.lines[v_from_y][..v_from_x]
+		last_line := v.lines[v_to_y]
+		suffix := if v_to_x < last_line.len { last_line[v_to_x..] } else { '' }
+		
+		v.lines[v_from_y] = prefix + suffix
+		
+		// 删除中间行和结束行
+		for i := 0; i < v_to_y - v_from_y; i++ {
+			v.lines.delete(v_from_y + 1)
+		}
+		v.x = v_from_x
+		v.y = v_from_y
 	}
-	view.k()
+	v.sync_visual_x()
 }
 
 // cw 修改单词。

@@ -22,18 +22,6 @@ fn (mut ved Ved) draw() { // draw 函数，绘制整个界面
 	line_x := split_width * (ved.cur_split - from) + ved.view.padding_left + 10 // 计算行 x 坐标
 	line_width := split_width - ved.view.padding_left - 10 // 计算行宽度
 	ved.gg.draw_rect_filled(line_x, y, line_width, ved.cfg.line_height, ved.cfg.vcolor) // 绘制当前行背景
-	// V selection // V 选择
-	mut v_from := ved.view.vstart + 1 // 选择起始行
-	mut v_to := ved.view.vend + 1 // 选择结束行
-	if view.vend < view.vstart { // 如果结束行小于起始行
-		// Swap start and end if we go beyond the start // 如果超出起始位置，交换起始和结束
-		v_from = ved.view.vend + 1 // 交换 v_from
-		v_to = ved.view.vstart + 1 // 交换 v_to
-	}
-	for yy := v_from; yy <= v_to; yy++ { // 循环绘制选择区域
-		ved.gg.draw_rect_filled(line_x, (yy - ved.view.from) * ved.cfg.line_height, line_width,
-			ved.cfg.line_height, ved.cfg.vcolor) // 绘制选择行背景
-	}
 	// Black title background // 黑色标题背景
 	ved.gg.draw_rect_filled(0, 0, ved.win_width, ved.cfg.line_height, ved.cfg.title_color) // 绘制标题背景
 	// Current split has dark blue title // 当前分割有深蓝色标题
@@ -155,6 +143,19 @@ fn (ved &Ved) split_x(i int) int { // split_x 函数，计算分割的 x 坐标
 
 fn (mut ved Ved) draw_split(i int, split_from int) { // draw_split 函数，绘制单个分割
 	view := ved.views[i] // 获取视图
+
+	// V selection calculation // V 选择计算
+	mut v_from_y := view.vstart
+	mut v_from_x := view.vstart_x
+	mut v_to_y := view.vend
+	mut v_to_x := view.vend_x
+
+	// 统一顺序：让 from 始终在 to 之前
+	if v_from_y > v_to_y || (v_from_y == v_to_y && v_from_x > v_to_x) {
+		v_from_y, v_to_y = v_to_y, v_from_y
+		v_from_x, v_to_x = v_to_x, v_from_x
+	}
+
 	// Determine initial comment state for the first visible line // 确定第一可见行的初始注释状态
 	// (handle /**/ comments blocks that start before current page) // （处理在当前页面之前开始的 /**/ 注释块）
 	mut current_is_ml_comment := false // 当前是否为多行注释
@@ -194,6 +195,36 @@ fn (mut ved Ved) draw_split(i int, split_from int) { // draw_split 函数，绘�
 			line_width := split_width - view.padding_left - 10 // 行宽度
 			ved.gg.draw_rect_filled(x + 10, y, line_width, ved.cfg.line_height, breakpoint_color) // 绘制断点线
 		}
+
+		// Selection highlighting // 选择高亮
+		if ved.mode == .visual && j >= v_from_y && j <= v_to_y {
+			mut sel_start_x := 0
+			mut sel_end_x := line.len
+
+			if j == v_from_y {
+				sel_start_x = v_from_x
+			}
+			if j == v_to_y {
+				sel_end_x = v_to_x
+			}
+			
+			// 只有当有选择范围或者是中间行时才绘制
+			if v_from_y != v_to_y || v_from_x != v_to_x {
+				start_px := ved.x_of_byte_idx(line, sel_start_x) - view.from_x * ved.cfg.char_width
+				end_px := ved.x_of_byte_idx(line, sel_end_x) - view.from_x * ved.cfg.char_width
+				
+				draw_start_x := x + 10 + int_max(0, start_px)
+				draw_width := end_px - int_max(0, start_px)
+				
+				if draw_width > 0 {
+					ved.gg.draw_rect_filled(draw_start_x, y, draw_width, ved.cfg.line_height, ved.cfg.vcolor)
+				} else if j > v_from_y && j < v_to_y {
+					// 选中的空行也画一点宽度表示被选中
+					ved.gg.draw_rect_filled(x + 10, y, 10, ved.cfg.line_height, ved.cfg.vcolor)
+				}
+			}
+		}
+
 		// Line number // 行号
 		line_number := j + 1 // 行号
 		ved.gg.draw_text(x + 3, y, '${line_number}', ved.cfg.line_nr_cfg) // 绘制行号
