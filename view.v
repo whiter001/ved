@@ -20,6 +20,7 @@ struct View {
 mut:
 	padding_left int     // 左侧行号区域的宽度
 	from         int     // 当前屏幕显示的第一行行号
+	from_x       int     // 当前屏幕显示的水平起始列 (水平滚动)
 	x            int     // 当前光标的字节索引位置
 	visual_x     int     // 目标视觉列位置（用于 j/k 移动时对齐）
 	y            int     // 当前光标的行号索引
@@ -48,6 +49,7 @@ fn (ved &Ved) new_view() View {
 		padding_left: 0
 		path:         ''
 		from:         0
+		from_x:       0
 		y:            0
 		x:            0
 		visual_x:     0
@@ -296,6 +298,32 @@ fn (mut view View) set_y(new_y int) {
 	view.ved.update_cur_fn_name()
 }
 
+// sync_from_x 根据视觉列同步水平滚动偏移量。
+fn (mut view View) sync_from_x() {
+	if isnil(view.ved) {
+		return
+	}
+	split_width := view.ved.split_width()
+	// 计算视口宽度（以字符为单位）
+	// 减去 padding_left 和左右侧的一些安全余量（比如 20 像素）
+	content_width := split_width - view.padding_left - 20
+	if content_width <= 0 {
+		return
+	}
+	chars_per_page := content_width / view.ved.cfg.char_width
+	if chars_per_page <= 0 {
+		return
+	}
+	// 如果光标在视口左侧
+	if view.visual_x < view.from_x {
+		view.from_x = view.visual_x
+	}
+	// 如果光标在视口右侧
+	else if view.visual_x >= view.from_x + chars_per_page {
+		view.from_x = view.visual_x - chars_per_page + 1
+	}
+}
+
 // sync_visual_x 根据字节索引同步视觉列位置。
 fn (mut view View) sync_visual_x() {
 	line := view.line()
@@ -314,6 +342,7 @@ fn (mut view View) sync_visual_x() {
 		byte_offset += r.length_in_bytes()
 	}
 	view.visual_x = vx
+	view.sync_from_x()
 }
 
 // update_x_from_visual 根据目标视觉列位置更新字节索引。
@@ -331,6 +360,7 @@ fn (mut view View) update_x_from_visual() {
 		byte_offset += r.length_in_bytes()
 	}
 	view.x = byte_offset
+	view.sync_from_x()
 }
 
 // x_at_visual_pos 计算给定像素宽度下的最佳字节索引。

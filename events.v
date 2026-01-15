@@ -51,11 +51,10 @@ fn (mut ved Ved) on_event(e &gg.Event) {
 			view.set_y(clicked_y)
 		}
 
-		// 计算点击的列位置 (x)
 		// rel_x 是相对于当前视图起始位置的像素偏移
 		rel_x := e.mouse_x - ved.cur_split * ved.split_width() * 2 - view.padding_left - 10
-		// 将像素转换为视觉列（除以字符宽度的 2 倍，因为 scale 为 2）
-		visual_clicked_x := int(rel_x / (ved.cfg.char_width * 2))
+		// 将像素转换为视觉列（除以字符宽度的 2 倍，因为 scale 为 2）并加上水平滚动偏移
+		visual_clicked_x := int(rel_x / (ved.cfg.char_width * 2)) + view.from_x
 		
 		if view.lines.len <= 0 {
 			return

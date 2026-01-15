@@ -200,7 +200,6 @@ fn (mut ved Ved) draw_split(i int, split_from int) { // draw_split 函数，绘�
 		// Tab offset // Tab 偏移
 		mut line_x := x + 10 // 行 x 坐标
 		mut nr_tabs := 0 // Tab 数量
-		// for k := 0; k < line.len; k++ { // 循环（注释）
 		for c in line { // 循环行中的字符
 			if c != `\t` { // 如果不是 Tab
 				break // 跳出
@@ -208,36 +207,50 @@ fn (mut ved Ved) draw_split(i int, split_from int) { // draw_split 函数，绘�
 			nr_tabs++ // Tab 数量加一
 			line_x += ved.cfg.char_width * ved.cfg.tab_size // 增加 x 坐标
 		}
-		mut s := line[nr_tabs..] // tabs have been skipped, remove them from the string // Tab 已跳过，从字符串中移除
+		
+		// 应用水平滚动偏移
+		// 计算前导 Tab 总宽度
+		tabs_visual_width := nr_tabs * ved.cfg.tab_size
+		mut s := line[nr_tabs..] // 跳过前导 Tab
+		
+		// 计算这一行相对于 from_x 的偏移
+		// 如果 from_x 很大，甚至可能把前导 Tab 都跳过
+		mut skip_visual_x := view.from_x
+		
+		if skip_visual_x > 0 {
+			// 如果需要跳过的宽度大于 Tab 宽度，则不仅要减去 Tab，还要裁剪字符串 s
+			if skip_visual_x >= tabs_visual_width {
+				line_x = x + 10 // 重置到起始位置
+				skip_in_s := skip_visual_x - tabs_visual_width
+				// 根据视觉列裁剪 s
+				runes := s.runes()
+				mut cur_v := 0
+				mut cut_idx := 0
+				for r in runes {
+					if cur_v >= skip_in_s {
+						break
+					}
+					cur_v += if r == `\t` { ved.cfg.tab_size } else { rune_width(r) }
+					cut_idx++
+				}
+				s = runes[cut_idx..].string()
+				// 处理字符截断后的残余视觉宽度（例如跳过了半个 CJK 字符）
+				if cur_v > skip_in_s {
+					s = ' '.repeat(cur_v - skip_in_s) + s
+				}
+			} else {
+				// 仅部分跳过 Tab
+				line_x = x + 10
+				remaining_tab_width := tabs_visual_width - skip_visual_x
+				if remaining_tab_width > 0 {
+					s = ' '.repeat(remaining_tab_width) + s
+				}
+			}
+		}
+
 		if s == '' { // 如果字符串为空
 			line_nr_rel++ // 相对行号加一
 			continue // 继续
-		}
-		// Number of chars to display in this view // 此视图中显示的字符数
-		// mut max := (split_width - view.padding_left - ved.cfg.char_width * TAB_SIZE * // 最大值（注释）
-		// nr_tabs) / ved.cfg.char_width - 1 // （注释）
-		max := ved.max_chars(i, nr_tabs) // 最大字符数
-		if view.y == j { // 如果视图 y 等于 j
-			// Display entire line if its current // 如果是当前行，显示整行
-			// if line.len > max { // 如果行长度 > 最大值（注释）
-			// ved.gg.draw_rect_filled(line_x, y - 1, ved.win_width, line_height, vcolor) // 绘制背景（注释）
-			// } // （注释）
-			// max = line.len // 最大值 = 行长度（注释）
-		}
-		// if s.contains('width :=') { // 如果包含 'width :='（注释）
-		// println('"$s" max=$max') // 打印（注释）
-		//} // （注释）
-		// Handle utf8 codepoints // 处理 UTF8 码点
-		// old_len := s.len // 旧长度（注释）
-		if s.len != s.len_utf8() { // 如果长度不等于 UTF8 长度
-			u := s.runes() // 获取符文
-			if max > 0 && max < u.len { // 如果最大值 > 0 且 < 符文长度
-				s = u[..max].string() // 截取字符串
-			}
-		} else { // 否则
-			if max > 0 && max < s.len { // 如果最大值 > 0 且 < 字符串长度
-				s = s[..max] // 截取字符串
-			}
 		}
 
 		if view.hl_on { // 如果高亮开启
@@ -396,7 +409,8 @@ fn (ved &Ved) calc_cursor_x() int { // calc_cursor_x 函数，计算光标 x 坐
 	from := ved.workspace_idx * ved.nr_splits // 从
 	split_width := ved.split_width() // 分割宽度
 	line_x := split_width * (ved.cur_split - from) + ved.view.padding_left + 10 // 行 x 坐标
-	return line_x + ved.x_of_byte_idx(line, ved.view.x) // 返回光标 x 坐标
+	// 减去水平滚动偏移
+	return line_x + ved.x_of_byte_idx(line, ved.view.x) - ved.view.from_x * ved.cfg.char_width
 }
 
 fn (ved &Ved) calc_cursor_y() int { // calc_cursor_y 函数，计算光标 y 坐标
