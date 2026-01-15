@@ -63,6 +63,12 @@ fn (mut ved Ved) on_event(e &gg.Event) {
 		// 根据视觉位置获取准确的字节索引
 		view.x = view.x_at_visual_pos(visual_clicked_x)
 		view.sync_visual_x()
+
+		$if macos {
+			if ved.mode == .insert {
+				uiold.focus_native_input(true)
+			}
+		}
 	}
 }
 
