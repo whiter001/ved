@@ -565,13 +565,13 @@ fn (mut ved Ved) update_view() {
 	}
 }
 
-// 将编辑器切换到插入模式
+// set_insert 切换到插入模式并聚焦原生输入
 fn (mut ved Ved) set_insert() {
-	ved.mode = .insert // 设置模式为插入
-	ved.prev_insert = '' // 清空上一个插入
-	ved.just_switched = true // 设置切换标志
+	ved.mode = .insert
+	ved.prev_insert = ''
+	ved.just_switched = true
 	$if macos {
-		uiold.focus_native_input(true) // 聚焦原生输入
+		uiold.focus_native_input(true)
 	}
 }
 

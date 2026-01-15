@@ -7,6 +7,13 @@ import os
 import strings
 import gg
 
+// Snapshot 存储文件内容及其光标状态的快照
+struct Snapshot {
+	lines []string
+	x     int
+	y     int
+}
+
 // View 表示一个单独的编辑器窗格，包含打开文件的缓冲区状态。
 // 包括文件路径、内容（行）、光标位置 (x, y)、滚动位置 (from) 和其他设置。
 struct View {
@@ -21,6 +28,8 @@ mut:
 	short_path   string  // 用于显示的缩短后的路径
 	prev_path    string  // 上一个打开的文件路径（用于 tt 命令切换）
 	lines        []string // 文件的所有行内容
+	undo_stack   []Snapshot // 撤销栈
+	redo_stack   []Snapshot // 重做栈
 	page_height  int     // 一页显示的行数
 	vstart       int     // 可视模式选择的开始行
 	vend         int     // 可视模式选择的结束行
@@ -48,8 +57,65 @@ fn (ved &Ved) new_view() View {
 		ved:          ved
 		error_y:      -1
 		prev_y:       -1
+		undo_stack:   []Snapshot{}
+		redo_stack:   []Snapshot{}
 	}
 	return res
+}
+
+// save_snapshot 将当前状态保存到撤销栈。
+fn (mut view View) save_snapshot() {
+	// 限制撤销栈大小为 100 步
+	if view.undo_stack.len >= 100 {
+		view.undo_stack.delete(0)
+	}
+	view.undo_stack << Snapshot{
+		lines: view.lines.clone()
+		x:     view.x
+		y:     view.y
+	}
+	// 每次有新操作时，清空重做栈
+	view.redo_stack = []Snapshot{}
+}
+
+// undo 执行撤销操作。
+fn (mut view View) undo() {
+	if view.undo_stack.len == 0 {
+		return
+	}
+	// 将当前状态保存到重做栈
+	view.redo_stack << Snapshot{
+		lines: view.lines.clone()
+		x:     view.x
+		y:     view.y
+	}
+	// 从撤销栈恢复
+	last := view.undo_stack.pop()
+	view.lines = last.lines.clone()
+	view.x = last.x
+	view.y = last.y
+	view.sync_visual_x()
+	view.changed = true
+}
+
+// redo 执行重做操作。
+fn (mut view View) redo() {
+	if view.redo_stack.len == 0 {
+		return
+	}
+	// 将当前状态存回撤销栈
+	view.undo_stack << Snapshot{
+		lines: view.lines.clone()
+		x:     view.x
+		y:     view.y
+	}
+	// 从重做栈恢复
+	last := view.redo_stack.pop()
+	view.lines = last.lines.clone()
+	view.x = last.x
+	view.y = last.y
+	view.sync_visual_x()
+	view.changed = true
 }
 
 // get_clean_words 从一行文本中提取单词列表。
@@ -423,6 +489,7 @@ fn (mut view View) dd() {
 	if view.lines.len == 0 {
 		return
 	}
+	view.save_snapshot()
 	mut ved := view.ved
 	ved.prev_key = gg.KeyCode.invalid
 	ved.prev_cmd = 'dd'
@@ -443,6 +510,7 @@ fn (mut view View) dd() {
 
 // shift_right 向右缩进。
 fn (mut view View) shift_right() {
+	view.save_snapshot()
 	if view.vstart == -1 {
 		view.set_line('\t${view.line()}')
 		return
@@ -455,6 +523,7 @@ fn (mut view View) shift_right() {
 
 // shift_left 向左缩进。
 fn (mut view View) shift_left() {
+	view.save_snapshot()
 	if view.vstart == -1 {
 		line := view.line()
 		if !line.starts_with('\t') {
@@ -474,6 +543,7 @@ fn (mut view View) shift_left() {
 
 // delete_char 删除光标下的字符。
 fn (mut v View) delete_char() {
+	v.save_snapshot()
 	line := v.line()
 	if line.len < 1 || v.x >= line.len {
 		return
@@ -495,6 +565,7 @@ fn (mut v View) delete_char() {
 
 // shift_c 删除光标到行尾的内容并进入插入模式。
 fn (mut view View) shift_c() string {
+	view.save_snapshot()
 	line := view.line()
 	s := line[..view.x]
 	deleted := line[view.x..]
@@ -559,6 +630,8 @@ fn (mut view View) yy() {
 
 // p 粘贴。
 fn (mut view View) p() {
+	if view.ved.ylines.len == 0 { return }
+	view.save_snapshot()
 	for line in view.ved.ylines {
 		view.o()
 		view.set_line(line)
@@ -638,6 +711,7 @@ fn (mut view View) join() {
 	if view.y == view.lines.len - 1 {
 		return
 	}
+	view.save_snapshot()
 	line := view.line()
 	second_line := view.lines[view.y + 1]
 	joined := line + second_line
@@ -690,6 +764,7 @@ fn (mut view View) cw() {
 
 // dw 删除单词。
 fn (mut view View) dw(del_whitespace bool) {
+	view.save_snapshot()
 	mut ved := view.ved
 	typ := is_alpha(u8(view.char()))
 	for {
@@ -717,6 +792,7 @@ fn (mut view View) dw(del_whitespace bool) {
 
 // db 向后删除单词。
 fn (mut view View) db(del_whitespace bool) {
+	view.save_snapshot()
 	mut ved := view.ved
 	typ := is_alpha(u8(view.char()))
 	for {
@@ -822,6 +898,7 @@ fn (mut view View) zz() {
 
 // r 替换字符。
 fn (mut view View) r(s string) {
+	view.save_snapshot()
 	view.delete_char()
 	view.insert_text(s)
 	view.x--

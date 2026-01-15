@@ -191,12 +191,17 @@ fn (mut ved Ved) key_normal(key gg.KeyCode, mod gg.Modifier) {
 		}
 		.a {
 			if shift {
+				view.save_snapshot()
 				ved.view.shift_a()
 				ved.prev_cmd = 'A'
 				ved.set_insert()
 			} else if super {
 				ved.view.super_a(1)
 				ved.prev_cmd = 'a'
+			} else {
+				view.save_snapshot()
+				ved.view.l()
+				ved.set_insert()
 			}
 		}
 		.c {
@@ -235,6 +240,7 @@ fn (mut ved Ved) key_normal(key gg.KeyCode, mod gg.Modifier) {
 		}
 		.i {
 			if shift {
+				view.save_snapshot()
 				ved.view.shift_i()
 				ved.set_insert()
 				ved.prev_cmd = 'I'
@@ -242,6 +248,7 @@ fn (mut ved Ved) key_normal(key gg.KeyCode, mod gg.Modifier) {
 				if ved.prev_key == .c {
 					ved.prev_cmd = 'ci'
 				} else {
+					view.save_snapshot()
 					ved.set_insert()
 				}
 			}
@@ -282,9 +289,11 @@ fn (mut ved Ved) key_normal(key gg.KeyCode, mod gg.Modifier) {
 				ved.just_switched = true
 				return
 			} else if shift {
+				view.save_snapshot()
 				ved.view.shift_o()
 				ved.set_insert()
 			} else {
+				view.save_snapshot()
 				ved.view.o()
 				ved.set_insert()
 			}
@@ -315,7 +324,11 @@ fn (mut ved Ved) key_normal(key gg.KeyCode, mod gg.Modifier) {
 				ved.query_type = .run
 				ved.just_switched = true
 			} else if super {
-				view.reopen()
+				if view.redo_stack.len > 0 {
+					view.redo()
+				} else {
+					view.reopen()
+				}
 			} else {
 				ved.prev_key = .r
 			}
@@ -326,6 +339,16 @@ fn (mut ved Ved) key_normal(key gg.KeyCode, mod gg.Modifier) {
 				ved.mode = .timer
 			} else {
 				view.tt()
+			}
+		}
+		.u {
+			if shift_and_super {
+				ved.mode = .debugger
+				ved.run_debugger(ved.view.breakpoints)
+			} else if super {
+				ved.key_u()
+			} else {
+				view.undo()
 			}
 		}
 		.h {
@@ -382,14 +405,6 @@ fn (mut ved Ved) key_normal(key gg.KeyCode, mod gg.Modifier) {
 				} else {
 					ved.view.b()
 				}
-			}
-		}
-		.u {
-			if shift_and_super {
-				ved.mode = .debugger
-				ved.run_debugger(ved.view.breakpoints)
-			} else if super {
-				ved.key_u()
 			}
 		}
 		.v {
