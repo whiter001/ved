@@ -596,11 +596,22 @@ fn (mut view View) insert_text(s string) {
 // backspace 处理退格。
 fn (mut view View) backspace() {
 	if view.x == 0 {
-		if view.ved.cfg.backspace_go_up && view.y > 0 {
-			view.x = 0
+		// 如果允许向上退格且不是第一行
+		if view.y > 0 {
+			view.save_snapshot()
+			// 获取当前行剩下的内容
+			current_line_text := view.lines[view.y]
+			// 移除当前行
+			view.lines.delete(view.y)
+			// 移动到上一行
 			view.y--
-			view.x = view.lines[view.y].len
-			view.lines.delete(view.y + 1)
+			// 记录合并前上一行的长度作为新的 x 位置
+			prev_line_len := view.lines[view.y].len
+			// 将内容合并到上一行
+			view.lines[view.y] += current_line_text
+			view.x = prev_line_len
+			
+			view.sync_visual_x()
 			view.changed = true
 		}
 		return
