@@ -333,9 +333,9 @@ fn (ved &Ved) draw_cursor(cursor_x int, y int) { // draw_cursor 函数，绘制�
 			}
 		}
 	}
-	// Sync IME position for macOS/Linux // 为 macOS/Linux 同步 IME 位置
-	$if macos { // 如果是 macOS
-		uiold.set_ime_position(cur_x, y, ved.cfg.line_height) // 设置 IME 位置
+	// Sync IME position for macOS/Linux/Windows
+	$if macos || windows {
+		uiold.set_ime_position(cur_x, y, ved.cfg.line_height)
 	}
 }
 

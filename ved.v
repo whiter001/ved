@@ -297,11 +297,14 @@ fn main() {
 	mut first_launch := false // 是否首次启动
 	if args.len == 1 { // 如果没有参数
 		// 打开之前保存的工作区
+		if os.exists(workspaces_path) {
+			lines := os.read_lines(workspaces_path) or { []string{} }
+			for workspace in lines {
 				ved.add_workspace(workspace) // 添加工作区
 			}
 		} else {
 			first_launch = true // 首次启动
-			ved.add_workspace('.') // 添加当前目录
+			ved.add_workspace(".") // 添加当前目录
 		}
 		ved.open_workspace(0) // 打开第一个工作区
 	}
@@ -568,7 +571,7 @@ fn (mut ved Ved) set_insert() {
 	ved.mode = .insert // 设置模式为插入
 	ved.prev_insert = '' // 清空上一个插入
 	ved.just_switched = true // 设置切换标志
-	$if macos {
+	$if macos || windows {
 		uiold.focus_native_input(true) // 聚焦原生输入
 	}
 }
@@ -580,7 +583,7 @@ fn (mut ved Ved) exit_visual() {
 	mut view := ved.view
 	view.vstart = -1 // 重置选择开始
 	view.vend = -1 // 重置选择结束
-	$if macos {
+	$if macos || windows {
 		uiold.focus_native_input(false) // 取消聚焦原生输入
 	}
 }

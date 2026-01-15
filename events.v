@@ -610,12 +610,14 @@ fn on_char(code u32, mut ved Ved) {
 			return // 返回
 		}
 	}
-	if ved.just_switched { // 如果 just_switched
-		ved.just_switched = false // 设置 false
-		return // 返回
-	}
 	mut buf := [5]u8{} // 缓冲区
 	s := unsafe { utf32_to_str_no_malloc(code, mut &buf[0]) } // 转换为字符串
+	if ved.just_switched { // 如果 just_switched
+		ved.just_switched = false // 设置 false
+		if s in ['i', 'a', 'o', 'I', 'A', 'O'] {
+			return // 返回
+		}
+	}
 	println('on_char s="${s}" code="${code}"') // 打印
 	match ved.mode { // 匹配模式
 		.insert, .autocomplete { // 插入或自动完成
