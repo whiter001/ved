@@ -833,41 +833,129 @@ fn (mut view View) ce() {
 // w 移动到下一单词。
 fn (mut view View) w() {
 	line := view.line()
-	typ := is_alpha_underscore(view.char())
-	for view.x < line.len - 1 && typ == is_alpha_underscore(view.char()) {
-		view.x++
+	if view.x >= line.len { return }
+	
+	runes := line.runes()
+	// 找到当前光标所在的 rune 索引
+	mut cur_idx := 0
+	mut byte_off := 0
+	for i, r in runes {
+		if byte_off >= view.x {
+			cur_idx = i
+			break
+		}
+		byte_off += r.length_in_bytes()
 	}
-	for view.x < line.len - 1 && view.char() == 32 {
-		view.x++
+
+	if cur_idx >= runes.len { return }
+	
+	start_kind := get_char_kind(runes[cur_idx])
+	
+	// 逻辑：
+	// 1. 如果当前是中文，移动一个字符。
+	// 2. 如果是 Word 或 Punct，移动到该类结束。
+	if start_kind == .cjk {
+		cur_idx++
+	} else {
+		for cur_idx < runes.len && get_char_kind(runes[cur_idx]) == start_kind {
+			cur_idx++
+		}
 	}
+	
+	// 3. 跳过随后的空格
+	for cur_idx < runes.len && get_char_kind(runes[cur_idx]) == .space {
+		cur_idx++
+	}
+	
+	// 将 rune 索引转回字节偏移
+	mut target_byte_off := 0
+	for i in 0..cur_idx {
+		target_byte_off += runes[i].length_in_bytes()
+	}
+	view.x = target_byte_off
 	view.sync_visual_x()
 }
 
 // b 移动到上一个单词。
 fn (mut view View) b() {
-	for view.x > 0 && view.char() == 32 {
-		view.x--
+	if view.x <= 0 { return }
+	line := view.line()
+	runes := line.runes()
+	
+	// 找到当前光标所在的 rune 索引
+	mut cur_idx := 0
+	mut byte_off := 0
+	for i, r in runes {
+		if byte_off >= view.x {
+			cur_idx = i
+			break
+		}
+		byte_off += r.length_in_bytes()
 	}
-	typ := is_alpha_underscore(view.char())
-	for view.x > 0 && typ == is_alpha_underscore(view.char()) {
-		view.x--
+	if cur_idx == 0 { view.x = 0; return }
+
+	// 1. 先跳过前面的空格
+	mut idx := cur_idx - 1
+	for idx > 0 && get_char_kind(runes[idx]) == .space {
+		idx--
 	}
+	
+	// 2. 确定当前词的分类
+	kind := get_char_kind(runes[idx])
+	if kind == .cjk {
+		// 中文只跳一个
+	} else {
+		// Word 或 Punct 跳到开始
+		for idx > 0 && get_char_kind(runes[idx - 1]) == kind {
+			idx--
+		}
+	}
+	
+	// 将 rune 索引转回字节偏移
+	mut target_byte_off := 0
+	for i in 0..idx {
+		target_byte_off += runes[i].length_in_bytes()
+	}
+	view.x = target_byte_off
 	view.sync_visual_x()
 }
 
 // de 删除到单词末尾。
 fn (mut view View) de() {
-	mut ved := view.ved
-	typ := is_alpha_underscore(view.char())
-	for {
-		line := view.line()
-		if view.x >= 0 && view.x < line.len && typ == is_alpha_underscore(view.char()) {
-			view.delete_char()
-		} else {
+	view.save_snapshot()
+	line := view.line()
+	if view.x >= line.len { return }
+	
+	runes := line.runes()
+	mut cur_idx := 0
+	mut byte_off := 0
+	for i, r in runes {
+		if byte_off >= view.x {
+			cur_idx = i
 			break
 		}
+		byte_off += r.length_in_bytes()
 	}
-	ved.prev_cmd = 'de'
+	
+	start_kind := get_char_kind(runes[cur_idx])
+	mut end_idx := cur_idx
+	if start_kind == .cjk {
+		end_idx = cur_idx + 1
+	} else {
+		for end_idx < runes.len && get_char_kind(runes[end_idx]) == start_kind {
+			end_idx++
+		}
+	}
+	
+	// 计算删除的字节范围
+	mut end_byte_off := 0
+	for i in 0..end_idx {
+		end_byte_off += runes[i].length_in_bytes()
+	}
+	
+	new_line := line[..view.x] + line[end_byte_off..]
+	view.set_line(new_line)
+	view.ved.prev_cmd = 'de'
 }
 
 // ci 快速修改成对符号内的内容。
@@ -931,6 +1019,30 @@ fn (mut view View) move_to_line(line int) {
 	view.from = line
 	view.set_y(line)
 	view.zz()
+}
+
+// CharKind 定义字符的分类
+enum CharKind {
+	word   // 字母、数字、下划线
+	cjk    // 中日韩字符
+	punct  // 标点符号
+	space  // 空格、制表符
+}
+
+// get_char_kind 返回特定字符的分类
+fn get_char_kind(r rune) CharKind {
+	if r == ` ` || r == `\t` || r == `\n` || r == `\r` {
+		return .space
+	}
+	// ASCII 单词字符
+	if (r >= `a` && r <= `z`) || (r >= `A` && r <= `Z`) || (r >= `0` && r <= `9`) || r == `_` || r == `#` || r == `$` {
+		return .word
+	}
+	// CJK 范围判断
+	if (int(r) >= 0x4E00 && int(r) <= 0x9FFF) || (int(r) >= 0x3040 && int(r) <= 0x30FF) || (int(r) >= 0xFF00 && int(r) <= 0xFFEF) {
+		return .cjk
+	}
+	return .punct
 }
 
 // super_a 加减行首第一个数字。
