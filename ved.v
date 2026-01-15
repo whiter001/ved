@@ -295,17 +295,19 @@ fn main() {
 		cur_dir = cur_dir.replace('/ved.app/Contents/Resources', '')
 	}
 	mut first_launch := false // 是否首次启动
-	if args.len == 1 { // 如果没有参数
-		// 打开之前保存的工作区
-				ved.add_workspace(workspace) // 添加工作区
+	if args.len == 1 {
+		// 无参数启动，加载上次保存的工作区
+		if workspaces := os.read_lines(workspaces_path) {
+			for workspace in workspaces {
+				ved.add_workspace(workspace)
 			}
 		} else {
-			first_launch = true // 首次启动
-			ved.add_workspace('.') // 添加当前目录
+			first_launch = true
+			ved.add_workspace('.')
 		}
-		ved.open_workspace(0) // 打开第一个工作区
+		ved.open_workspace(0)
 	}
-	// 打开单个文本文件
+	// 打开单个文件
 	else if args.len == 2 && os.is_file(args.last()) {
 		path := args[args.len - 1] // 获取文件路径
 		if !os.exists(path) { // 如果文件不存在

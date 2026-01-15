@@ -4,851 +4,699 @@ import os // 导入 os 模块
 import gg // 导入 gg 模块
 import uiold // 导入 uiold 模块
 
-// on_event handles various GUI events like mouse clicks, scrolls, and window resizing.
-// on_event 处理各种 GUI 事件，如鼠标点击、滚动和窗口调整大小。
+// on_event 处理各种 GUI 事件，如鼠标点击、滚动和窗口缩放。
 fn (mut ved Ved) on_event(e &gg.Event) {
-	// println('on_event ${ved.win_width}')
-	ved.refresh = true // 设置刷新
-	/*
-	// TODO change win height/width only on cmd + enter (exit full screen etc)
-	// TODO 仅在 cmd + enter 时更改窗口高度/宽度（退出全屏等）
-	mut size := gg.screen_size() // 获取屏幕大小
-
-	// Fix macbook notch crap
-	// 修复 macbook notch 问题
-	$if macos { // 如果是 macos
-		if size.height % 20 != 0 { // 如果高度不是 20 的倍数
-			// size.height -= size.height % 20 + ved.cfg.line_height
-			size.height -= 32 // ved.cfg.line_height // 减少高度
-		}
-	}
-	ved.win_height = size.height // 设置窗口高度
-	ved.win_width = size.width // 设置窗口宽度
-	*/
-
-	if e.typ == .mouse_scroll { // 如果是鼠标滚动
-		if e.scroll_y < -0.2 { // 如果向下滚动
-			ved.view.j() // 向下移动
-		} else if e.scroll_y > 0.2 { // 如果向上滚动
-			ved.view.k() // 向上移动
+	ved.refresh = true
+	
+	// 处理鼠标滚动
+	if e.typ == .mouse_scroll {
+		if e.scroll_y < -0.2 {
+			ved.view.j()
+		} else if e.scroll_y > 0.2 {
+			ved.view.k()
 		}
 	}
 
-	// FIXME: The rounding math here cause the Y coord to be unintuitive sometimes.
-	// FIXME: 此处的舍入数学有时会导致 Y 坐标不直观。
-	if e.typ == .mouse_down { // 如果是鼠标按下
-		if ved.cfg.disable_mouse { // 如果禁用鼠标
-			return // 返回
+	// 处理鼠标点击
+	if e.typ == .mouse_down {
+		if ved.cfg.disable_mouse {
+			return
 		}
 
-		mut view := ved.view // 获取视图
+		mut view := ved.view
 
-		mut current_line := '' // 当前行
-		if view.y > 0 && view.y < view.lines.len { // 如果 y 在范围内
-			current_line = view.lines[view.y] // 设置当前行
-		}
-		current_line_split := current_line.split('\t') // 按制表符分割
-		mut leading_tabs := 0 // 前导制表符
-		for i := 0; i < current_line_split.len; i++ { // 遍历分割
-			if current_line_split[i] == '' { // 如果为空
-				leading_tabs++ // 增加前导制表符
+		// 处理分屏切换点击
+		for i := 0; i < ved.nr_splits; i++ {
+			sw := ved.split_width()
+			starting_x := 2 * i * sw
+			ending_x := 2 * (i + 1) * sw
+
+			if e.mouse_x > starting_x && e.mouse_x < ending_x {
+				ved.cur_split = i
+				ved.update_view()
 			}
 		}
 
-		// Focus the pane currently under the cursor before continuing
-		// 在继续之前聚焦光标下的窗格
-		for i := 0; i < ved.nr_splits; i++ { // 遍历分屏
-			sw := ved.split_width() // 获取分屏宽度
-			starting_x := 2 * i * sw // 开始 x
-			ending_x := 2 * (i + 1) * sw // 结束 x
-
-			if e.mouse_x > starting_x && e.mouse_x < ending_x { // 如果鼠标 x 在范围内
-				ved.cur_split = i // 设置当前分屏
-				ved.update_view() // 更新视图
+		// 计算点击的行号
+		clicked_y := int((e.mouse_y / ved.cfg.line_height - 1.5) / 2) + ved.view.from
+		if clicked_y >= view.lines.len {
+			if view.lines.len == 0 {
+				view.set_y(0)
+			} else {
+				view.set_y(view.lines.len - 1)
 			}
+		} else if clicked_y < 0 {
+			view.set_y(1)
+		} else {
+			view.set_y(clicked_y)
 		}
 
-		clicked_y := int((e.mouse_y / ved.cfg.line_height - 1.5) / 2) + ved.view.from // 计算点击的 y
-		if clicked_y >= view.lines.len { // 如果超出
-			if view.lines.len == 0 { // 如果行数为 0
-				view.set_y(0) // 设置 y 为 0
-			} else { // 否则
-				view.set_y(view.lines.len - 1) // 设置为最后一行
-			}
-		} else if clicked_y < 0 { // 如果小于 0
-			view.set_y(1) // 设置为 1
-		} else { // 否则
-			view.set_y(clicked_y) // 设置 y
+		// 计算点击的列位置 (x)
+		// rel_x 是相对于当前视图起始位置的像素偏移
+		rel_x := e.mouse_x - ved.cur_split * ved.split_width() * 2 - view.padding_left - 10
+		// 将像素转换为视觉列（除以字符宽度的 2 倍，因为 scale 为 2）
+		visual_clicked_x := int(rel_x / (ved.cfg.char_width * 2))
+		
+		if view.lines.len <= 0 {
+			return
 		}
-
-		// Wow, that's a lot of math that is probably pretty hard to parse.
-		// In the future I need to separate this into several variables,
-		// and perhaps even its own function.
-		// 哇，这有很多数学，可能很难解析。
-		// 将来我需要将其分离到几个变量中，甚至可能是自己的函数。
-		clicked_x := int(((e.mouse_x - ved.cur_split * ved.split_width() * 2 - view.padding_left) / ved.cfg.char_width) / 2 - 3 - leading_tabs * 3) // 计算点击的 x
-		if view.lines.len <= 0 { // 如果行数 <= 0
-			return // 返回
-		}
-		if clicked_x > view.lines[view.y].len { // 如果超出
-			view.x = view.lines[view.y].len // 设置 x 为行长
-		} else if clicked_x < 0 { // 如果小于 0
-			view.x = 0 // 设置为 0
-		} else { // 否则
-			view.x = clicked_x // 设置 x
-		}
+		
+		// 根据视觉位置获取准确的字节索引
+		view.x = view.x_at_visual_pos(visual_clicked_x)
+		view.sync_visual_x()
 	}
 }
 
-// key_down handles key press events and dispatches them based on the current mode.
-// key_down 处理按键事件，并根据当前模式分派它们。
+// key_down 是按键按下时的总入口
 fn key_down(key gg.KeyCode, mod gg.Modifier, mut ved Ved) {
-	super := mod == .super // 是否是 super 键
-	if key == .escape { // 如果是 escape
-		if ved.mode == .visual { // 如果是视觉模式
-			ved.exit_visual() // 退出视觉模式
+	super := mod == .super
+	if key == .escape {
+		if ved.mode == .visual {
+			ved.exit_visual()
 		}
-		ved.mode = .normal // 设置为正常模式
-		$if macos { // 如果是 macos
-			uiold.focus_native_input(false) // 聚焦原生输入
+		ved.mode = .normal
+		$if macos {
+			uiold.focus_native_input(false)
 		}
 	}
-	// Reset error line
-	// 重置错误行
-	ved.view.error_y = -1 // 设置 error_y
-	ved.error_line = '' // 设置 error_line
-	match ved.mode { // 匹配模式
-		.normal { ved.key_normal(key, mod) } // 正常模式
-		.visual { ved.key_visual(key, mod) } // 视觉模式
-		.insert { ved.key_insert(key, mod) } // 插入模式
-		.query { ved.key_query(key, super) } // 查询模式
-		.timer { ved.timer.key_down(key, super) } // 计时器模式
-		.autocomplete { ved.key_insert(key, mod) } // 自动完成模式
-		.debugger { ved.key_normal(key, mod) } // 调试器模式
+	// 重置错误高亮
+	ved.view.error_y = -1
+	ved.error_line = ''
+	match ved.mode {
+		.normal { ved.key_normal(key, mod) }
+		.visual { ved.key_visual(key, mod) }
+		.insert { ved.key_insert(key, mod) }
+		.query { ved.key_query(key, super) }
+		.timer { ved.timer.key_down(key, super) }
+		.autocomplete { ved.key_insert(key, mod) }
+		.debugger { ved.key_normal(key, mod) }
 	}
-	ved.gg.refresh_ui() // 刷新 UI
+	ved.gg.refresh_ui()
 }
 
-// key_normal handles key presses in normal mode.
-// key_normal 处理正常模式下的按键。
+// key_normal 处理 Normal 模式下的按键
 fn (mut ved Ved) key_normal(key gg.KeyCode, mod gg.Modifier) {
-	super := mod == .super || mod == .ctrl // 是否是 super 或 ctrl
-	shift := mod == .shift // 是否是 shift
-	// println('mod=')
-	// println(int(mod))
-	shift_and_super := int(mod) == 9 // shift 和 super
-	mut view := ved.view // 获取视图
-	ved.refresh = true // 设置刷新
-	if ved.prev_key == .r { // 如果 prev_key 是 r
-		return // 返回
+	super := mod == .super || mod == .ctrl
+	shift := mod == .shift
+	shift_and_super := int(mod) == 9
+	mut view := ved.view
+	ved.refresh = true
+	if ved.prev_key == .r {
+		return
 	}
-	if ved.prev_cmd == 'ci' { // 如果 prev_cmd 是 ci
-		println('CALLING CI PREV S=${ved.prev_key_str}') // 打印
-		view.ci(key) // 调用 ci
-		return // 返回
+	if ved.prev_cmd == 'ci' {
+		view.ci(key)
+		return
 	}
-	match key { // 匹配 key
-		.enter { // enter
-			// Full screen => window
-			// 全屏 => 窗口
-			// Update screen size
-			// 更新屏幕大小
-			if super { // 如果 super
-				println('full screen') // 打印全屏
-				width, height := get_screen_size() // 获取屏幕大小
-
-				// ved.nr_splits = 1
-				ved.win_width = width // 设置窗口宽度
-				ved.win_height = height // 设置窗口高度
-				// glfw.post_empty_event()
+	match key {
+		.enter {
+			if super {
+				width, height := get_screen_size()
+				ved.win_width = width
+				ved.win_height = height
 			}
 		}
-		.period { // .
-			if shift { // 如果 shift
-				// >
-				ved.view.shift_right() // 右移
-			} else { // 否则
-				ved.dot() // dot
+		.period {
+			if shift {
+				ved.view.shift_right()
+			} else {
+				ved.dot()
 			}
 		}
-		.comma { // ,
-			if shift { // 如果 shift
-				// <
-				ved.view.shift_left() // 左移
-			} else if super { // 如果 super
-				//
-				// ved.cfg.reload_config()
-				// ved.update_view()
+		.comma {
+			if shift {
+				ved.view.shift_left()
 			}
 		}
-		.slash { // /
-			ved.search_query = '' // 设置搜索查询
-			ved.mode = .query // 设置模式为查询
-			ved.just_switched = true // 设置 just_switched
-			ved.search_dir = '' // 设置搜索目录
-			if shift { // 如果 shift
-				ved.query_type = .grep // 设置查询类型为 grep
-			} else if super { // 如果 super
-				ved.query_type = .search_in_folder // 设置为文件夹搜索
-				ved.search_dir = os.dir(ved.view.path) // 设置搜索目录
-			} else { // 否则
-				ved.query_type = .search // 设置为搜索
+		.slash {
+			ved.search_query = ''
+			ved.mode = .query
+			ved.just_switched = true
+			ved.search_dir = ''
+			if shift {
+				ved.query_type = .grep
+			} else if super {
+				ved.query_type = .search_in_folder
+				ved.search_dir = os.dir(ved.view.path)
+			} else {
+				ved.query_type = .search
 			}
 		}
-		.f5 { // f5
-			ved.run_file() // 运行文件
-			// ved.cfg.char_width -= 1
-			// ved.cfg.line_height -= 1
-			// ved.font_size -= 1
-			// ved.page_height = WIN_HEIGHT / ved.cfg.line_height - 1
-			// case C.GLFW_KEY_F6:
-			// ved.cfg.char_width += 1
-			// ved.cfg.line_height += 1
-			// ved.font_size += 1
-			// ved.page_height = WIN_HEIGHT / ved.cfg.line_height - 1
-			// ved.vg = gg.new_context(WIN_WIDTH, WIN_HEIGHT, ved.font_size)
+		.f5 {
+			ved.run_file()
 		}
-		.minus { // -
-			if shift_and_super { // 如果 shift 和 super
-				// println('FONT DECREASE')
-				ved.increase_font(-1) // 减少字体
-			} else if super { // 如果 super
-				ved.get_git_diff_full() // 获取完整 git diff
+		.minus {
+			if shift_and_super {
+				ved.increase_font(-1)
+			} else if super {
+				ved.get_git_diff_full()
 			}
 		}
-		.equal { // =
-			if shift { // 如果 shift
-				ved.prev_key = .equal // 设置 prev_key
-			} else if shift_and_super { // 如果 shift 和 super
-				ved.increase_font(1) // 增加字体
-				// println('FONT INCREASE')
+		.equal {
+			if shift {
+				ved.prev_key = .equal
+			} else if shift_and_super {
+				ved.increase_font(1)
 			}
 		}
-		.f12 { // f12
-			if shift { // 如果 shift
-				ved.open_blog() // 打开博客
+		.f12 {
+			if shift {
+				ved.open_blog()
 			}
 		}
-		.apostrophe { // '
-			if ved.prev_key == .apostrophe { // 如果 prev_key 是 '
-				ved.prev_key = gg.KeyCode.invalid // 设置无效
-				ved.move_to_line(ved.prev_y) // 移动到行
-				return // 返回
+		.apostrophe {
+			if ved.prev_key == .apostrophe {
+				ved.prev_key = gg.KeyCode.invalid
+				ved.move_to_line(ved.prev_y)
+				return
 			}
 		}
-		._0 { // 0
-			if super { // 如果 super
-				// 触发“新建任务”：进入查询模式，类型设为任务(task)
-				// 确认后将开始计时并计入当日生产力时长统计
-				ved.query = '' // 设置查询
-				ved.mode = .query // 设置模式
-				ved.query_type = .task // 设置查询类型
-				ved.just_switched = true // 设置 just_switched
-			} else { // 否则
-				view.zero() // zero
+		._0 {
+			if super {
+				ved.query = ''
+				ved.mode = .query
+				ved.query_type = .task
+				ved.just_switched = true
+			} else {
+				view.zero()
 			}
 		}
-		._9 { // 9
-			if super { // 如果 super
-				// 触发“新建非生产力任务”：任务名前缀加 @
-				// 确认后将开始计时，但在统计时会被视为休息或分心时间（显示为粉色）
-				ved.query = '@' // 设置查询
-				ved.mode = .query // 设置模式
-				ved.query_type = .task // 设置查询类型
-				ved.just_switched = true // 设置 just_switched
+		._9 {
+			if super {
+				ved.query = '@'
+				ved.mode = .query
+				ved.query_type = .task
+				ved.just_switched = true
 			}
 		}
-		.a { // a
-			if shift { // 如果 shift
-				// Vim 风格：Shift + A 跳转到行尾并进入插入模式
-				ved.view.shift_a() // shift_a
-				ved.prev_cmd = 'A' // 设置 prev_cmd
-				ved.set_insert() // 设置插入
-			} else if super { // 如果 super
-				// Command + A：将光标所在行找到的第一个数字增加 1
-				// 类似 Vim 中的 Ctrl + A 功能
-				ved.view.super_a(1) // super_a
-				ved.prev_cmd = 'a' // 设置 prev_cmd
+		.a {
+			if shift {
+				ved.view.shift_a()
+				ved.prev_cmd = 'A'
+				ved.set_insert()
+			} else if super {
+				ved.view.super_a(1)
+				ved.prev_cmd = 'a'
 			}
 		}
-		.c { // c
-			if super { // 如果 super
-				ved.query = '' // 设置查询
-				ved.mode = .query // 设置模式
-				ved.query_type = .cam // 设置查询类型
-				ved.just_switched = true // 设置 just_switched
-			} else if shift { // 如果 shift
-				ved.prev_insert = ved.view.shift_c() // 设置 prev_insert
-				ved.set_insert() // 设置插入
+		.c {
+			if super {
+				ved.query = ''
+				ved.mode = .query
+				ved.query_type = .cam
+				ved.just_switched = true
+			} else if shift {
+				ved.prev_insert = ved.view.shift_c()
+				ved.set_insert()
 			}
 		}
-		.d { // d
-			if super { // 如果 super
-				ved.prev_split() // 上一个分屏
-				return // 返回
+		.d {
+			if super {
+				ved.prev_split()
+				return
 			}
-			if ved.prev_key == .d { // 如果 prev_key 是 d
-				ved.view.dd() // dd
-				return // 返回
-			} else if ved.prev_key == .g { // 如果 prev_key 是 g
-				ved.go_to_def() // 转到定义
-			}
-		}
-		.e { // e
-			if super { // 如果 super
-				ved.next_split() // 下一个分屏
-				return // 返回
-			}
-			if ved.prev_key == .c { // 如果 prev_key 是 c
-				view.ce() // ce
-			} else if ved.prev_key == .d { // 如果 prev_key 是 d
-				view.de() // de
+			if ved.prev_key == .d {
+				ved.view.dd()
+				return
+			} else if ved.prev_key == .g {
+				ved.go_to_def()
 			}
 		}
-		.i { // i
-			if shift { // 如果 shift
-				ved.view.shift_i() // shift_i
-				ved.set_insert() // 设置插入
-				ved.prev_cmd = 'I' // 设置 prev_cmd
-			} else { // 否则
-				if ved.prev_key == .c { // 如果 prev_key 是 c
-					ved.prev_cmd = 'ci' // 设置 prev_cmd
-				} else { // 否则
-					ved.set_insert() // 设置插入
+		.e {
+			if super {
+				ved.next_split()
+				return
+			}
+			if ved.prev_key == .c {
+				view.ce()
+			} else if ved.prev_key == .d {
+				view.de()
+			}
+		}
+		.i {
+			if shift {
+				ved.view.shift_i()
+				ved.set_insert()
+				ved.prev_cmd = 'I'
+			} else {
+				if ved.prev_key == .c {
+					ved.prev_cmd = 'ci'
+				} else {
+					ved.set_insert()
 				}
 			}
 		}
-		.j { // j
-			if shift { // 如果 shift
-				ved.view.join() // join
-			} else if super { // 如果 super
-				ved.mode = .query // 设置模式
-				ved.query_type = .ctrlj // 设置查询类型
-				// ved.load_open_files()
-				ved.query = '' // 设置查询
-				ved.just_switched = true // 设置 just_switched
-			} else { // 否则
-				// println('J isb=$ved.is_building')
-				ved.view.j() // j
-				// if !ved.is_building {
-				// ved.refresh = false
-				// }
+		.j {
+			if shift {
+				ved.view.join()
+			} else if super {
+				ved.mode = .query
+				ved.query_type = .ctrlj
+				ved.query = ''
+				ved.just_switched = true
+			} else {
+				ved.view.j()
 			}
 		}
-		.k { // k
-			ved.view.k() // k
-			// if !ved.is_building {
-			// ved.refresh = false
-			// }
+		.k {
+			ved.view.k()
 		}
-		.n { // n
-			if ved.mode == .debugger { // 如果是调试器模式
-				ved.debugger.step_over() // 单步执行
-			} else if shift { // 如果 shift
-				// backwards search
-				// 向后搜索
-				ved.search(.backward) // 搜索向后
-			} else { // 否则
-				ved.search(.forward) // 搜索向前
+		.n {
+			if ved.mode == .debugger {
+				ved.debugger.step_over()
+			} else if shift {
+				ved.search(.backward)
+			} else {
+				ved.search(.forward)
 			}
 		}
-		.o { // o
-			if shift_and_super { // 如果 shift 和 super
-				ved.mode = .query // 设置模式
-				ved.query_type = .open_workspace // 设置查询类型
-				ved.query = '' // 设置查询
-			} else if super { // 如果 super
-				ved.mode = .query // 设置模式
-				ved.query_type = .open // 设置查询类型
-				ved.query = '' // 设置查询
-				ved.just_switched = true // 设置 just_switched
-				return // 返回
-			} else if shift { // 如果 shift
-				ved.view.shift_o() // shift_o
-				ved.set_insert() // 设置插入
-			} else { // 否则
-				ved.view.o() // o
-				ved.set_insert() // 设置插入
+		.o {
+			if shift_and_super {
+				ved.mode = .query
+				ved.query_type = .open_workspace
+				ved.query = ''
+			} else if super {
+				ved.mode = .query
+				ved.query_type = .open
+				ved.query = ''
+				ved.just_switched = true
+				return
+			} else if shift {
+				ved.view.shift_o()
+				ved.set_insert()
+			} else {
+				ved.view.o()
+				ved.set_insert()
 			}
 		}
-		.p { // p
-			if shift_and_super { // 如果 shift 和 super
-				ved.mode = .query // 设置模式
-				ved.query_type = .alert // 设置查询类型
-				ved.query = 'Running git pull...' // 设置查询
-				ved.just_switched = true // 设置 just_switched
-				spawn ved.git_pull() // 异步 git pull
-				return // 返回
-			} else if super { // 如果 super
-				ved.mode = .query // 设置模式
-				ved.query_type = .ctrlp // 设置查询类型
-				ved.load_git_tree() // 加载 git 树
-				ved.query = '' // 设置查询
-				ved.just_switched = true // 设置 just_switched
-				return // 返回
-			} else { // 否则
-				view.p() // p
+		.p {
+			if shift_and_super {
+				ved.mode = .query
+				ved.query_type = .alert
+				ved.query = 'Running git pull...'
+				ved.just_switched = true
+				spawn ved.git_pull()
+				return
+			} else if super {
+				ved.mode = .query
+				ved.query_type = .ctrlp
+				ved.load_git_tree()
+				ved.query = ''
+				ved.just_switched = true
+				return
+			} else {
+				view.p()
 			}
 		}
-		.r { // r
-			if shift_and_super { // 如果 shift 和 super
-				ved.query = '' // 设置查询
-				ved.mode = .query // 设置模式
-				ved.query_type = .run // 设置查询类型
-				ved.just_switched = true // 设置 just_switched
-			} else if super { // 如果 super
-				view.reopen() // 重新打开
-			} else { // 否则
-				ved.prev_key = .r // 设置 prev_key
+		.r {
+			if shift_and_super {
+				ved.query = ''
+				ved.mode = .query
+				ved.query_type = .run
+				ved.just_switched = true
+			} else if super {
+				view.reopen()
+			} else {
+				ved.prev_key = .r
 			}
 		}
-		.t { // t
-			if super { // 如果 super
-				// ved.timer.get_data(false)
-				ved.timer.load_tasks() // 加载任务
-				ved.mode = .timer // 设置模式
-			} else { // 否则
-				// if ved.prev_key == C.GLFW_KEY_T {
-				view.tt() // tt
+		.t {
+			if super {
+				ved.timer.load_tasks()
+				ved.mode = .timer
+			} else {
+				view.tt()
 			}
 		}
-		.h { // h
-			if shift { // 如果 shift
-				ved.view.shift_h() // shift_h
-			} else { // 否则
-				ved.view.h() // h
+		.h {
+			if shift {
+				ved.view.shift_h()
+			} else {
+				ved.view.h()
 			}
 		}
-		.l { // l
-			if super { // 如果 super
-				ved.just_switched = true // 设置 just_switched
-				ved.view.save_file() // 保存文件
-			} else if shift { // 如果 shift
-				ved.view.move_to_page_bot() // 移动到页面底部
-			} else { // 否则
-				ved.view.l() // l
+		.l {
+			if super {
+				ved.just_switched = true
+				ved.view.save_file()
+			} else if shift {
+				ved.view.move_to_page_bot()
+			} else {
+				ved.view.l()
 			}
 		}
-		.f6 {} // f6
-		.g { // g
-			// go to end
-			// 转到末尾
-			if shift && !super { // 如果 shift 且非 super
-				ved.view.shift_g() // shift_g
-				// ved.prev_key = 0
-			}
-			// copy file path to clipboard
-			// 复制文件路径到剪贴板
-			else if super { // 如果 super
-				ved.cb.copy(ved.view.path) // 复制路径
-			}
-			// go to beginning
-			// 转到开头
-			else { // 否则
-				if ved.prev_key == .g { // 如果 prev_key 是 g
-					ved.prev_key = .invalid // 设置无效
-					ved.view.gg() // gg
-					// ved.prev_key = 0
-				} else { // 否则
-					ved.prev_key = .g // 设置 prev_key
+		.g {
+			if shift && !super {
+				ved.view.shift_g()
+			} else if super {
+				ved.cb.copy(ved.view.path)
+			} else {
+				if ved.prev_key == .g {
+					ved.prev_key = .invalid
+					ved.view.gg()
+				} else {
+					ved.prev_key = .g
 				}
 			}
-			return // 返回
+			return
 		}
-		.f { // f
-			if super { // 如果 super
-				ved.view.shift_f() // shift_f
+		.f {
+			if super {
+				ved.view.shift_f()
 			}
 		}
-		.page_down { // page_down
-			ved.view.shift_f() // shift_f
+		.page_down {
+			ved.view.shift_f()
 		}
-		.page_up { // page_up
-			ved.view.shift_b() // shift_b
+		.page_up {
+			ved.view.shift_b()
 		}
-		.b { // b
-			if shift_and_super { // 如果 shift 和 super
-				ved.view.add_breakpoint(ved.view.y) // 添加断点
-			} else if super { // 如果 super
-				// force crash
-				// 强制崩溃
-				// # void*a = 0; int b = *(int*)a;
-				ved.view.shift_b() // shift_b
-			} else { // 否则
-				if ved.prev_key == .d { // 如果 prev_key 是 d
-					view.db(true) // db
-				} else { // 否则
-					ved.view.b() // b
+		.b {
+			if shift_and_super {
+				ved.view.add_breakpoint(ved.view.y)
+			} else if super {
+				ved.view.shift_b()
+			} else {
+				if ved.prev_key == .d {
+					view.db(true)
+				} else {
+					ved.view.b()
 				}
 			}
 		}
-		.u { // u
-			if shift_and_super { // 如果 shift 和 super
-				ved.mode = .debugger // 设置模式
-				ved.run_debugger(ved.view.breakpoints) // 运行调试器
-			} else if super { // 如果 super
-				ved.key_u() // key_u
+		.u {
+			if shift_and_super {
+				ved.mode = .debugger
+				ved.run_debugger(ved.view.breakpoints)
+			} else if super {
+				ved.key_u()
 			}
 		}
-		.v { // v
-			ved.mode = .visual // 设置模式
-			view.vstart = view.y // 设置 vstart
-			view.vend = view.y // 设置 vend
+		.v {
+			ved.mode = .visual
+			view.vstart = view.y
+			view.vend = view.y
 		}
-		.w { // w
-			if ved.prev_key == .c { // 如果 prev_key 是 c
-				view.cw() // cw
-			} else if ved.prev_key == .d { // 如果 prev_key 是 d
-				view.dw(true) // dw
-			} else { // 否则
-				view.w() // w
+		.w {
+			if ved.prev_key == .c {
+				view.cw()
+			} else if ved.prev_key == .d {
+				view.dw(true)
+			} else {
+				view.w()
 			}
 		}
-		.x { // x
-			if super { // 如果 super
-				// ctrl+x - decrease number
-				// ctrl+x - 减少数字
-				ved.view.super_a(-1) // super_a -1
-				ved.prev_cmd = 'x' // 设置 prev_cmd
-			} else { // 否则
-				ved.view.delete_char() // 删除字符
+		.x {
+			if super {
+				ved.view.super_a(-1)
+				ved.prev_cmd = 'x'
+			} else {
+				ved.view.delete_char()
 			}
 		}
-		.y { // y
-			if ved.prev_key == .y { // 如果 prev_key 是 y
-				ved.view.yy() // yy
+		.y {
+			if ved.prev_key == .y {
+				ved.view.yy()
 			}
-			if super { // 如果 super
-				spawn ved.build_app2() // 异步构建应用
-			}
-		}
-		.z { // z
-			if ved.prev_key == .z { // 如果 prev_key 是 z
-				ved.view.zz() // zz
-			}
-			// Next workspace
-			// 下一个工作区
-		}
-		// ]
-		.right_bracket { // right_bracket
-			if super { // 如果 super
-				ved.open_workspace(ved.workspace_idx + 1) // 打开下一个工作区
+			if super {
+				spawn ved.build_app2()
 			}
 		}
-		// [
-		.left_bracket { // left_bracket
-			if super { // 如果 super
-				ved.open_workspace(ved.workspace_idx - 1) // 打开上一个工作区
-			} else if ved.prev_key == .left_bracket { // 如果 prev_key 是 left_bracket
-				ved.go_to_fn_start() // 转到函数开始
-				println('[[ !!!!!') // 打印
+		.z {
+			if ved.prev_key == .z {
+				ved.view.zz()
 			}
 		}
-		._8 { // 8
-			if shift { // 如果 shift
-				ved.star() // star
+		.right_bracket {
+			if super {
+				ved.open_workspace(ved.workspace_idx + 1)
 			}
 		}
-		._4 { // 4
-			if shift { // 如果 shift
-				view.dollar() // dollar
+		.left_bracket {
+			if super {
+				ved.open_workspace(ved.workspace_idx - 1)
+			} else if ved.prev_key == .left_bracket {
+				ved.go_to_fn_start()
 			}
 		}
-		._6 { // 6
-			if shift { // 如果 shift
-				view.shift_i() // shift_i
+		._8 {
+			if shift {
+				ved.star()
 			}
 		}
-		.left { // left
-			if ved.view.x > 0 { // 如果 x > 0
-				ved.view.x-- // 减少 x
+		._4 {
+			if shift {
+				view.dollar()
 			}
 		}
-		.right { // right
-			ved.view.l() // l
-		}
-		.up { // up
-			ved.view.k() // k
-			// ved.refresh = false
-		}
-		.down { // down
-			ved.view.j() // j
-			// ved.refresh = false
-		}
-		._5 { // 5
-			if shift { // 如果 shift
-				ved.pct() // pct
+		._6 {
+			if shift {
+				view.shift_i()
 			}
 		}
-		else {} // 其他
+		.left {
+			if ved.view.x > 0 {
+				ved.view.x--
+			}
+		}
+		.right {
+			ved.view.l()
+		}
+		.up {
+			ved.view.k()
+		}
+		.down {
+			ved.view.j()
+		}
+		._5 {
+			if shift {
+				ved.pct()
+			}
+		}
+		else {}
 	}
-	if key != .r { // 如果 key 不是 r
-		// otherwise R is triggered when we press C-R
-		// 否则当按 C-R 时触发 R
-		ved.prev_key = key // 设置 prev_key
+	if key != .r {
+		ved.prev_key = key
 	}
-	if key == .q && super { // 如果 key 是 q 且 super
-		ved.cq_in_a_row++ // 增加 cq_in_a_row
-	} else { // 否则
-		ved.cq_in_a_row = 0 // 重置
+	if key == .q && super {
+		ved.cq_in_a_row++
+	} else {
+		ved.cq_in_a_row = 0
 	}
-	if ved.cq_in_a_row == 2 { // 如果 cq_in_a_row == 2
-		exit(0) // 退出
+	if ved.cq_in_a_row == 2 {
+		exit(0)
 	}
 }
 
-// on_char handles character input events.
-// on_char 处理字符输入事件。
-@[manualfree] // 手动释放
+// on_char 处理字符输入事件（通常用于非 macOS 系统或非插入模式）
+@[manualfree]
 fn on_char(code u32, mut ved Ved) {
-	$if macos { // 如果是 macos
-		if ved.mode == .insert || ved.mode == .autocomplete { // 如果是插入或自动完成模式
-			// In insert mode on macOS, we use the Native NSTextView bridge.
-			// This avoids duplicate input and correctly handles IME.
-			// 在 macOS 上的插入模式中，我们使用原生 NSTextView 桥接。
-			// 这避免了重复输入并正确处理 IME。
-			return // 返回
+	$if macos {
+		if ved.mode == .insert || ved.mode == .autocomplete {
+			return
 		}
 	}
-	if ved.just_switched { // 如果 just_switched
-		ved.just_switched = false // 设置 false
-		return // 返回
+	if ved.just_switched {
+		ved.just_switched = false
+		return
 	}
-	mut buf := [5]u8{} // 缓冲区
-	s := unsafe { utf32_to_str_no_malloc(code, mut &buf[0]) } // 转换为字符串
-	println('on_char s="${s}" code="${code}"') // 打印
-	match ved.mode { // 匹配模式
-		.insert, .autocomplete { // 插入或自动完成
-			ved.char_insert(s) // 插入字符
+	mut buf := [5]u8{}
+	ss := unsafe { utf32_to_str_no_malloc(code, mut &buf[0]) }
+	match ved.mode {
+		.insert, .autocomplete {
+			ved.char_insert(ss)
 		}
-		.query { // 查询
-			ved.gg_pos = -1 // 设置 gg_pos
-			ved.char_query(s) // 查询字符
+		.query {
+			ved.gg_pos = -1
+			ved.char_query(ss)
 		}
-		.normal { // 正常
-			// on char on normal only for replace with r
-			// 在正常模式下的字符仅用于 r 替换
-			if !ved.just_switched && ved.prev_key == .r { // 如果 prev_key 是 r
-				if s != 'r' { // 如果 s 不是 r
-					ved.view.r(s) // r
-					ved.prev_key = gg.KeyCode.invalid // 设置无效
-					ved.prev_cmd = 'r' // 设置 prev_cmd
-					ved.prev_insert = s.clone() // 克隆 prev_insert
+		.normal {
+			if !ved.just_switched && ved.prev_key == .r {
+				if ss != 'r' {
+					ved.view.r(ss)
+					ved.prev_key = gg.KeyCode.invalid
+					ved.prev_cmd = 'r'
+					ved.prev_insert = ss.clone()
 				}
-				return // 返回
+				return
 			}
-			ved.prev_key_str = s // for `ci(` etc, no `(` in gg.KeyCode // 设置 prev_key_str
+			ved.prev_key_str = ss 
 		}
-		else {} // 其他
+		else {}
 	}
 }
 
-// key_insert handles key presses in insert mode.
-// key_insert 处理插入模式下的按键。
+// key_insert 处理插入模式下的按键
 fn (mut ved Ved) key_insert(key gg.KeyCode, mod gg.Modifier) {
-	super := mod == .super || mod == .ctrl // 是否 super 或 ctrl
-	// shift := mod == .shift
-	match key { // 匹配 key
-		.backspace { // backspace
-			ved.just_switched = true // prevent backspace symbol being added in char handler // 设置 just_switched
-			ved.view.backspace() // backspace
+	super := mod == .super || mod == .ctrl
+	match key {
+		.backspace {
+			ved.just_switched = true 
+			ved.view.backspace()
 		}
-		.enter { // enter
-			if false && ved.mode == .autocomplete { // 如果是自动完成
-				// Pressed enter in autocomplete mode, insert text from selected suggested field
-				// 在自动完成模式下按 enter，插入选定建议字段的文本
-				ved.insert_suggested_field() // 插入建议字段
-			} else { // 否则
-				ved.view.enter() // enter
+		.enter {
+			ved.view.enter()
+		}
+		.escape {
+			ved.mode = .normal
+		}
+		.tab {
+			line := ved.view.line()
+			if line.ends_with('p ') {
+				ved.view.insert_text("rintln('')")
+				ved.view.x -= 2
+			} else {
+				ved.view.insert_text('\t')
 			}
 		}
-		.escape { // escape
-			ved.mode = .normal // 设置正常模式
-		}
-		.tab { // tab
-			line := ved.view.line() // 获取行
-			if line.ends_with('p ') { // 如果以 p 结束
-				ved.view.insert_text("rintln('')") // 插入文本
-				ved.view.x -= 2 // 减少 x
-			} else { // 否则
-				ved.view.insert_text('\t') // 插入制表符
+		.left {
+			if ved.view.x > 0 {
+				ved.view.x--
 			}
 		}
-		.left { // left
-			if ved.view.x > 0 { // 如果 x > 0
-				ved.view.x-- // 减少 x
-			}
+		.right {
+			ved.view.l()
 		}
-		.right { // right
-			ved.view.l() // l
+		.up {
+			ved.view.k()
 		}
-		.up { // up
-			ved.view.k() // k
-			// ved.refresh = false
+		.down {
+			ved.view.j()
 		}
-		.down { // down
-			ved.view.j() // j
-			// ved.refresh = false
-		}
-		else {} // 其他
+		else {}
 	}
-	if (key == .l || key == .s) && super { // 如果 (l 或 s) 且 super
-		ved.view.save_file() // 保存文件
-		ved.mode = .normal // 设置正常模式
-		return // 返回
+	if (key == .l || key == .s) && super {
+		ved.view.save_file()
+		ved.mode = .normal
+		return
 	}
-	if super && key == .u { // 如果 super 且 u
-		ved.mode = .normal // 设置正常模式
-		ved.key_u() // key_u
-		return // 返回
+	if super && key == .u {
+		ved.mode = .normal
+		ved.key_u()
+		return
 	}
-	// Insert macro   TODO  customize
-	// 插入宏 TODO 自定义
-	if super && key == .g { // 如果 super 且 g
-		ved.view.insert_text('<code></code>') // 插入文本
-		ved.view.x -= 7 // 减少 x
+	if super && key == .g {
+		ved.view.insert_text('<code></code>')
+		ved.view.x -= 7
 	}
-	// Autocomplete
-	// 自动完成
-	if key == .n && super { // 如果 n 且 super
+	if key == .n && super {
 		ved.ctrl_n()
 		return
 	}
-	if key == .v && super { // 如果 v 且 super
-		ved.view.insert_text(ved.cb.paste()) // 插入粘贴文本
-		ved.just_switched = true // 设置 just_switched
+	if key == .v && super {
+		ved.view.insert_text(ved.cb.paste())
+		ved.just_switched = true
 	}
 }
 
-// char_insert inserts a character in insert mode.
-// char_insert 在插入模式下插入字符。
+// char_insert 插入单个字符
 fn (mut ved Ved) char_insert(s string) {
-	if int(s[0]) < 32 { // 如果小于 32
-		return // 返回
+	if int(s[0]) < 32 {
+		return
 	}
-	ved.view.insert_text(s) // 插入文本
-	ved.prev_insert += s // 添加到 prev_insert
-	// println(ved.prev_insert)
+	ved.view.insert_text(s)
+	ved.prev_insert += s
 }
 
-// key_visual handles key presses in visual mode.
-// key_visual 处理视觉模式下的按键。
+// key_visual 处理可视模式下的按键
 fn (mut ved Ved) key_visual(key gg.KeyCode, mod gg.Modifier) {
-	super := mod == .super || mod == .ctrl // 是否 super 或 ctrl
-	shift := mod == .shift // 是否 shift
-	mut view := ved.view // 获取视图
-	match key { // 匹配 key
-		.j { // j
-			view.vend++ // 增加 vend
-			if view.vend >= view.lines.len { // 如果超出
-				view.vend = view.lines.len - 1 // 设置为最后一行
+	super := mod == .super || mod == .ctrl
+	shift := mod == .shift
+	mut view := ved.view
+	match key {
+		.j {
+			view.vend++
+			if view.vend >= view.lines.len {
+				view.vend = view.lines.len - 1
 			}
-			// Scroll
-			// 滚动
-			if view.vend >= view.from + view.page_height { // 如果需要滚动
-				view.from++ // 增加 from
+			if view.vend >= view.from + view.page_height {
+				view.from++
 			}
-			ved.view.j() // Move the cursor down as well (mimics vim's behavior) // 也向下移动光标（模仿 vim 行为）
+			ved.view.j()
 		}
-		.k { // k
-			if view.vend > 0 { // 如果 vend > 0
-				view.vend-- // 减少 vend
+		.k {
+			if view.vend > 0 {
+				view.vend--
 			}
-			ved.view.k() // Move the cursor up as well (mimics vim's behavior) // 也向上移动光标（模仿 vim 行为）
+			ved.view.k()
 		}
-		.y { // y
-			view.y_visual() // y_visual
-			ved.mode = .normal // 设置正常模式
+		.y {
+			view.y_visual()
+			ved.mode = .normal
 		}
-		.d { // d
-			view.d_visual() // d_visual
-			ved.mode = .normal // 设置正常模式
+		.d {
+			view.d_visual()
+			ved.mode = .normal
 		}
-		.q { // q
-			if ved.prev_key == .g { // 如果 prev_key 是 g
-				ved.view.gq() // gq
+		.q {
+			if ved.prev_key == .g {
+				ved.view.gq()
 			}
 		}
-		.period { // .
-			if shift { // 如果 shift
-				// >
-				ved.view.shift_right() // shift_right
+		.period {
+			if shift {
+				ved.view.shift_right()
 			}
 		}
-		.comma { // ,
-			if shift { // 如果 shift
-				// <
-				ved.view.shift_left() // shift_left
+		.comma {
+			if shift {
+				ved.view.shift_left()
 			}
 		}
-		._0 { // 0
-			if !super { // 如果非 super
-				view.zero() // zero
+		._0 {
+			if !super {
+				view.zero()
 			}
 		}
-		._4 { // 4
-			if shift { // 如果 shift
-				view.dollar() // dollar
+		._4 {
+			if shift {
+				view.dollar()
 			}
 		}
-		._6 { // 6
-			if shift { // 如果 shift
-				view.shift_i() // shift_i
+		._6 {
+			if shift {
+				view.shift_i()
 			}
 		}
-		.g { // g // Handle 'g' in visual mode // 处理视觉模式下的 g
-			if shift { // G key // G 键
-				// Select to end of file
-				// 选择到文件末尾
-				if view.lines.len > 0 { // 如果行数 > 0
-					view.vend = view.lines.len - 1 // 设置 vend 为最后一行
-					view.set_y(view.vend) // Move cursor to last line // 移动光标到最后一行
-					// Scroll view to show the end
-					// 滚动视图以显示末尾
-					view.from = if view.vend > view.page_height { // 如果 vend > page_height
-						view.vend - view.page_height + 1 // 设置 from
-					} else { // 否则
-						0 // 0
+		.g {
+			if shift {
+				if view.lines.len > 0 {
+					view.vend = view.lines.len - 1
+					view.set_y(view.vend)
+					view.from = if view.vend > view.page_height {
+						view.vend - view.page_height + 1
+					} else {
+						0
 					}
 				}
-				ved.prev_key = .invalid // Reset potential double-key sequence // 重置潜在的双键序列
-				return // 返回
-			} else if ved.prev_key == .g { // gg key (Select to start of file) // gg 键（选择到文件开头）
-				view.vend = 0 // Select up to the first line (index 0) // 选择到第一行（索引 0）
-				view.set_y(0) // Move cursor to the first line // 移动光标到第一行
-				view.from = 0 // Ensure the top of the file is visible // 确保文件顶部可见
-				ved.prev_key = .invalid // Reset the double-key state // 重置双键状态
-				return // 返回
+				ved.prev_key = .invalid
+				return
+			} else if ved.prev_key == .g {
+				view.vend = 0
+				view.set_y(0)
+				view.from = 0
+				ved.prev_key = .invalid
+				return
 			}
 		}
-		// Page Down handling
-		// 页面向下处理
-		.page_down, .f { // page_down, f
-			if key == .f && !super { // 如果 f 且非 super
-				// Only handle Ctrl+F for page down
-				// 仅处理 Ctrl+F 用于页面向下
-				return // 返回
+		.page_down, .f {
+			if key == .f && !super {
+				return
 			}
-			view.shift_f() // Move view and cursor // 移动视图和光标
-			view.vend = view.y // Extend selection to new cursor position // 扩展选择到新光标位置
+			view.shift_f()
+			view.vend = view.y
 		}
-		// Page Up handling
-		// 页面向上处理
-		.page_up, .b { // page_up, b
-			if key == .b && !super { // 如果 b 且非 super
-				// Only handle Ctrl+B for page up
-				// 仅处理 Ctrl+B 用于页面向上
-				return // 返回
+		.page_up, .b {
+			if key == .b && !super {
+				return
 			}
-			view.shift_b() // Move view and cursor // 移动视图和光标
-			view.vend = view.y // Extend selection to new cursor position // 扩展选择到新光标位置
+			view.shift_b()
+			view.vend = view.y
 		}
-		else {} // 其他
-	} // end match key // 结束匹配 key
+		else {}
+	}
 
-	// Default prev_key handling (only if the key wasn't part of a completed sequence like gg or G)
-	// 默认 prev_key 处理（仅当键不是像 gg 或 G 这样的完成序列的一部分时）
-	if key != .r { // Keep the existing check for 'r'
+	if key != .r {
 		ved.prev_key = key
 	}
 }
