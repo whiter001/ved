@@ -1,4 +1,22 @@
 + list of all open files (similar to ctrl p)
-- use ui.textbox
 - print error message on the actual line
 - remember line pos for each file on t
+增加类似 Ctrl+P 的已打开文件列表
+
+错误信息显示在对应代码行
+
+记住每个文件的光标行位置
+
+
+
+
+
+
+
+
+  5. 鼠标交互的残缺
+   * 瑕疵：目前鼠标不支持“点击定位”。不支持“按住拖拽选择文本”（Drag Select）。
+   * 影响：对于习惯用鼠标复制粘贴的用户来说，必须依赖 v 进入可视模式，操作效率较低。
+
+- 测试水平滚动
+"use strict";(globalThis.webpackChunk_github_ui_github_ui=globalThis.webpackChunk_github_ui_github_ui||[]).push([[99418],{99418:(e,t,n)=>{n.r(t),n.d(t,{default:()=>et});let{entries:o,setPrototypeOf:r,isFrozen:i,getPr

@@ -22,18 +22,6 @@ fn (mut ved Ved) draw() { // draw 函数，绘制整个界面
 	line_x := split_width * (ved.cur_split - from) + ved.view.padding_left + 10 // 计算行 x 坐标
 	line_width := split_width - ved.view.padding_left - 10 // 计算行宽度
 	ved.gg.draw_rect_filled(line_x, y, line_width, ved.cfg.line_height, ved.cfg.vcolor) // 绘制当前行背景
-	// V selection // V 选择
-	mut v_from := ved.view.vstart + 1 // 选择起始行
-	mut v_to := ved.view.vend + 1 // 选择结束行
-	if view.vend < view.vstart { // 如果结束行小于起始行
-		// Swap start and end if we go beyond the start // 如果超出起始位置，交换起始和结束
-		v_from = ved.view.vend + 1 // 交换 v_from
-		v_to = ved.view.vstart + 1 // 交换 v_to
-	}
-	for yy := v_from; yy <= v_to; yy++ { // 循环绘制选择区域
-		ved.gg.draw_rect_filled(line_x, (yy - ved.view.from) * ved.cfg.line_height, line_width,
-			ved.cfg.line_height, ved.cfg.vcolor) // 绘制选择行背景
-	}
 	// Black title background // 黑色标题背景
 	ved.gg.draw_rect_filled(0, 0, ved.win_width, ved.cfg.line_height, ved.cfg.title_color) // 绘制标题背景
 	// Current split has dark blue title // 当前分割有深蓝色标题
@@ -155,6 +143,19 @@ fn (ved &Ved) split_x(i int) int { // split_x 函数，计算分割的 x 坐标
 
 fn (mut ved Ved) draw_split(i int, split_from int) { // draw_split 函数，绘制单个分割
 	view := ved.views[i] // 获取视图
+
+	// V selection calculation // V 选择计算
+	mut v_from_y := view.vstart
+	mut v_from_x := view.vstart_x
+	mut v_to_y := view.vend
+	mut v_to_x := view.vend_x
+
+	// 统一顺序：让 from 始终在 to 之前
+	if v_from_y > v_to_y || (v_from_y == v_to_y && v_from_x > v_to_x) {
+		v_from_y, v_to_y = v_to_y, v_from_y
+		v_from_x, v_to_x = v_to_x, v_from_x
+	}
+
 	// Determine initial comment state for the first visible line // 确定第一可见行的初始注释状态
 	// (handle /**/ comments blocks that start before current page) // （处理在当前页面之前开始的 /**/ 注释块）
 	mut current_is_ml_comment := false // 当前是否为多行注释
@@ -194,13 +195,42 @@ fn (mut ved Ved) draw_split(i int, split_from int) { // draw_split 函数，绘�
 			line_width := split_width - view.padding_left - 10 // 行宽度
 			ved.gg.draw_rect_filled(x + 10, y, line_width, ved.cfg.line_height, breakpoint_color) // 绘制断点线
 		}
+
+		// Selection highlighting // 选择高亮
+		if ved.mode == .visual && j >= v_from_y && j <= v_to_y {
+			mut sel_start_x := 0
+			mut sel_end_x := line.len
+
+			if j == v_from_y {
+				sel_start_x = v_from_x
+			}
+			if j == v_to_y {
+				sel_end_x = v_to_x
+			}
+			
+			// 只有当有选择范围或者是中间行时才绘制
+			if v_from_y != v_to_y || v_from_x != v_to_x {
+				start_px := ved.x_of_byte_idx(line, sel_start_x) - view.from_x * ved.cfg.char_width
+				end_px := ved.x_of_byte_idx(line, sel_end_x) - view.from_x * ved.cfg.char_width
+				
+				draw_start_x := x + 10 + int_max(0, start_px)
+				draw_width := end_px - int_max(0, start_px)
+				
+				if draw_width > 0 {
+					ved.gg.draw_rect_filled(draw_start_x, y, draw_width, ved.cfg.line_height, ved.cfg.vcolor)
+				} else if j > v_from_y && j < v_to_y {
+					// 选中的空行也画一点宽度表示被选中
+					ved.gg.draw_rect_filled(x + 10, y, 10, ved.cfg.line_height, ved.cfg.vcolor)
+				}
+			}
+		}
+
 		// Line number // 行号
 		line_number := j + 1 // 行号
 		ved.gg.draw_text(x + 3, y, '${line_number}', ved.cfg.line_nr_cfg) // 绘制行号
 		// Tab offset // Tab 偏移
 		mut line_x := x + 10 // 行 x 坐标
 		mut nr_tabs := 0 // Tab 数量
-		// for k := 0; k < line.len; k++ { // 循环（注释）
 		for c in line { // 循环行中的字符
 			if c != `\t` { // 如果不是 Tab
 				break // 跳出
@@ -208,36 +238,50 @@ fn (mut ved Ved) draw_split(i int, split_from int) { // draw_split 函数，绘�
 			nr_tabs++ // Tab 数量加一
 			line_x += ved.cfg.char_width * ved.cfg.tab_size // 增加 x 坐标
 		}
-		mut s := line[nr_tabs..] // tabs have been skipped, remove them from the string // Tab 已跳过，从字符串中移除
+		
+		// 应用水平滚动偏移
+		// 计算前导 Tab 总宽度
+		tabs_visual_width := nr_tabs * ved.cfg.tab_size
+		mut s := line[nr_tabs..] // 跳过前导 Tab
+		
+		// 计算这一行相对于 from_x 的偏移
+		// 如果 from_x 很大，甚至可能把前导 Tab 都跳过
+		mut skip_visual_x := view.from_x
+		
+		if skip_visual_x > 0 {
+			// 如果需要跳过的宽度大于 Tab 宽度，则不仅要减去 Tab，还要裁剪字符串 s
+			if skip_visual_x >= tabs_visual_width {
+				line_x = x + 10 // 重置到起始位置
+				skip_in_s := skip_visual_x - tabs_visual_width
+				// 根据视觉列裁剪 s
+				runes := s.runes()
+				mut cur_v := 0
+				mut cut_idx := 0
+				for r in runes {
+					if cur_v >= skip_in_s {
+						break
+					}
+					cur_v += if r == `\t` { ved.cfg.tab_size } else { rune_width(r) }
+					cut_idx++
+				}
+				s = runes[cut_idx..].string()
+				// 处理字符截断后的残余视觉宽度（例如跳过了半个 CJK 字符）
+				if cur_v > skip_in_s {
+					s = ' '.repeat(cur_v - skip_in_s) + s
+				}
+			} else {
+				// 仅部分跳过 Tab
+				line_x = x + 10
+				remaining_tab_width := tabs_visual_width - skip_visual_x
+				if remaining_tab_width > 0 {
+					s = ' '.repeat(remaining_tab_width) + s
+				}
+			}
+		}
+
 		if s == '' { // 如果字符串为空
 			line_nr_rel++ // 相对行号加一
 			continue // 继续
-		}
-		// Number of chars to display in this view // 此视图中显示的字符数
-		// mut max := (split_width - view.padding_left - ved.cfg.char_width * TAB_SIZE * // 最大值（注释）
-		// nr_tabs) / ved.cfg.char_width - 1 // （注释）
-		max := ved.max_chars(i, nr_tabs) // 最大字符数
-		if view.y == j { // 如果视图 y 等于 j
-			// Display entire line if its current // 如果是当前行，显示整行
-			// if line.len > max { // 如果行长度 > 最大值（注释）
-			// ved.gg.draw_rect_filled(line_x, y - 1, ved.win_width, line_height, vcolor) // 绘制背景（注释）
-			// } // （注释）
-			// max = line.len // 最大值 = 行长度（注释）
-		}
-		// if s.contains('width :=') { // 如果包含 'width :='（注释）
-		// println('"$s" max=$max') // 打印（注释）
-		//} // （注释）
-		// Handle utf8 codepoints // 处理 UTF8 码点
-		// old_len := s.len // 旧长度（注释）
-		if s.len != s.len_utf8() { // 如果长度不等于 UTF8 长度
-			u := s.runes() // 获取符文
-			if max > 0 && max < u.len { // 如果最大值 > 0 且 < 符文长度
-				s = u[..max].string() // 截取字符串
-			}
-		} else { // 否则
-			if max > 0 && max < s.len { // 如果最大值 > 0 且 < 字符串长度
-				s = s[..max] // 截取字符串
-			}
 		}
 
 		if view.hl_on { // 如果高亮开启
@@ -334,7 +378,12 @@ fn (ved &Ved) draw_cursor(cursor_x int, y int) { // draw_cursor 函数，绘制�
 		}
 	}
 	// Sync IME position for macOS/Linux/Windows
-	$if macos || windows {
+	$if macos {
+		uiold.set_ime_position(cur_x, y, ved.cfg.line_height)
+		if ved.mode == .insert || ved.mode == .autocomplete {
+			uiold.focus_native_input(true)
+		}
+	} $else $if windows {
 		uiold.set_ime_position(cur_x, y, ved.cfg.line_height)
 	}
 }
@@ -396,7 +445,8 @@ fn (ved &Ved) calc_cursor_x() int { // calc_cursor_x 函数，计算光标 x 坐
 	from := ved.workspace_idx * ved.nr_splits // 从
 	split_width := ved.split_width() // 分割宽度
 	line_x := split_width * (ved.cur_split - from) + ved.view.padding_left + 10 // 行 x 坐标
-	return line_x + ved.x_of_byte_idx(line, ved.view.x) // 返回光标 x 坐标
+	// 减去水平滚动偏移
+	return line_x + ved.x_of_byte_idx(line, ved.view.x) - ved.view.from_x * ved.cfg.char_width
 }
 
 fn (ved &Ved) calc_cursor_y() int { // calc_cursor_y 函数，计算光标 y 坐标
