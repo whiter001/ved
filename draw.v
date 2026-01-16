@@ -379,12 +379,12 @@ fn (ved &Ved) draw_cursor(cursor_x int, y int) { // draw_cursor 函数，绘制�
 	}
 	// Sync IME position for macOS/Linux/Windows
 	$if macos {
-		uiold.set_ime_position(cur_x, y, ved.cfg.line_height)
+		uiold.set_ime_position(cur_x, y, ved.cfg.line_height, ved.gg.scale)
 		if ved.mode == .insert || ved.mode == .autocomplete {
 			uiold.focus_native_input(true)
 		}
 	} $else $if windows {
-		uiold.set_ime_position(cur_x, y, ved.cfg.line_height)
+		uiold.set_ime_position(cur_x, y, ved.cfg.line_height, ved.gg.scale)
 	}
 }
 

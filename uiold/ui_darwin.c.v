@@ -26,7 +26,7 @@ pub fn setup_mac_app() {
 	C.setup_mac_app()
 }
 
-pub fn set_ime_position(x int, y int, h int) {
+pub fn set_ime_position(x int, y int, h int, scale f32) {
 	C.set_ime_position(x, y, h)
 }
 
