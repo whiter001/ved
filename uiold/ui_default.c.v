@@ -56,7 +56,7 @@ pub fn set_ime_position(x int, y int, h int) {
 				// 如果显示位置不对，可能需要根据 DPI 动态调整，但目前先试 2
 				cf := WinCompositionForm{
 					dw_style: 0x0002 // CFS_POINT
-					pt_current_pos: WinPoint{x * 2, y * 2}
+					pt_current_pos: WinPoint{x, y}
 				}
 				C.ImmSetCompositionWindow(himc, &cf)
 				C.ImmReleaseContext(hwnd, himc)
