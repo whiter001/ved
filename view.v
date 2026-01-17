@@ -32,6 +32,7 @@ mut:
 	undo_stack   []Snapshot // 撤销栈
 	redo_stack   []Snapshot // 重做栈
 	page_height  int     // 一页显示的行数
+	vx           int     // 可视块模式的起始视觉列
 	vstart       int     // 可视模式选择的开始行
 	vstart_x     int     // 可视模式选择的开始列 (字节索引)
 	vend         int     // 可视模式选择的结束行
@@ -56,6 +57,7 @@ fn (ved &Ved) new_view() View {
 		x:            0
 		visual_x:     0
 		page_height:  ved.page_height
+		vx:           -1
 		vstart:       -1
 		vstart_x:     -1
 		vend:         -1
@@ -855,6 +857,92 @@ fn (mut v View) d_visual() {
 		v.y = v_from_y
 	}
 	v.sync_visual_x()
+}
+
+// y_visual_block 复制块状可视选择范围。
+fn (mut v View) y_visual_block() {
+	if v.vstart == -1 {
+		return
+	}
+	mut ylines := []string{}
+	mut v_from_y := v.vstart
+	mut v_to_y := v.vend
+	if v_from_y > v_to_y {
+		v_from_y, v_to_y = v_to_y, v_from_y
+	}
+	mut v_from_vx := v.vx
+	mut v_to_vx := v.visual_x
+	if v_from_vx > v_to_vx {
+		v_from_vx, v_to_vx = v_to_vx, v_from_vx
+	}
+	for i := v_from_y; i <= v_to_y; i++ {
+		line := v.lines[i]
+		idx1 := v.x_at_visual_pos_for_line(i, v_from_vx)
+		idx2 := v.x_at_visual_pos_for_line(i, v_to_vx)
+		if idx1 < line.len {
+			end_idx := if idx2 > line.len { line.len } else { idx2 }
+			ylines << line[idx1..end_idx]
+		} else {
+			ylines << ''
+		}
+	}
+	mut ved := v.ved
+	ved.ylines = ylines
+	ved.cb.copy(ylines.join('\n'))
+
+	v.vstart = -1
+	v.vx = -1
+}
+
+// d_visual_block 删除块状可视选择范围。
+fn (mut v View) d_visual_block() {
+	if v.vstart == -1 {
+		return
+	}
+	v.save_snapshot()
+	mut v_from_y := v.vstart
+	mut v_to_y := v.vend
+	if v_from_y > v_to_y {
+		v_from_y, v_to_y = v_to_y, v_from_y
+	}
+	mut v_from_vx := v.vx
+	mut v_to_vx := v.visual_x
+	if v_from_vx > v_to_vx {
+		v_from_vx, v_to_vx = v_to_vx, v_from_vx
+	}
+	for i := v_from_y; i <= v_to_y; i++ {
+		line := v.lines[i]
+		idx1 := v.x_at_visual_pos_for_line(i, v_from_vx)
+		idx2 := v.x_at_visual_pos_for_line(i, v_to_vx)
+		if idx1 < line.len {
+			prefix := line[..idx1]
+			suffix := if idx2 < line.len { line[idx2..] } else { '' }
+			v.lines[i] = prefix + suffix
+		}
+	}
+	v.vstart = -1
+	v.vx = -1
+	v.sync_visual_x()
+}
+
+// x_at_visual_pos_for_line 计算给定行在特定视觉列下的字节索引。
+fn (view &View) x_at_visual_pos_for_line(line_idx int, visual_x int) int {
+	if line_idx < 0 || line_idx >= view.lines.len {
+		return 0
+	}
+	line := view.lines[line_idx]
+	runes := line.runes()
+	mut cur_vx := 0
+	mut byte_offset := 0
+	for r in runes {
+		r_width := if r == `\t` { view.ved.cfg.tab_size } else { rune_width(r) }
+		if cur_vx >= visual_x {
+			return byte_offset
+		}
+		cur_vx += r_width
+		byte_offset += r.length_in_bytes()
+	}
+	return byte_offset
 }
 
 // cw 修改单词。

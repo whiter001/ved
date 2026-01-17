@@ -144,7 +144,7 @@ fn key_down(key gg.KeyCode, mod gg.Modifier, mut ved Ved) {
 	ved.error_line = ''
 	match ved.mode {
 		.normal { ved.key_normal(key, mod) }
-		.visual { ved.key_visual(key, mod) }
+		.visual, .visual_block { ved.key_visual(key, mod) }
 		.insert { ved.key_insert(key, mod) }
 		.query { ved.key_query(key, super) }
 		.timer { ved.timer.key_down(key, super) }
@@ -468,9 +468,18 @@ fn (mut ved Ved) key_normal(key gg.KeyCode, mod gg.Modifier) {
 			}
 		}
 		.v {
-			ved.mode = .visual
-			view.vstart = view.y
-			view.vend = view.y
+			if super {
+				ved.mode = .visual_block
+				view.vstart = view.y
+				view.vx = view.visual_x
+				view.vend = view.y
+			} else {
+				ved.mode = .visual
+				view.vstart = view.y
+				view.vstart_x = view.x
+				view.vend = view.y
+				view.vend_x = view.x
+			}
 		}
 		.w {
 			if ved.prev_key == .c {
@@ -698,11 +707,19 @@ fn (mut ved Ved) key_visual(key gg.KeyCode, mod gg.Modifier) {
 			ved.view.k()
 		}
 		.y {
-			view.y_visual()
+			if ved.mode == .visual_block {
+				view.y_visual_block()
+			} else {
+				view.y_visual()
+			}
 			ved.mode = .normal
 		}
 		.d {
-			view.d_visual()
+			if ved.mode == .visual_block {
+				view.d_visual_block()
+			} else {
+				view.d_visual()
+			}
 			ved.mode = .normal
 		}
 		.q {
@@ -723,11 +740,13 @@ fn (mut ved Ved) key_visual(key gg.KeyCode, mod gg.Modifier) {
 		._0 {
 			if !super {
 				view.zero()
+				view.vend_x = view.x
 			}
 		}
 		._4 {
 			if shift {
 				view.dollar()
+				view.vend_x = view.x
 			}
 		}
 		._6 {
@@ -763,12 +782,30 @@ fn (mut ved Ved) key_visual(key gg.KeyCode, mod gg.Modifier) {
 			view.shift_f()
 			view.vend = view.y
 		}
-		.page_up, .b {
-			if key == .b && !super {
-				return
-			}
+		.page_up {
 			view.shift_b()
 			view.vend = view.y
+		}
+		.h {
+			view.h()
+			view.vend_x = view.x
+		}
+		.l {
+			view.l()
+			view.vend_x = view.x
+		}
+		.w {
+			view.w()
+			view.vend_x = view.x
+		}
+		.b {
+			if super {
+				view.shift_b()
+				view.vend = view.y
+			} else {
+				view.b()
+				view.vend_x = view.x
+			}
 		}
 		else {}
 	}

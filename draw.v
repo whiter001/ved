@@ -81,6 +81,10 @@ fn (mut ved Ved) draw() { // draw 函数，绘制整个界面
 	if ved.mode == .visual { // 如果模式为视觉
 		ved.gg.draw_text(5, 1, '-v-', ved.cfg.file_name_cfg) // 绘制视觉模式指示器
 	}
+	// Draw "vb" in visual block mode
+	if ved.mode == .visual_block {
+		ved.gg.draw_text(5, 1, '-vb-', ved.cfg.file_name_cfg)
+	}
 	// Splits // 分割
 	// println('\nsplit from=$from to=$to nrviews=$ved.views.len refresh=$ved.refresh') // 打印分割信息（注释）
 	for i := to - 1; i >= from; i-- { // 循环绘制分割
@@ -197,30 +201,49 @@ fn (mut ved Ved) draw_split(i int, split_from int) { // draw_split 函数，绘�
 		}
 
 		// Selection highlighting // 选择高亮
-		if ved.mode == .visual && j >= v_from_y && j <= v_to_y {
-			mut sel_start_x := 0
-			mut sel_end_x := line.len
-
-			if j == v_from_y {
-				sel_start_x = v_from_x
-			}
-			if j == v_to_y {
-				sel_end_x = v_to_x
-			}
-			
-			// 只有当有选择范围或者是中间行时才绘制
-			if v_from_y != v_to_y || v_from_x != v_to_x {
-				start_px := ved.x_of_byte_idx(line, sel_start_x) - view.from_x * ved.cfg.char_width
-				end_px := ved.x_of_byte_idx(line, sel_end_x) - view.from_x * ved.cfg.char_width
-				
+		if (ved.mode == .visual || ved.mode == .visual_block) && j >= v_from_y && j <= v_to_y {
+			if ved.mode == .visual_block {
+				mut v_from_vx := view.vx
+				mut v_to_vx := view.visual_x
+				if v_from_vx > v_to_vx {
+					v_from_vx, v_to_vx = v_to_vx, v_from_vx
+				}
+				start_px := v_from_vx * ved.cfg.char_width - view.from_x * ved.cfg.char_width
+				end_px := v_to_vx * ved.cfg.char_width - view.from_x * ved.cfg.char_width
 				draw_start_x := x + 10 + int_max(0, start_px)
 				draw_width := end_px - int_max(0, start_px)
-				
 				if draw_width > 0 {
-					ved.gg.draw_rect_filled(draw_start_x, y, draw_width, ved.cfg.line_height, ved.cfg.vcolor)
-				} else if j > v_from_y && j < v_to_y {
-					// 选中的空行也画一点宽度表示被选中
-					ved.gg.draw_rect_filled(x + 10, y, 10, ved.cfg.line_height, ved.cfg.vcolor)
+					ved.gg.draw_rect_filled(draw_start_x, y, draw_width, ved.cfg.line_height,
+						ved.cfg.vcolor)
+				}
+			} else {
+				mut sel_start_x := 0
+				mut sel_end_x := line.len
+
+				if j == v_from_y {
+					sel_start_x = v_from_x
+				}
+				if j == v_to_y {
+					sel_end_x = v_to_x
+				}
+
+				// 只有当有选择范围或者是中间行时才绘制
+				if v_from_y != v_to_y || v_from_x != v_to_x {
+					start_px :=
+						ved.x_of_byte_idx(line, sel_start_x) - view.from_x * ved.cfg.char_width
+					end_px := ved.x_of_byte_idx(line, sel_end_x) - view.from_x * ved.cfg.char_width
+
+					draw_start_x := x + 10 + int_max(0, start_px)
+					draw_width := end_px - int_max(0, start_px)
+
+					if draw_width > 0 {
+						ved.gg.draw_rect_filled(draw_start_x, y, draw_width, ved.cfg.line_height,
+							ved.cfg.vcolor)
+					} else if j > v_from_y && j < v_to_y {
+						// 选中的空行也画一点宽度表示被选中
+						ved.gg.draw_rect_filled(x + 10, y, 10, ved.cfg.line_height,
+							ved.cfg.vcolor)
+					}
 				}
 			}
 		}

@@ -172,6 +172,7 @@ enum EditorMode {
 	timer        = 4 // 计时器模式
 	autocomplete = 5 // 自动补全模式
 	debugger     = 6 // 调试器模式
+	visual_block = 7 // 块可视模式
 }
 
 // ViSize 表示视图或窗口的尺寸（宽度和高度）
