@@ -1,8 +1,9 @@
 // Copyright (c) 2019-2023 Alexander Medvednikov. All rights reserved.
 // Use of this source code is governed by a GPL license
 // that can be found in the LICENSE file.
-module main // 主模块
+module main
 
+// 主模块
 import gg // 图形库
 import os // 操作系统相关功能
 import time // 时间处理
@@ -15,7 +16,8 @@ fn ved_insert_text(ved_ptr voidptr, text &char) {
 	s := unsafe { text.vstring() } // 将 C 字符串转换为 V 字符串
 	if s.len > 0 {
 		mut ved := unsafe { &Ved(ved_ptr) } // 获取 Ved 实例指针
-		match s { // 根据输入文本执行相应操作
+		match s {
+			// 根据输入文本执行相应操作
 			'[ENTER]' {
 				ved.view.enter() // 插入换行
 			}
@@ -103,56 +105,56 @@ mut:
 	views              []View // 视图列表
 	cur_split          int    // 当前分屏索引
 	view               &View = unsafe { nil } // 当前视图指针
-	mode               EditorMode // 编辑器模式
-	just_switched      bool   // 用于按键事件，避免重复按键
-	prev_key           gg.KeyCode // 上一个按键
-	prev_key_str       string // 用于 `ci(` 等，没有 `(` 在 gg.KeyCode 中
-	prev_cmd           string // 上一个命令
-	prev_insert        string // 用于 `.` （重新输入刚刚通过 cw 等输入的文本）
-	all_git_files      []string // 当前工作区的所有 Git 文件
+	mode               EditorMode    // 编辑器模式
+	just_switched      bool          // 用于按键事件，避免重复按键
+	prev_key           gg.KeyCode    // 上一个按键
+	prev_key_str       string        // 用于 `ci(` 等，没有 `(` 在 gg.KeyCode 中
+	prev_cmd           string        // 上一个命令
+	prev_insert        string        // 用于 `.` （重新输入刚刚通过 cw 等输入的文本）
+	all_git_files      []string      // 当前工作区的所有 Git 文件
 	ctrlp_results      []CtrlPResult // 跨工作区的 Ctrl+P 过滤结果
-	top_tasks          []string // 顶部任务
+	top_tasks          []string      // 顶部任务
 	gg                 &gg.Context = unsafe { nil } // GG 上下文指针
-	query              string // 查询字符串
-	search_query       string // 搜索查询
+	query              string    // 查询字符串
+	search_query       string    // 搜索查询
 	query_type         QueryType // 查询类型
-	workspace          string // 当前工作区的完整路径（在顶部右侧渲染其简短版本）
-	marked_text        string // 中间 IME 文本
-	workspace_idx      int    // 工作区索引
-	workspaces         []string // 工作区列表
-	ylines             []string // 用于 y, yy
-	git_diff_plus      string // 顶部右侧的简短 Git diff 统计
+	workspace          string    // 当前工作区的完整路径（在顶部右侧渲染其简短版本）
+	marked_text        string    // 中间 IME 文本
+	workspace_idx      int       // 工作区索引
+	workspaces         []string  // 工作区列表
+	ylines             []string  // 用于 y, yy
+	git_diff_plus      string    // 顶部右侧的简短 Git diff 统计
 	git_diff_minus     string
-	syntaxes           []Syntax // 语法列表
-	current_syntax_idx int     // 当前语法索引
-	chunks             []Chunk // 在高亮期间临时使用
-	is_building        bool    // 是否正在构建
-	timer              Timer   // 计时器
-	task_start_unix    i64     // 任务开始时间戳
-	cur_task           string  // 当前任务
-	words              []string // 单词列表
+	syntaxes           []Syntax       // 语法列表
+	current_syntax_idx int            // 当前语法索引
+	chunks             []Chunk        // 在高亮期间临时使用
+	is_building        bool           // 是否正在构建
+	timer              Timer          // 计时器
+	task_start_unix    i64            // 任务开始时间戳
+	cur_task           string         // 当前任务
+	words              []string       // 单词列表
 	file_y_pos         map[string]int // 为每个文件保存当前行位置
 	refresh            bool = true // 刷新标志
-	char_width         int // 字符宽度
+	char_width         int      // 字符宽度
 	gg_lines           []string // GG 行
-	gg_pos             int // GG 位置
-	cfg                Config // 配置
+	gg_pos             int      // GG 位置
+	cfg                Config   // 配置
 	cb                 &clipboard.Clipboard = unsafe { nil } // 剪贴板指针
-	open_paths         [][]string // 所有打开的文件（每个工作区的标签页）：open_paths[workspace_idx] == ['a.txt', 'b.v']
-	prev_y             int // 用于跳转回（''）
-	now                time.Time // 缓存的 time.now() 值，避免每帧调用
-	search_history     []string // 搜索历史
-	search_idx         int // 搜索索引
-	cq_in_a_row        int // 连续 cq
-	search_dir         string // 用于 cmd+/ 在当前文件所在目录中搜索
-	search_dir_idx     int // 用于循环搜索目录文件
-	error_line         string // 显示在底部
-	autocomplete_info  AutocompleteInfo // 自动补全信息
+	open_paths         [][]string                     // 所有打开的文件（每个工作区的标签页）：open_paths[workspace_idx] == ['a.txt', 'b.v']
+	prev_y             int                            // 用于跳转回（''）
+	now                time.Time                      // 缓存的 time.now() 值，避免每帧调用
+	search_history     []string                       // 搜索历史
+	search_idx         int                            // 搜索索引
+	cq_in_a_row        int                            // 连续 cq
+	search_dir         string                         // 用于 cmd+/ 在当前文件所在目录中搜索
+	search_dir_idx     int                            // 用于循环搜索目录文件
+	error_line         string                         // 显示在底部
+	autocomplete_info  AutocompleteInfo               // 自动补全信息
 	autocomplete_cache map[string][]AutocompleteField // 自动补全缓存
-	debug_info         string // 调试信息
-	debugger           Debugger // 调试器
-	cur_fn_name        string // 始终显示在顶部栏的当前函数名
-	grep_file_exts     map[string][]string // m['workspace_path'] == ['v', 'go']
+	debug_info         string                         // 调试信息
+	debugger           Debugger                       // 调试器
+	cur_fn_name        string                         // 始终显示在顶部栏的当前函数名
+	grep_file_exts     map[string][]string            // m['workspace_path'] == ['v', 'go']
 	// debugger_output      DebuggerOutput
 	tree Tree // 用于在左侧渲染文件树
 }
@@ -257,18 +259,18 @@ fn main() {
 
 	ved.gg = gg.new_context( // 创建 GG 上下文
 		width:         width
-		height:        height // borderless_window: !is_window
+		height:        height     // borderless_window: !is_window
 		fullscreen:    !is_window // 全屏模式
 		window_title:  'Ved'
 		create_window: true
 		user_data:     ved
 		scale:         2
 		bg_color:      ved.cfg.bgcolor // 背景颜色
-		frame_fn:      frame // 帧函数
-		on_event:      ved.on_event // 事件处理
-		keydown_fn:    key_down // 按键按下函数
-		char_fn:       on_char // 字符输入函数
-		font_path:     fpath // 字体路径
+		frame_fn:      frame           // 帧函数
+		on_event:      ved.on_event    // 事件处理
+		keydown_fn:    key_down        // 按键按下函数
+		char_fn:       on_char         // 字符输入函数
+		font_path:     fpath           // 字体路径
 		ui_mode:       true
 	)
 	println('full screen=${!is_window}')
@@ -277,10 +279,10 @@ fn main() {
 	// TODO linux and windows
 	// C.AXUIElementCreateApplication(234)
 	// uiold.reg_key_ved()
-	
+
 	// 打开工作区或文件
 	$if macos {
-		spawn fn() { // 异步执行
+		spawn fn () { // 异步执行
 			time.sleep(1 * time.second) // 等待 1 秒
 			uiold.setup_mac_app() // 设置 mac 应用
 			uiold.reg_ved_insert_cb(ved_insert_text) // 注册插入回调
@@ -485,7 +487,8 @@ fn (mut ved Ved) pct() {
 	if c !in [`{`, `}`, `[`, `]`, `(`, `)`] { // 如果不是括号
 		return
 	}
-	opposite_c := match c { // 获取匹配的字符
+	opposite_c := match c {
+		// 获取匹配的字符
 		`{` { `}` }
 		`}` { `{` }
 		`[` { `]` }
@@ -857,7 +860,7 @@ fn (ved &Ved) get_git_diff_full() string {
 	if last_view.lines.len < 2 { // 如果行数少
 		// os.system('echo "no diff\n" > $dir/out')
 		os.system('git -C ${dir} log -n 40 --pretty=format:"%ad %s" ' + // 执行 git log
-			'--simplify-merges --date=format:"%Y-%m-%d %H:%M  "> ${dir}/out')
+		 '--simplify-merges --date=format:"%Y-%m-%d %H:%M  "> ${dir}/out')
 		last_view.open_file('${dir}/out', 0) // 打开 out 文件
 	}
 	last_view.gg() // 执行 gg
@@ -1045,7 +1048,7 @@ fn segfault_sigaction(signal int, si voidptr, arg voidptr) {
 // 设置分段错误的自定义信号处理程序
 fn (ved &Ved) handle_segfault() {
 	$if windows {
-		return // Windows 不处理
+		return
 	}
 	/*
 	# g_ved= ctx ;

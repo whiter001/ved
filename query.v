@@ -1,8 +1,9 @@
 // Copyright (c) 2019 Alexander Medvednikov. All rights reserved. // 版权所有 (c) 2019 Alexander Medvednikov。保留所有权利
 // Use of this source code is governed by a GPL license // 本源代码的使用受 GPL 许可证约束
 // that can be found in the LICENSE file. // 可在 LICENSE 文件中找到
-module main // 主模块
+module main
 
+// 主模块
 import os // 导入 os 操作系统库
 import gg // 导入 gg 图形库
 import time // 导入 time 时间库
@@ -14,27 +15,28 @@ const txt_cfg = gx.TextCfg{ // txt_cfg 常量（注释）
 */
 
 enum QueryType { // QueryType 枚举，查询类型
-	ctrlp            = 0 // ctrlp
-	search           = 1 // 搜索
-	cam              = 2 // cam
-	open             = 3 // 打开
-	ctrlj            = 4 // ctrlj
-	task             = 5 // 任务
-	grep             = 6 // grep
-	open_workspace   = 7 // 打开工作区
-	run              = 8 // 运行
-	alert            = 9 // alert，例如 "running git pull..."
+	ctrlp            = 0  // ctrlp
+	search           = 1  // 搜索
+	cam              = 2  // cam
+	open             = 3  // 打开
+	ctrlj            = 4  // ctrlj
+	task             = 5  // 任务
+	grep             = 6  // grep
+	open_workspace   = 7  // 打开工作区
+	run              = 8  // 运行
+	alert            = 9  // alert，例如 "running git pull..."
 	search_in_folder = 10 // 在文件夹中搜索
 }
 
 fn (mut ved Ved) key_query(key gg.KeyCode, super bool) { // key_query 函数，查询键
-	match key { // 匹配键
+	match key {
+		// 匹配键
 		.backspace { // 退格
 			ved.gg_pos = -1 // gg_pos = -1
 			ved.just_switched = true // just_switched = true
 			if ved.query_type != .search && ved.query_type != .grep { // 如果查询类型不是搜索且不是 grep
 				if ved.query.len == 0 { // 如果查询长度为 0
-					return // 返回
+					return
 				}
 				ved.query = ved.query[..ved.query.len - 1] // 查询 = 查询[..查询长度 - 1]
 				// Re-filter ctrlp results on backspace to update the list immediately // 在退格时重新过滤 ctrlp 结果以立即更新列表
@@ -43,11 +45,11 @@ fn (mut ved Ved) key_query(key gg.KeyCode, super bool) { // key_query 函数，�
 				}
 			} else { // 否则
 				if ved.search_query.len == 0 { // 如果搜索查询长度为 0
-					return // 返回
+					return
 				}
 				ved.search_query = ved.search_query[..ved.search_query.len - 1] // 搜索查询 = 搜索查询[..搜索查询长度 - 1]
 			}
-			return // 返回
+			return
 		}
 		.enter {
 			match ved.query_type {
@@ -102,15 +104,16 @@ fn (mut ved Ved) key_query(key gg.KeyCode, super bool) { // key_query 函数，�
 				}
 			}
 			ved.mode = .normal // 设置正常模式
-			return // 返回
+			return
 		}
 		.escape { // escape
 			ved.mode = .normal // 设置正常模式
-			return // 返回
+			return
 		}
 		.down { // down
 			if ved.mode == .query { // 如果模式为查询
-				match ved.query_type { // 匹配查询类型
+				match ved.query_type {
+					// 匹配查询类型
 					.grep { // grep
 						// Going thru git grep results // 浏览 git grep 结果
 						ved.gg_pos++ // gg_pos 加一
@@ -144,7 +147,8 @@ fn (mut ved Ved) key_query(key gg.KeyCode, super bool) { // key_query 函数，�
 		}
 		.up { // up
 			if ved.mode == .query { // 如果模式为查询
-				match ved.query_type { // 匹配查询类型
+				match ved.query_type {
+					// 匹配查询类型
 					.grep, .ctrlp { // Apply same logic to ctrlp // 对 ctrlp 应用相同逻辑
 						ved.gg_pos-- // gg_pos 减一
 						if ved.gg_pos < 0 { // 如果 gg_pos < 0
@@ -167,7 +171,8 @@ fn (mut ved Ved) key_query(key gg.KeyCode, super bool) { // key_query 函数，�
 		.tab { // tab
 			// TODO COPY PASTA - adapt for ctrlp if needed // TODO 复制粘贴 - 如果需要，为 ctrlp 调整
 			if ved.mode == .query { // 如果模式为查询
-				match ved.query_type { // 匹配查询类型
+				match ved.query_type {
+					// 匹配查询类型
 					.grep { // grep
 						ved.gg_pos++ // gg_pos 加一
 						if ved.gg_pos >= ved.gg_lines.len { // 如果 gg_pos >= gg_lines 长度
@@ -201,7 +206,7 @@ fn (mut ved Ved) key_query(key gg.KeyCode, super bool) { // key_query 函数，�
 
 fn (mut ved Ved) char_query(s string) { // char_query 函数，查询字符
 	if int(s[0]) < 32 { // 如果字符码 < 32
-		return // 返回
+		return
 	}
 	// println('char q(${s}) ${ved.query_type}') // 打印（注释）
 	if ved.query_type in [.search, .search_in_folder, .grep] { // 如果查询类型在搜索相关
@@ -230,7 +235,7 @@ fn (mut ved Ved) load_git_tree() { // load_git_tree 函数，加载 git 树
 		s := os.execute('git -C ${dir} ls-files') // 执行 git 命令
 		if s.exit_code == -1 { // 如果退出码为 -1
 			ved.all_git_files = [] // 设置为空
-			return // 返回
+			return
 		}
 		ved.all_git_files = s.output.split_into_lines() // 分割输出为行
 	} else { // 否则

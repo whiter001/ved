@@ -1,8 +1,9 @@
 // Copyright (c) 2019 Alexander Medvednikov. All rights reserved. // 版权所有 (c) 2019 Alexander Medvednikov。保留所有权利
 // Use of this source code is governed by a GPL license // 本源代码的使用受 GPL 许可证约束
 // that can be found in the LICENSE file. // 可在 LICENSE 文件中找到
-module main // 主模块
+module main
 
+// 主模块
 import gg // 导入 gg 图形库
 import os // 导入 os 操作系统库
 import time // 导入 time 时间库
@@ -40,11 +41,11 @@ fn (ved &Ved) draw_autocomplete_window() { // draw_autocomplete_window 函数，
 		// Do not draw empty autocomplete window if there are no results and the user // 如果没有结果且用户在 `.` 后开始输入，不要绘制空的自动完成窗口
 		// started typing after `.` // （注释）
 		// println("NO RES, RET word='${cur_word}'") // 打印（注释）
-		return // 返回
+		return
 	}
 
 	if ved.autocomplete_info.vars.len == 0 { // 如果变量长度为 0
-		return // 返回
+		return
 	}
 	ved.gg.draw_rect_filled(x, y, width, height, gg.white) // 绘制填充矩形
 	// ved.gg.draw_text(x + 10, y + 30, 'AUTOCOMPLETE', txt_cfg) // 绘制文本（注释）

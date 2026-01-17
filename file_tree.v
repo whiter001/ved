@@ -1,5 +1,6 @@
-module main // 主模块
+module main
 
+// 主模块
 import os // 导入 os 操作系统库
 import gg // 导入 gg 图形库
 
@@ -54,7 +55,7 @@ fn (mut t Tree) load_children(node_idx int) { // load_children 函数，加载�
 	mut node := t.nodes[node_idx] // 获取节点
 	println('node=${node}') // 打印节点
 	if !node.is_dir || node.children.len > 0 { // 如果不是目录或已有子节点
-		return // 返回
+		return
 	}
 
 	entries := os.ls(node.path) or { return } // 列出目录内容
@@ -63,8 +64,8 @@ fn (mut t Tree) load_children(node_idx int) { // load_children 函数，加载�
 		full_path := os.join_path(node.path, entry) // 完整路径
 		is_dir := os.is_dir(full_path) // 是否为目录
 		t.nodes << Node{ // 添加节点
-			path:   full_path // 路径
-			is_dir: is_dir   // 是否目录
+			path:   full_path      // 路径
+			is_dir: is_dir         // 是否目录
 			depth:  node.depth + 1 // 深度加一
 		}
 		t.nodes[node_idx].children << t.nodes.len - 1 // 添加子节点索引

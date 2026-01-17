@@ -1,8 +1,9 @@
 // Copyright (c) 2019-2023 Alexander Medvednikov. All rights reserved. // 版权所有 (c) 2019-2023 Alexander Medvednikov。保留所有权利
 // Use of this source code is governed by a GPL license // 本源代码的使用受 GPL 许可证约束
 // that can be found in the LICENSE file. // 可在 LICENSE 文件中找到
-module main // 主模块
+module main
 
+// 主模块
 import os // 导入 os 操作系统库
 
 // For syntax highlighting // 用于语法高亮
@@ -14,8 +15,8 @@ enum ChunkKind { // ChunkKind 枚举
 }
 
 struct Chunk { // Chunk 结构体
-	start int      // 开始
-	end   int      // 结束
+	start int       // 开始
+	end   int       // 结束
 	typ   ChunkKind // 类型
 }
 
@@ -35,7 +36,8 @@ fn (mut ved Ved) add_chunk(typ ChunkKind, start int, end int) { // add_chunk 函
 
 // Updated to use the new Mcomment struct // 更新为使用新的 Mcomment 结构体
 fn get_mcomment_by_ext(ext string) Mcomment { // get_mcomment_by_ext 函数，根据扩展名获取多行注释
-	return match ext { // 匹配扩展名
+	return match ext {
+		// 匹配扩展名
 		'.html' { // .html
 			Mcomment{ // Mcomment
 				start: '<!--' // 开始
@@ -72,15 +74,15 @@ fn (ved &Ved) determine_ml_comment_state(view &View, target_line_nr int) bool { 
 		// Scan through the characters of the line // 扫描行的字符
 		for k < line.len { // 循环
 			// Check for start delimiter only if we are *outside* a comment // 仅当我们在注释*外*时检查开始分隔符
-			if !is_inside && k + mcomment.start.len <= line.len // 如果不在内部且 k + 开始长度 <= 行长度
-				&& line[k..k + mcomment.start.len] == mcomment.start { // 且等于开始
+			if !is_inside && k + mcomment.start.len <= line.len
+				&& line[k..k + mcomment.start.len] == mcomment.start { // 如果不在内部且 k + 开始长度 <= 行长度 且等于开始
 				is_inside = true // Enter comment state // 进入注释状态
 				k += mcomment.start.len // Skip the delimiter // 跳过分隔符
 				continue // 继续
 			}
 			// Check for end delimiter only if we are *inside* a comment // 仅当我们在注释*内*时检查结束分隔符
-			if is_inside && k + mcomment.end.len <= line.len // 如果在内部且 k + 结束长度 <= 行长度
-				&& line[k..k + mcomment.end.len] == mcomment.end { // 且等于结束
+			if is_inside && k + mcomment.end.len <= line.len
+				&& line[k..k + mcomment.end.len] == mcomment.end { // 如果在内部且 k + 结束长度 <= 行长度 且等于结束
 				is_inside = false // Exit comment state // 退出注释状态
 				k += mcomment.end.len // Skip the delimiter // 跳过分隔符
 				continue // 继续
@@ -219,7 +221,7 @@ fn (mut ved Ved) draw_text_line_standard_syntax(x int, y int, line string, ext s
 	// --- Keep the original chunk drawing logic --- // --- 保留原始块绘制逻辑 ---
 	if ved.chunks.len == 0 { // 如果块长度为 0
 		ved.gg.draw_text(x, y, line, ved.cfg.txt_cfg) // 绘制文本
-		return // 返回
+		return
 	}
 	mut pos := 0 // 位置
 	mut cur_x := x // 当前 x
@@ -231,9 +233,10 @@ fn (mut ved Ved) draw_text_line_standard_syntax(x int, y int, line string, ext s
 			cur_x += ved.text_width_tabs(s) // 当前 x 增加
 		}
 		typ := chunk.typ // 类型
-		cfg := match typ { // 匹配类型
-			.a_key { ved.cfg.key_cfg }      // 关键字配置
-			.a_lit { ved.cfg.lit_cfg }      // 字面量配置
+		cfg := match typ {
+			// 匹配类型
+			.a_key { ved.cfg.key_cfg } // 关键字配置
+			.a_lit { ved.cfg.lit_cfg } // 字面量配置
 			.a_string { ved.cfg.string_cfg } // 字符串配置
 			.a_comment { ved.cfg.comment_cfg } // 注释配置
 		}

@@ -18,32 +18,32 @@ struct Snapshot {
 // 包括文件路径、内容（行）、光标位置 (x, y)、滚动位置 (from) 和其他设置。
 struct View {
 mut:
-	padding_left int     // 左侧行号区域的宽度
-	from         int     // 当前屏幕显示的第一行行号
-	from_x       int     // 当前屏幕显示的水平起始列 (水平滚动)
-	x            int     // 当前光标的字节索引位置
-	visual_x     int     // 目标视觉列位置（用于 j/k 移动时对齐）
-	y            int     // 当前光标的行号索引
-	prev_x       int     // 记录上一个 x 位置
-	path         string  // 文件的完整磁盘路径
-	short_path   string  // 用于显示的缩短后的路径
-	prev_path    string  // 上一个打开的文件路径（用于 tt 命令切换）
-	lines        []string // 文件的所有行内容
+	padding_left int        // 左侧行号区域的宽度
+	from         int        // 当前屏幕显示的第一行行号
+	from_x       int        // 当前屏幕显示的水平起始列 (水平滚动)
+	x            int        // 当前光标的字节索引位置
+	visual_x     int        // 目标视觉列位置（用于 j/k 移动时对齐）
+	y            int        // 当前光标的行号索引
+	prev_x       int        // 记录上一个 x 位置
+	path         string     // 文件的完整磁盘路径
+	short_path   string     // 用于显示的缩短后的路径
+	prev_path    string     // 上一个打开的文件路径（用于 tt 命令切换）
+	lines        []string   // 文件的所有行内容
 	undo_stack   []Snapshot // 撤销栈
 	redo_stack   []Snapshot // 重做栈
-	page_height  int     // 一页显示的行数
-	vx           int     // 可视块模式的起始视觉列
-	vstart       int     // 可视模式选择的开始行
-	vstart_x     int     // 可视模式选择的开始列 (字节索引)
-	vend         int     // 可视模式选择的结束行
-	vend_x       int     // 可视模式选择的结束列 (字节索引)
-	changed      bool    // 文件是否已被修改
-	error_y      int     // 错误行的高亮位置
+	page_height  int        // 一页显示的行数
+	vx           int        // 可视块模式的起始视觉列
+	vstart       int        // 可视模式选择的开始行
+	vstart_x     int        // 可视模式选择的开始列 (字节索引)
+	vend         int        // 可视模式选择的结束行
+	vend_x       int        // 可视模式选择的结束列 (字节索引)
+	changed      bool       // 文件是否已被修改
+	error_y      int        // 错误行的高亮位置
 	ved          &Ved = unsafe { nil } // 对主应用程序对象的引用
-	prev_y       int     // 上一个 y 位置
-	hash_comment bool    // 是否使用 # 进行注释
-	hl_on        bool    // 语法高亮是否开启
-	breakpoints  []int   // 存储断点行号
+	prev_y       int   // 上一个 y 位置
+	hash_comment bool  // 是否使用 # 进行注释
+	hl_on        bool  // 语法高亮是否开启
+	breakpoints  []int // 存储断点行号
 }
 
 // new_view 创建并初始化一个新的 View 实例。
@@ -646,7 +646,7 @@ fn (mut view View) backspace() {
 			// 将内容合并到上一行
 			view.lines[view.y] += current_line_text
 			view.x = prev_line_len
-			
+
 			view.sync_visual_x()
 			view.changed = true
 		}
@@ -677,7 +677,9 @@ fn (mut view View) yy() {
 
 // p 粘贴。
 fn (mut view View) p() {
-	if view.ved.ylines.len == 0 { return }
+	if view.ved.ylines.len == 0 {
+		return
+	}
 	view.save_snapshot()
 	for line in view.ved.ylines {
 		view.o()
@@ -809,7 +811,7 @@ fn (mut v View) y_visual() {
 	mut ved := v.ved
 	ved.ylines = ylines
 	ved.cb.copy(ylines.join('\n'))
-	
+
 	v.vstart = -1
 	v.vstart_x = -1
 	v.vend = -1
@@ -822,7 +824,7 @@ fn (mut v View) d_visual() {
 		return
 	}
 	v.save_snapshot()
-	
+
 	mut v_from_y := v.vstart
 	mut v_from_x := v.vstart_x
 	mut v_to_y := v.vend
@@ -846,9 +848,9 @@ fn (mut v View) d_visual() {
 		prefix := v.lines[v_from_y][..v_from_x]
 		last_line := v.lines[v_to_y]
 		suffix := if v_to_x < last_line.len { last_line[v_to_x..] } else { '' }
-		
+
 		v.lines[v_from_y] = prefix + suffix
-		
+
 		// 删除中间行和结束行
 		for i := 0; i < v_to_y - v_from_y; i++ {
 			v.lines.delete(v_from_y + 1)
@@ -1015,8 +1017,10 @@ fn (mut view View) ce() {
 // w 移动到下一单词。
 fn (mut view View) w() {
 	line := view.line()
-	if view.x >= line.len { return }
-	
+	if view.x >= line.len {
+		return
+	}
+
 	runes := line.runes()
 	// 找到当前光标所在的 rune 索引
 	mut cur_idx := 0
@@ -1029,10 +1033,12 @@ fn (mut view View) w() {
 		byte_off += r.length_in_bytes()
 	}
 
-	if cur_idx >= runes.len { return }
-	
+	if cur_idx >= runes.len {
+		return
+	}
+
 	start_kind := get_char_kind(runes[cur_idx])
-	
+
 	// 逻辑：
 	// 1. 如果当前是中文，移动一个字符。
 	// 2. 如果是 Word 或 Punct，移动到该类结束。
@@ -1043,15 +1049,15 @@ fn (mut view View) w() {
 			cur_idx++
 		}
 	}
-	
+
 	// 3. 跳过随后的空格
 	for cur_idx < runes.len && get_char_kind(runes[cur_idx]) == .space {
 		cur_idx++
 	}
-	
+
 	// 将 rune 索引转回字节偏移
 	mut target_byte_off := 0
-	for i in 0..cur_idx {
+	for i in 0 .. cur_idx {
 		target_byte_off += runes[i].length_in_bytes()
 	}
 	view.x = target_byte_off
@@ -1060,10 +1066,12 @@ fn (mut view View) w() {
 
 // b 移动到上一个单词。
 fn (mut view View) b() {
-	if view.x <= 0 { return }
+	if view.x <= 0 {
+		return
+	}
 	line := view.line()
 	runes := line.runes()
-	
+
 	// 找到当前光标所在的 rune 索引
 	mut cur_idx := 0
 	mut byte_off := 0
@@ -1074,14 +1082,17 @@ fn (mut view View) b() {
 		}
 		byte_off += r.length_in_bytes()
 	}
-	if cur_idx == 0 { view.x = 0; return }
+	if cur_idx == 0 {
+		view.x = 0
+		return
+	}
 
 	// 1. 先跳过前面的空格
 	mut idx := cur_idx - 1
 	for idx > 0 && get_char_kind(runes[idx]) == .space {
 		idx--
 	}
-	
+
 	// 2. 确定当前词的分类
 	kind := get_char_kind(runes[idx])
 	if kind == .cjk {
@@ -1092,10 +1103,10 @@ fn (mut view View) b() {
 			idx--
 		}
 	}
-	
+
 	// 将 rune 索引转回字节偏移
 	mut target_byte_off := 0
-	for i in 0..idx {
+	for i in 0 .. idx {
 		target_byte_off += runes[i].length_in_bytes()
 	}
 	view.x = target_byte_off
@@ -1106,8 +1117,10 @@ fn (mut view View) b() {
 fn (mut view View) de() {
 	view.save_snapshot()
 	line := view.line()
-	if view.x >= line.len { return }
-	
+	if view.x >= line.len {
+		return
+	}
+
 	runes := line.runes()
 	mut cur_idx := 0
 	mut byte_off := 0
@@ -1118,7 +1131,7 @@ fn (mut view View) de() {
 		}
 		byte_off += r.length_in_bytes()
 	}
-	
+
 	start_kind := get_char_kind(runes[cur_idx])
 	mut end_idx := cur_idx
 	if start_kind == .cjk {
@@ -1128,13 +1141,13 @@ fn (mut view View) de() {
 			end_idx++
 		}
 	}
-	
+
 	// 计算删除的字节范围
 	mut end_byte_off := 0
-	for i in 0..end_idx {
+	for i in 0 .. end_idx {
 		end_byte_off += runes[i].length_in_bytes()
 	}
-	
+
 	new_line := line[..view.x] + line[end_byte_off..]
 	view.set_line(new_line)
 	view.ved.prev_cmd = 'de'
@@ -1149,15 +1162,15 @@ fn (mut view View) ci(key gg.KeyCode) {
 	}
 	match key {
 		.apostrophe {
-			if !line.contains("'" ) {
+			if !line.contains("'") {
 				return
 			}
 			mut start := view.x
-			for line[start] != `\'` {
+			for line[start] != `'` {
 				start--
 			}
 			mut end := view.x
-			for line[end] != `\'` {
+			for line[end] != `'` {
 				end++
 			}
 			view.set_line(line[..start + 1] + line[end..])
@@ -1205,10 +1218,10 @@ fn (mut view View) move_to_line(line int) {
 
 // CharKind 定义字符的分类
 enum CharKind {
-	word   // 字母、数字、下划线
-	cjk    // 中日韩字符
-	punct  // 标点符号
-	space  // 空格、制表符
+	word  // 字母、数字、下划线
+	cjk   // 中日韩字符
+	punct // 标点符号
+	space // 空格、制表符
 }
 
 // get_char_kind 返回特定字符的分类
@@ -1217,11 +1230,14 @@ fn get_char_kind(r rune) CharKind {
 		return .space
 	}
 	// ASCII 单词字符
-	if (r >= `a` && r <= `z`) || (r >= `A` && r <= `Z`) || (r >= `0` && r <= `9`) || r == `_` || r == `#` || r == `$` {
+	if (r >= `a` && r <= `z`) || (r >= `A` && r <= `Z`) || (r >= `0` && r <= `9`)
+		|| r == `_` || r == `#` || r == `$` {
 		return .word
 	}
 	// CJK 范围判断
-	if (int(r) >= 0x4E00 && int(r) <= 0x9FFF) || (int(r) >= 0x3040 && int(r) <= 0x30FF) || (int(r) >= 0xFF00 && int(r) <= 0xFFEF) {
+	if (int(r) >= 0x4E00 && int(r) <= 0x9FFF)
+		|| (int(r) >= 0x3040 && int(r) <= 0x30FF)
+		|| (int(r) >= 0xFF00 && int(r) <= 0xFFEF) {
 		return .cjk
 	}
 	return .punct

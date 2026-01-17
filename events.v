@@ -1,5 +1,6 @@
-module main // 主模块
+module main
 
+// 主模块
 import os // 导入 os 模块
 import gg // 导入 gg 模块
 import uiold // 导入 uiold 模块
@@ -7,7 +8,7 @@ import uiold // 导入 uiold 模块
 // on_event 处理各种 GUI 事件，如鼠标点击、滚动和窗口缩放。
 fn (mut ved Ved) on_event(e &gg.Event) {
 	ved.refresh = true
-	
+
 	// 处理鼠标滚动
 	if e.typ == .mouse_scroll {
 		if e.scroll_y < -0.2 {
@@ -59,10 +60,10 @@ fn (mut ved Ved) on_event(e &gg.Event) {
 		// split_width() 返回的是逻辑宽度，不需要再乘以 2
 		sw := ved.split_width()
 		rel_x := e.mouse_x - (ved.cur_split % ved.nr_splits) * sw - view.padding_left - 10
-		
+
 		// 将像素转换为视觉列并加上水平滚动偏移
 		visual_clicked_x := int(rel_x / ved.cfg.char_width) + view.from_x
-		
+
 		if view.lines.len > 0 {
 			// 根据视觉位置获取准确的字节索引
 			view.x = view.x_at_visual_pos(int_max(0, visual_clicked_x))
@@ -89,7 +90,7 @@ fn (mut ved Ved) on_event(e &gg.Event) {
 		// 只有在鼠标左键按下时才处理拖拽选择
 		if e.mouse_button == .left {
 			mut view := ved.view
-			
+
 			// 计算当前的行和列
 			clicked_y := int((e.mouse_y - ved.cfg.line_height) / ved.cfg.line_height) + view.from
 			if clicked_y >= view.lines.len {
@@ -103,7 +104,7 @@ fn (mut ved Ved) on_event(e &gg.Event) {
 			sw := ved.split_width()
 			rel_x := e.mouse_x - (ved.cur_split % ved.nr_splits) * sw - view.padding_left - 10
 			visual_clicked_x := int(rel_x / ved.cfg.char_width) + view.from_x
-			
+
 			if view.lines.len > 0 {
 				view.x = view.x_at_visual_pos(int_max(0, visual_clicked_x))
 				view.sync_visual_x()
@@ -606,7 +607,7 @@ fn on_char(code u32, mut ved Ved) {
 				}
 				return
 			}
-			ved.prev_key_str = s 
+			ved.prev_key_str = s
 		}
 		else {}
 	}
@@ -617,7 +618,7 @@ fn (mut ved Ved) key_insert(key gg.KeyCode, mod gg.Modifier) {
 	super := mod == .super || mod == .ctrl
 	match key {
 		.backspace {
-			ved.just_switched = true 
+			ved.just_switched = true
 			ved.view.backspace()
 		}
 		.enter {

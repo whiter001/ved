@@ -1,8 +1,9 @@
 // Copyright (c) 2019 Alexander Medvednikov. All rights reserved. // 版权所有 (c) 2019 Alexander Medvednikov。保留所有权利
 // Use of this source code is governed by a GPL license // 本源代码的使用受 GPL 许可证约束
 // that can be found in the LICENSE file. // 可在 LICENSE 文件中找到
-module main // 主模块
+module main
 
+// 主模块
 import os // 导入 os 操作系统库
 import x.json2 // 导入 x.json2 JSON 库
 

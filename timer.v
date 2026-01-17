@@ -1,5 +1,6 @@
-module main // 主模块
+module main
 
+// 主模块
 import time // 导入 time 时间库
 import gg // 导入 gg 图形库
 import os // 导入 os 操作系统库
@@ -7,7 +8,7 @@ import strings // 导入 strings 字符串库
 
 const time_cfg = gg.TextCfg{ // time_cfg 常量
 	color: gg.gray // 颜色
-	size:  14 // 大小
+	size:  14      // 大小
 }
 
 const color_distracting = gg.rgb(255, 111, 130) // color_distracting 常量，干扰色
@@ -18,10 +19,10 @@ const color_neutral = gg.rgb(39, 195, 221) // color_neutral 常量，中性色
 struct Timer { // Timer 结构体
 mut:
 	gg             &gg.Context = unsafe { nil } // 图形上下文，用于绘制 UI // graphics context for drawing UI
-	tasks          []Task                      // 当前加载的任务列表 // currently loaded list of tasks
-	date           time.Time                   // 当前正在显示的日期 // currently displayed date
-	pom_start      i64                       // 番茄钟开始的 Unix 时间戳 // unix timestamp when pomodoro started
-	pom_is_started bool                      // 番茄钟是否正在运行 // whether pomodoro is running
+	tasks          []Task    // 当前加载的任务列表 // currently loaded list of tasks
+	date           time.Time // 当前正在显示的日期 // currently displayed date
+	pom_start      i64       // 番茄钟开始的 Unix 时间戳 // unix timestamp when pomodoro started
+	pom_is_started bool      // 番茄钟是否正在运行 // whether pomodoro is running
 }
 
 // Task 结构体代表一个独立的工作任务记录 // Task struct represents a single work task record
@@ -83,12 +84,12 @@ fn (mut t Timer) load_tasks() { // load_tasks 函数
 		// TODO autofree bug remove clone() // TODO autofree bug remove clone()
 		name2 := if productive { name.clone() } else { name[1..] } // name2
 		task := Task{ // 创建任务
-			start:        hour * 60 + min // 开始
+			start:        hour * 60 + min         // 开始
 			end:          hour_end * 60 + min_end // 结束
-			name:         name2 // 名称
-			duration:     duration // 持续时间
+			name:         name2                   // 名称
+			duration:     duration                // 持续时间
 			duration_min: duration[..duration.len - 1].int() // 持续时间分钟
-			color:        color // 颜色
+			color:        color      // 颜色
 			productive:   productive // 是否生产力
 		}
 		// println('task:') // 打印任务（注释）
@@ -120,15 +121,15 @@ fn (mut t Timer) draw() { // draw 函数，绘制
 	window_height := t.gg.height - 20 // 窗口高度
 	window_x := (t.gg.width - window_width) / 2 // 窗口 x
 	window_y := (t.gg.height - window_height) / 2 // 窗口 y
-	
+
 	// 绘制背景 // Draw background
 	t.gg.draw_rect_filled(window_x, window_y, window_width, window_height, gg.white) // 绘制填充矩形
-	
+
 	// 时间轴刻度计算：将 24 小时映射到窗口高度 // Time axis scale calculation: map 24 hours to window height
 	hour_width := window_height / 24 // 每小时占据的高度 // Height occupied per hour
 	scale := 60.0 / f64(hour_width) // 比例
 	mut total := 0 // 总数
-	
+
 	// 绘制每个已加载的任务块 // Draw each loaded task block
 	for task in t.tasks { // 循环任务
 		// println('TASK $task') // 打印任务（注释）
@@ -138,10 +139,10 @@ fn (mut t Timer) draw() { // draw 函数，绘制
 		x := f64(window_x) + 30.0 // x
 		y := f64(window_y) + f64(task.start) / scale + 10 // y
 		height := f64(task.end - task.start) / scale // 高度
-		
+
 		// 绘制代表任务持续时间的彩色矩形 // Draw colored rectangle representing task duration
 		t.gg.draw_rect_filled(f32(x), f32(y), f32(hour_width), f32(height), task.color) // 绘制填充矩形
-		
+
 		// 绘制任务名称和持续时间文本 // Draw task name and duration text
 		t.gg.draw_text(int(x) + hour_width + 10, int(y) + 5, task.name + ' ' + task.duration,
 			gg.TextCfg{ // 文本配置
@@ -151,7 +152,7 @@ fn (mut t Timer) draw() { // draw 函数，绘制
 			total += task.duration_min
 		}
 	}
-	
+
 	// 绘制 24 小时时间轴的横线和小时标签
 	for hour in 0 .. 24 + 1 {
 		hour_y := window_y + hour * hour_width + 10
@@ -161,17 +162,17 @@ fn (mut t Timer) draw() { // draw 函数，绘制
 		}
 		t.gg.draw_line(hour_x, hour_y, hour_x + hour_width, hour_y, gg.gray)
 	}
-	
+
 	// 绘制左侧垂直基准线
 	t.gg.draw_line(window_x + 30, window_y + 10, window_x + 30, window_y + 10 + 24 * hour_width,
 		gg.gray)
 	// 绘制右侧垂直基准线（时间轴宽度）
 	t.gg.draw_line(window_x + 30 + hour_width, window_y + 10, window_x + 30 + hour_width,
 		window_y + 10 + 24 * hour_width, gg.gray)
-		
+
 	// 在右上角绘制当前查看的日期
 	t.gg.draw_text_def(window_x + window_width - 100, 20, t.date.ymmdd())
-	
+
 	// 显示当日生产力任务的总计时间
 	h := total / 60
 	m := total % 60
@@ -220,11 +221,11 @@ fn (ved &Ved) insert_task() ! {
 	}
 	start_time := time.unix(int(ved.task_start_unix))
 	mut f := os.open_append(tasks_path)!
-	
+
 	// 格式化任务名，限制长度并填充空格以保持对齐
 	task_name := ved.cur_task.limit(max_task_len) +
 		strings.repeat(` `, max_task_len - ved.cur_task.len)
-	
+
 	mut mins := ved.task_minutes().str() + 'm'
 	// 防止意外情况：如果单次任务超过 8 小时，可能忘记点结束，仅记录 60 分钟
 	too_long := ved.task_minutes() > 60 * 8
@@ -233,7 +234,7 @@ fn (ved &Ved) insert_task() ! {
 	}
 	mins_pad := strings.repeat(` `, 4 - mins.len)
 	now := time.now()
-	
+
 	// 处理任务写入：判断任务是否在同一天内完成
 	if (start_time.day == now.day && start_time.month == now.month) || too_long {
 		// 情况 A：同一天完成的任务，直接记录一条

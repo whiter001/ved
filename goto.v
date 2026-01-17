@@ -1,5 +1,6 @@
-module main // 主模块
+module main
 
+// 主模块
 import os // 导入 os 操作系统库
 
 // gd // gd
@@ -12,7 +13,7 @@ fn (mut ved Ved) go_to_def() { // go_to_def 函数，跳转到定义
 		for i, line in view.lines { // 循环行
 			if line.contains(query) { // 如果包含查询
 				ved.move_to_line(i) // 移动到行
-				return // 返回
+				return
 			}
 		}
 	}
@@ -35,7 +36,7 @@ fn (mut ved Ved) go_to_def() { // go_to_def 函数，跳转到定义
 				if line.contains(query) { // 如果包含查询
 					view.open_file(file, j) // 打开文件
 					// ved.move_to_line(j) // 移动到行（注释）
-					return // 返回
+					return
 				}
 			}
 		}
@@ -57,7 +58,7 @@ fn (mut ved Ved) go_to_fn_start() { // go_to_fn_start 函数，跳转到函数�
 			if line.starts_with('fn ') { // 如果以 'fn ' 开始
 				ved.move_to_line(current_line_nr) // 移动到行
 				view.zz() // Center the view on the found function // 将视图居中在找到的函数上
-				return // 返回
+				return
 			}
 		}
 		current_line_nr-- // 当前行号减一

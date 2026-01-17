@@ -1,4 +1,6 @@
-module main // 主模块
+module main
+
+// 主模块
 
 fn nr_spaces_and_tabs_in_line(line string) (int, int) { // nr_spaces_and_tabs_in_line 函数，计算行中的空格和制表符数量
 	mut nr_spaces := 0 // 可变空格数量 = 0

@@ -1,4 +1,6 @@
-module main // 主模块
+module main
+
+// 主模块
 
 // This file serves only as a measuring ruler, to test/see how the font resizing affects ved views: // 此文件仅用作测量标尺，用于测试/查看字体大小调整如何影响 ved 视图
 /*

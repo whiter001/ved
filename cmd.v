@@ -1,7 +1,9 @@
 // Copyright (c) 2019 Alexander Medvednikov. All rights reserved. // 版权所有 (c) 2019 Alexander Medvednikov。保留所有权利
 // Use of this source code is governed by a GPL license // 本源代码的使用受 GPL 许可证约束
 // that can be found in the LICENSE file. // 可在 LICENSE 文件中找到
-module main // 主模块
+module main
+
+// 主模块
 
 // This file contains logic related to running external commands (building projects, // 此文件包含运行外部命令的逻辑（构建项目，
 // running files, running zsh commands) // 运行文件，运行 zsh 命令）
@@ -43,7 +45,7 @@ fn (mut ved Ved) build_app(extra string) { // build_app 函数，构建应用
 
 	out := os.execute(building_cmd) // 执行命令
 	if out.exit_code == -1 { // 如果退出码为 -1
-		return // 返回
+		return
 	}
 
 	os.write_file(out_file, filter_ascii_colors(out.output)) or { panic(err) } // 写入文件
@@ -80,8 +82,9 @@ fn (mut ved Ved) build_app(extra string) { // build_app 函数，构建应用
 		println('${i}, HANDLE E LINE ${line}') // 打印处理错误行
 		// Go to the next warning only if there are no errors. // 只有在没有错误时才转到下一个警告
 		// This makes Ved go to errors before warnings. // 这使 Ved 在警告之前转到错误
-		if is_error && ((!is_notice && !is_warning) || (is_warning && no_errors) // 如果是错误且条件满足
-			|| (is_notice && no_errors)) {
+		if is_error && ((!is_notice && !is_warning) || (is_warning && no_errors)
+			|| (is_notice && no_errors)) // 如果是错误且条件满足
+		  {
 			mut error_details := '' // 错误详情 = ''
 			for i < lines.len - 1 { // 循环
 				if lines[i].contains('Details') { // 如果包含 'Details'

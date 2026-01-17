@@ -23,13 +23,13 @@ enum Cursor {
 struct Config {
 mut:
 	// settings        toml.Doc
-	dark_mode       bool     // 深色模式
-	cursor_style    Cursor   // 光标样式
+	dark_mode       bool   // 深色模式
+	cursor_style    Cursor // 光标样式
 	text_size       int = min_text_size // 文本大小
-	line_height     int = 20 // 行高
-	char_width      int = 8  // 字符宽度
-	tab_size        int = 4  // 制表符大小
-	tab             int = int(`	`) // 制表符字符
+	line_height     int = 20            // 行高
+	char_width      int = 8             // 字符宽度
+	tab_size        int = 4             // 制表符大小
+	tab             int = int(`\x09`)   // 制表符字符
 	backspace_go_up bool     // 退格键是否可向上换行
 	vcolor          gg.Color // 可视模式选择区域背景颜色
 	split_color     gg.Color // 分屏线颜色
@@ -59,14 +59,15 @@ mut:
 	green_cfg       gg.TextCfg
 	red_color       gg.Color // 红色 (base08)
 	red_cfg         gg.TextCfg
-	disable_mouse   bool = false // 是否禁用鼠标
-	show_file_tree  bool        // 是否显示文件树
+	disable_mouse   bool // 是否禁用鼠标
+	show_file_tree  bool // 是否显示文件树
+
 	// Config.json
 	disable_fmt bool // 是否禁用格式化
 }
 
 // reload_config reloads the config from config.toml file
-// set_default_color_values? 
+// set_default_color_values?
 // set_default_values 设置配置的默认值
 fn (mut config Config) set_default_values() {
 	config.init_colors()

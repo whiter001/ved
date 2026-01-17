@@ -1,8 +1,9 @@
 // Copyright (c) 2019-2025 Alexander Medvednikov. All rights reserved. // 版权所有 (c) 2019-2025 Alexander Medvednikov。保留所有权利
 // Use of this source code is governed by a GPL license // 本源代码的使用受 GPL 许可证约束
 // that can be found in the LICENSE file. // 可在 LICENSE 文件中找到
-module main // 主模块
+module main
 
+// 主模块
 import strings // 导入 strings 字符串库
 
 // Fit lines  into 80 chars // 将行调整为 80 个字符
@@ -10,7 +11,7 @@ import strings // 导入 strings 字符串库
 fn (mut view View) gq() { // gq 函数，格式化
 	mut ved := view.ved // 获取 ved
 	if ved.mode != .visual { // 如果模式不是视觉
-		return // 返回
+		return
 	}
 
 	vtop, vbot := if view.vstart < view.vend { // 如果 vstart < vend
@@ -20,7 +21,7 @@ fn (mut view View) gq() { // gq 函数，格式化
 	}
 	if vtop < 0 || vbot < 0 || vtop >= view.lines.len || vbot >= view.lines.len { // 如果边界无效
 		ved.exit_visual() // 退出视觉模式
-		return // 返回
+		return
 	}
 
 	mut selected_lines := []string{} // 选择的行
@@ -30,7 +31,7 @@ fn (mut view View) gq() { // gq 函数，格式化
 
 	if selected_lines.len == 0 { // 如果选择的行长度为 0
 		ved.exit_visual() // 退出视觉模式
-		return // 返回
+		return
 	}
 
 	// Preserve indentation from the first line of the selection. // 保留选择第一行的缩进

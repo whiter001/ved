@@ -1,5 +1,6 @@
-module main // 主模块
+module main
 
+// 主模块
 import gg // 导入 gg 图形库
 import os // 导入 os 操作系统库
 import uiold // 导入 uiold UI 库
@@ -102,11 +103,11 @@ fn (mut ved Ved) draw() { // draw 函数，绘制整个界面
 		cur_fn_x := (ved.cur_split % ved.nr_splits + 1) * split_width - cur_fn_width - 3 // 当前函数名 x 坐标
 		cur_fn_y := ved.cfg.line_height // 当前函数名 y 坐标
 		ved.gg.draw_rect( // 绘制矩形
-			x:     cur_fn_x // x 坐标
-			y:     cur_fn_y // y 坐标
-			w:     cur_fn_width // 宽度
+			x:     cur_fn_x            // x 坐标
+			y:     cur_fn_y            // y 坐标
+			w:     cur_fn_width        // 宽度
 			h:     ved.cfg.line_height // 高度
-			color: ved.cfg.bgcolor // gx.rgb(40, 40, 40) // 颜色
+			color: ved.cfg.bgcolor     // gx.rgb(40, 40, 40) // 颜色
 		)
 		ved.gg.draw_text(cur_fn_x, cur_fn_y, ved.cur_fn_name, ved.cfg.comment_cfg) // 绘制当前函数名
 	}
@@ -131,8 +132,8 @@ fn (mut ved Ved) draw() { // draw 函数，绘制整个界面
 			ved.cfg.line_height, ved.cfg.errorbgcolor) // 绘制错误背景
 		ved.gg.draw_text(3, ved.win_height - ved.cfg.line_height, ved.error_line, gg.TextCfg{ // 绘制错误文本
 			size:  ved.cfg.text_size // 字体大小
-			color: gg.white // 颜色
-			align: gg.align_left // 对齐
+			color: gg.white          // 颜色
+			align: gg.align_left     // 对齐
 		})
 	}
 	if ved.cfg.show_file_tree { // 如果显示文件树
@@ -229,8 +230,7 @@ fn (mut ved Ved) draw_split(i int, split_from int) { // draw_split 函数，绘�
 
 				// 只有当有选择范围或者是中间行时才绘制
 				if v_from_y != v_to_y || v_from_x != v_to_x {
-					start_px :=
-						ved.x_of_byte_idx(line, sel_start_x) - view.from_x * ved.cfg.char_width
+					start_px := ved.x_of_byte_idx(line, sel_start_x) - view.from_x * ved.cfg.char_width
 					end_px := ved.x_of_byte_idx(line, sel_end_x) - view.from_x * ved.cfg.char_width
 
 					draw_start_x := x + 10 + int_max(0, start_px)
@@ -241,8 +241,7 @@ fn (mut ved Ved) draw_split(i int, split_from int) { // draw_split 函数，绘�
 							ved.cfg.vcolor)
 					} else if j > v_from_y && j < v_to_y {
 						// 选中的空行也画一点宽度表示被选中
-						ved.gg.draw_rect_filled(x + 10, y, 10, ved.cfg.line_height,
-							ved.cfg.vcolor)
+						ved.gg.draw_rect_filled(x + 10, y, 10, ved.cfg.line_height, ved.cfg.vcolor)
 					}
 				}
 			}
@@ -261,16 +260,16 @@ fn (mut ved Ved) draw_split(i int, split_from int) { // draw_split 函数，绘�
 			nr_tabs++ // Tab 数量加一
 			line_x += ved.cfg.char_width * ved.cfg.tab_size // 增加 x 坐标
 		}
-		
+
 		// 应用水平滚动偏移
 		// 计算前导 Tab 总宽度
 		tabs_visual_width := nr_tabs * ved.cfg.tab_size
 		mut s := line[nr_tabs..] // 跳过前导 Tab
-		
+
 		// 计算这一行相对于 from_x 的偏移
 		// 如果 from_x 很大，甚至可能把前导 Tab 都跳过
 		mut skip_visual_x := view.from_x
-		
+
 		if skip_visual_x > 0 {
 			// 如果需要跳过的宽度大于 Tab 宽度，则不仅要减去 Tab，还要裁剪字符串 s
 			if skip_visual_x >= tabs_visual_width {
@@ -326,7 +325,8 @@ fn (mut ved Ved) draw_split(i int, split_from int) { // draw_split 函数，绘�
 					normal_part := s[end_comment_pos + mcomment.end.len..] // 正常部分
 					if normal_part.len > 0 { // 如果正常部分长度 > 0
 						// Calculate the starting x-position for the text after the comment. // 计算注释后文本的起始 x 位置
-						normal_part_x := line_x + ved.text_width_tabs(comment_part) // 正常部分 x 坐标
+						normal_part_x := line_x +
+							ved.text_width_tabs(comment_part) // 正常部分 x 坐标
 						ved.draw_text_line_standard_syntax(normal_part_x, y, normal_part,
 							ext) // 绘制正常部分
 					}
@@ -348,7 +348,8 @@ fn (mut ved Ved) draw_split(i int, split_from int) { // draw_split 函数，绘�
 					}
 					// Draw comment part from / * onwards // 从 / * 开始绘制注释部分
 					comment_part := s[start_comment_pos..] // 注释部分
-					comment_part_x := line_x + ved.text_width_tabs(normal_part) // 注释部分 x 坐标
+					comment_part_x := line_x +
+						ved.text_width_tabs(normal_part) // 注释部分 x 坐标
 					ved.gg.draw_text(comment_part_x, y, comment_part, ved.cfg.comment_cfg) // 绘制注释部分
 					current_is_ml_comment = true // Update state for next line // 更新下一行状态
 				} else { // No multiline comment start OR it's a single-line /* ... */ // 没有多行注释开始或它是单行 /* ... */
@@ -375,7 +376,8 @@ fn (ved &Ved) draw_cursor(cursor_x int, y int) { // draw_cursor 函数，绘制�
 	if ved.marked_text != '' { // 如果标记文本不为空
 		// Draw a light background for marked text // 为标记文本绘制浅色背景
 		text_w := ved.gg.text_width(ved.marked_text) // 文本宽度
-		ved.gg.draw_rect_filled(cursor_x, y, text_w, ved.cfg.line_height, gg.rgb(60, 60, 60)) // 绘制背景
+		ved.gg.draw_rect_filled(cursor_x, y, text_w, ved.cfg.line_height, gg.rgb(60, 60,
+			60)) // 绘制背景
 		ved.gg.draw_text(cursor_x, y, ved.marked_text, ved.cfg.txt_cfg) // 绘制标记文本
 		// Draw an underline // 绘制下划线
 		ved.gg.draw_rect_filled(cursor_x, y + ved.cfg.line_height - 2, text_w, 2, gg.white) // 绘制下划线
@@ -383,7 +385,8 @@ fn (ved &Ved) draw_cursor(cursor_x int, y int) { // draw_cursor 函数，绘制�
 	}
 
 	// println('CURSOR WIDTH=${ved.cfg.char_width}') // 打印光标宽度（注释）
-	match ved.cfg.cursor_style { // 匹配光标样式
+	match ved.cfg.cursor_style {
+		// 匹配光标样式
 		.block { // 块状
 			ved.gg.draw_rect_empty(cur_x, y, ved.cfg.char_width, ved.cfg.line_height,
 				ved.cfg.cursor_color) // 绘制空矩形

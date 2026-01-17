@@ -58,7 +58,7 @@ pub fn set_ime_position(x int, y int, h int, scale f32) {
 				// 或者系统已自动处理缩放。乘以 scale (2) 会导致位置偏右下。
 				// 因此这里暂不使用 scale，仅保留参数接口。
 				cf := WinCompositionForm{
-					dw_style: 0x0002 // CFS_POINT
+					dw_style:       0x0002 // CFS_POINT
 					pt_current_pos: WinPoint{x, y}
 				}
 				C.ImmSetCompositionWindow(himc, &cf)
