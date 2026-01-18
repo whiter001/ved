@@ -157,9 +157,10 @@ fn key_down(key gg.KeyCode, mod gg.Modifier, mut ved Ved) {
 
 // key_normal 处理 Normal 模式下的按键
 fn (mut ved Ved) key_normal(key gg.KeyCode, mod gg.Modifier) {
-	super := mod == .super || mod == .ctrl
-	shift := mod == .shift
-	shift_and_super := int(mod) == 9
+	super := mod.has(.super) || mod.has(.ctrl)
+	shift := mod.has(.shift)
+	// shift_and_super := int(mod) == 9 // 这种硬编码在不同平台可能不同，改为位运算判断
+	shift_and_super := mod.has(.shift) && (mod.has(.super) || mod.has(.ctrl))
 	mut view := ved.view
 	ved.refresh = true
 	if ved.prev_key == .r {
@@ -615,7 +616,7 @@ fn on_char(code u32, mut ved Ved) {
 
 // key_insert 处理插入模式下的按键
 fn (mut ved Ved) key_insert(key gg.KeyCode, mod gg.Modifier) {
-	super := mod == .super || mod == .ctrl
+	super := mod.has(.super) || mod.has(.ctrl)
 	match key {
 		.backspace {
 			ved.just_switched = true
@@ -687,8 +688,8 @@ fn (mut ved Ved) char_insert(s string) {
 
 // key_visual 处理可视模式下的按键
 fn (mut ved Ved) key_visual(key gg.KeyCode, mod gg.Modifier) {
-	super := mod == .super || mod == .ctrl
-	shift := mod == .shift
+	super := mod.has(.super) || mod.has(.ctrl)
+	shift := mod.has(.shift)
 	mut view := ved.view
 	match key {
 		.j {

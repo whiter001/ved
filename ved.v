@@ -630,23 +630,28 @@ fn (mut ved Ved) dot() {
 
 // 切换焦点到下一个分屏
 fn (mut ved Ved) next_split() {
+	from, to := ved.get_splits_from_to()
 	ved.cur_split++ // 当前分屏加一
-	if ved.cur_split % ved.nr_splits == 0 { // 如果超出分屏数量
-		ved.cur_split -= ved.nr_splits // 循环到第一个
+	if ved.cur_split >= to { // 如果超出当前工作区分屏范围
+		ved.cur_split = from // 循环到第一个
 	}
 	ved.update_cur_fn_name() // 更新当前函数名
 	ved.update_view() // 更新视图
+	ved.just_switched = true
+	ved.refresh = true // 强制刷新以更新 IME 位置
 }
 
 // 切换焦点到上一个分屏
 fn (mut ved Ved) prev_split() {
-	if ved.cur_split % ved.nr_splits == 0 { // 如果是第一个
-		ved.cur_split += ved.nr_splits - 1 // 循环到最后一个
-	} else {
-		ved.cur_split-- // 当前分屏减一
+	from, to := ved.get_splits_from_to()
+	ved.cur_split-- // 当前分屏减一
+	if ved.cur_split < from { // 如果低于当前工作区起始分屏
+		ved.cur_split = to - 1 // 循环到最后一个
 	}
 	ved.update_cur_fn_name() // 更新当前函数名
 	ved.update_view() // 更新视图
+	ved.just_switched = true
+	ved.refresh = true // 强制刷新以更新 IME 位置
 }
 
 // 切换到给定索引的工作区

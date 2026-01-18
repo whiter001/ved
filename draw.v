@@ -34,7 +34,14 @@ fn (mut ved Ved) draw() { // draw 函数，绘制整个界面
 		if v.changed && !v.path.ends_with('/out') { // 如果已更改且不以 /out 结尾
 			name = '${name} [+]' // 添加 [+] 标记
 		}
-		ved.gg.draw_text(ved.split_x(i - from) + v.padding_left + 10, 1, name, ved.cfg.file_name_cfg) // 绘制文件名
+		
+		// 活跃分屏高亮
+		split_x := ved.split_x(i - from)
+		if i == ved.cur_split {
+			ved.gg.draw_rect_filled(split_x, 0, split_width, ved.cfg.line_height, gg.rgb(47, 11, 105)) 
+		}
+
+		ved.gg.draw_text(split_x + v.padding_left + 10, 1, name, ved.cfg.file_name_cfg) // 绘制文件名
 	}
 	// Git diff stats // Git 差异统计
 	if ved.git_diff_plus != '+' { // 如果 git_diff_plus 不为 '+'
@@ -173,7 +180,11 @@ fn (mut ved Ved) draw_split(i int, split_from int) { // draw_split 函数，绘�
 	split_width := ved.split_width() // 分割宽度
 	split_x := split_width * (i - split_from) // 分割 x 坐标
 	// Vertical split line // 垂直分割线
-	ved.gg.draw_line(split_x, ved.cfg.line_height + 1, split_x, ved.win_height, ved.cfg.split_color) // 绘制分割线
+	mut split_color := ved.cfg.split_color
+	if i == ved.cur_split {
+		split_color = gg.rgb(100, 100, 255) // 活跃分屏线颜色
+	}
+	ved.gg.draw_line(split_x, ved.cfg.line_height + 1, split_x, ved.win_height, split_color) // 绘制分割线
 	// Lines // 行
 	mut line_nr_rel := 1 // relative y on screen // 屏幕上的相对 y
 	for j := view.from; j < view.from + ved.page_height && j < view.lines.len; j++ { // 循环绘制行
@@ -468,7 +479,7 @@ fn (ved &Ved) text_width_tabs(s string) int { // text_width_tabs 函数，计算
 
 fn (ved &Ved) calc_cursor_x() int { // calc_cursor_x 函数，计算光标 x 坐标
 	line := ved.view.line() // 获取行
-	from := ved.workspace_idx * ved.nr_splits // 从
+	from, _ := ved.get_splits_from_to() // 从
 	split_width := ved.split_width() // 分割宽度
 	line_x := split_width * (ved.cur_split - from) + ved.view.padding_left + 10 // 行 x 坐标
 	// 减去水平滚动偏移
