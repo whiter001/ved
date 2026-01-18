@@ -193,7 +193,34 @@ Options:
   -two_splits
 ' // 帮助文本
 
-const fpath = os.resource_abs_path('AlibabaPuHuiTi-2-55-Regular.ttf') // 字体路径
+fn get_font_path() string {
+	fonts := ['AlibabaPuHuiTi-2-55-Regular.ttf', 'RobotoMono-Regular.ttf']
+	for font in fonts {
+		// 1. Try resource path (for .app bundle)
+		mut path := os.resource_abs_path(font)
+		if path != '' && os.exists(path) {
+			return path
+		}
+		// 2. Try next to executable
+		path = os.join_path(exe_dir, font)
+		if os.exists(path) {
+			return path
+		}
+		// 3. Try in ~/.ved/
+		path = os.join_path(os.home_dir(), '.ved', font)
+		if os.exists(path) {
+			return path
+		}
+		// 4. Try current directory
+		path = font
+		if os.exists(path) {
+			return path
+		}
+	}
+	return ''
+}
+
+const fpath = get_font_path() // 字体路径
 const args = os.args.clone() // 命令行参数
 const is_window = '-window' in args // 是否为窗口模式
 
@@ -223,6 +250,11 @@ fn get_screen_size() (int, int) {
 fn main() {
 	if '-h' in args || '--help' in args { // 如果有帮助选项，打印帮助并退出
 		println(help_text)
+		return
+	}
+	if fpath == '' {
+		eprintln('Error: font file not found.')
+		eprintln('Please ensure "AlibabaPuHuiTi-2-55-Regular.ttf" or "RobotoMono-Regular.ttf" is in the same directory as the executable, in ~/.ved/, or in the current directory.')
 		return
 	}
 	if !os.is_dir(settings_dir) { // 如果设置目录不存在，创建它
