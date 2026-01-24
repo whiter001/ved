@@ -34,11 +34,12 @@ fn (mut ved Ved) draw() { // draw 函数，绘制整个界面
 		if v.changed && !v.path.ends_with('/out') { // 如果已更改且不以 /out 结尾
 			name = '${name} [+]' // 添加 [+] 标记
 		}
-		
+
 		// 活跃分屏高亮
 		split_x := ved.split_x(i - from)
 		if i == ved.cur_split {
-			ved.gg.draw_rect_filled(split_x, 0, split_width, ved.cfg.line_height, gg.rgb(47, 11, 105)) 
+			ved.gg.draw_rect_filled(split_x, 0, split_width, ved.cfg.line_height, gg.rgb(47,
+				11, 105))
 		}
 
 		ved.gg.draw_text(split_x + v.padding_left + 10, 1, name, ved.cfg.file_name_cfg) // 绘制文件名
