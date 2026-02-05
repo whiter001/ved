@@ -593,7 +593,7 @@ fn on_char(code u32, mut ved Ved) {
 	s := unsafe { utf32_to_str_no_malloc(code, mut &buf[0]) }
 	if ved.just_switched {
 		ved.just_switched = false
-		if s in ['i', 'a', 'o', 'I', 'A', 'O', '/', ':', '?', ' '] {
+		if s in ['i', 'a', 'o', 'I', 'A', 'O', '/', ':', '?', ' ', 'p'] {
 			return
 		}
 	}
