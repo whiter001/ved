@@ -155,6 +155,7 @@ mut:
 	debugger           Debugger                       // 调试器
 	cur_fn_name        string                         // 始终显示在顶部栏的当前函数名
 	grep_file_exts     map[string][]string            // m['workspace_path'] == ['v', 'go']
+	mouse_is_down      bool
 	// debugger_output      DebuggerOutput
 	tree Tree // 用于在左侧渲染文件树
 }

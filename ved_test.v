@@ -8,19 +8,19 @@ module main
 // create_test_ved 创建一个用于测试的 Ved 实例
 fn create_test_ved() &Ved {
 	mut ved := &Ved{
-		page_height: 24
-		win_width: 800
-		win_height: 600
-		nr_splits: 1
-		cur_split: 0
-		mode: .normal
-		workspace: '/tmp/test_workspace'
+		page_height:   24
+		win_width:     800
+		win_height:    600
+		nr_splits:     1
+		cur_split:     0
+		mode:          .normal
+		workspace:     '/tmp/test_workspace'
 		workspace_idx: 0
-		cfg: Config{
+		cfg:           Config{
 			char_width: 8
-			tab_size: 4
+			tab_size:   4
 		}
-		cb: unsafe { nil }
+		cb:            unsafe { nil }
 	}
 	// Initialize views
 	ved.views = []View{len: ved.nr_splits, init: ved.new_view()}

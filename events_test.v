@@ -6,21 +6,21 @@ module main
 // create_test_ved_for_events 创建一个用于事件测试的 Ved 实例
 fn create_test_ved_for_events() &Ved {
 	mut ved := &Ved{
-		page_height: 24
-		win_width: 800
-		win_height: 600
-		nr_splits: 1
-		cur_split: 0
-		mode: .normal
-		workspace: '/tmp/test_workspace'
+		page_height:   24
+		win_width:     800
+		win_height:    600
+		nr_splits:     1
+		cur_split:     0
+		mode:          .normal
+		workspace:     '/tmp/test_workspace'
 		workspace_idx: 0
-		cfg: Config{
-			char_width: 8
-			tab_size: 4
-			line_height: 20
+		cfg:           Config{
+			char_width:    8
+			tab_size:      4
+			line_height:   20
 			disable_mouse: true // Disable mouse for tests
 		}
-		cb: unsafe { nil }
+		cb:            unsafe { nil }
 	}
 	ved.views = []View{len: ved.nr_splits, init: ved.new_view()}
 	if ved.views.len > 0 {

@@ -24,13 +24,14 @@ fn (mut ved Ved) on_event(e &gg.Event) {
 			return
 		}
 
+		ved.mouse_is_down = true
 		mut view := ved.view
 
 		// 处理分屏切换点击
 		for i := 0; i < ved.nr_splits; i++ {
 			sw := ved.split_width()
-			starting_x := 2 * i * sw
-			ending_x := 2 * (i + 1) * sw
+			starting_x := i * sw
+			ending_x := (i + 1) * sw
 
 			if e.mouse_x > starting_x && e.mouse_x < ending_x {
 				if ved.cur_split != i {
@@ -57,7 +58,7 @@ fn (mut ved Ved) on_event(e &gg.Event) {
 		}
 
 		// rel_x 是相对于当前视图起始位置的像素偏移
-		// split_width() 返回的是逻辑宽度，不需要再乘以 2
+		// split_width() 返回的是逻辑宽度
 		sw := ved.split_width()
 		rel_x := e.mouse_x - (ved.cur_split % ved.nr_splits) * sw - view.padding_left - 10
 
@@ -70,11 +71,16 @@ fn (mut ved Ved) on_event(e &gg.Event) {
 			view.sync_visual_x()
 		}
 
-		// 开始选择
-		view.vstart = view.y
-		view.vstart_x = view.x
-		view.vend = view.y
-		view.vend_x = view.x
+		// 如果不是插入模式，开始可视选择
+		if ved.mode != .insert {
+			if ved.mode != .visual && ved.mode != .visual_block {
+				ved.mode = .visual
+			}
+			view.vstart = view.y
+			view.vend = view.y
+			view.vstart_x = view.x
+			view.vend_x = view.x
+		}
 
 		$if macos {
 			if ved.mode == .insert {
@@ -88,13 +94,18 @@ fn (mut ved Ved) on_event(e &gg.Event) {
 			return
 		}
 		// 只有在鼠标左键按下时才处理拖拽选择
-		if e.mouse_button == .left {
+		if ved.mouse_is_down {
+			if ved.mode == .insert {
+				return
+			}
 			mut view := ved.view
 
-			// 计算当前的行和列
+			// 计算当前的行和列 (e.mouse_y 是逻辑坐标)
 			clicked_y := int((e.mouse_y - ved.cfg.line_height) / ved.cfg.line_height) + view.from
 			if clicked_y >= view.lines.len {
-				view.set_y(view.lines.len - 1)
+				if view.lines.len > 0 {
+					view.set_y(view.lines.len - 1)
+				}
 			} else if clicked_y < 0 {
 				view.set_y(0)
 			} else {
@@ -120,7 +131,8 @@ fn (mut ved Ved) on_event(e &gg.Event) {
 	}
 
 	if e.typ == .mouse_up {
-		// 如果选择范围为空，则退出可视模式
+		ved.mouse_is_down = false
+		// 如果选择范围为空，且处于可视模式下，则退出可视模式
 		mut view := ved.view
 		if ved.mode == .visual && view.vstart == view.vend && view.vstart_x == view.vend_x {
 			ved.exit_visual()

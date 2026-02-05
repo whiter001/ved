@@ -8,12 +8,12 @@ import os
 // create_test_ved 创建一个用于测试的 Ved 实例
 fn create_test_ved_for_view() &Ved {
 	mut ved := &Ved{
-		page_height: 24
-		cfg: Config{
+		page_height:   24
+		cfg:           Config{
 			char_width: 8
-			tab_size: 4
+			tab_size:   4
 		}
-		workspace: '/tmp/test'
+		workspace:     '/tmp/test'
 		workspace_idx: 0
 	}
 	ved.views = []View{len: 1, init: ved.new_view()}
