@@ -1,5 +1,7 @@
 module uiold
 
+import os
+
 #flag -framework Carbon
 #flag -framework Cocoa
 
@@ -31,6 +33,9 @@ pub fn set_ime_position(x int, y int, h int, scale f32) {
 }
 
 pub fn focus_native_input(focus bool) {
+	if os.getenv('VED_TEST') != '' {
+		return
+	}
 	C.focus_native_input(focus)
 }
 

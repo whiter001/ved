@@ -130,7 +130,7 @@ fn (mut ved Ved) on_event(e &gg.Event) {
 
 // key_down 是按键按下时的总入口
 fn key_down(key gg.KeyCode, mod gg.Modifier, mut ved Ved) {
-	super := mod == .super
+	super := mod.has(.super) || mod.has(.ctrl)
 	if key == .escape {
 		if ved.mode == .visual {
 			ved.exit_visual()
@@ -578,7 +578,7 @@ fn (mut ved Ved) key_normal(key gg.KeyCode, mod gg.Modifier) {
 @[manualfree]
 fn on_char(code u32, mut ved Ved) {
 	$if macos {
-		if ved.mode == .insert || ved.mode == .autocomplete {
+		if os.getenv('VED_TEST') == '' && (ved.mode == .insert || ved.mode == .autocomplete) {
 			return
 		}
 	}

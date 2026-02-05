@@ -305,7 +305,6 @@ fn main() {
 		font_path:     fpath           // 字体路径
 		ui_mode:       true
 	)
-	println('full screen=${!is_window}')
 	ved.timer = new_timer(mut ved.gg) // 新建计时器
 	ved.load_all_tasks() // 加载所有任务
 	// TODO linux and windows
@@ -314,23 +313,31 @@ fn main() {
 
 	// 打开工作区或文件
 	$if macos {
-		spawn fn () { // 异步执行
-			time.sleep(1 * time.second) // 等待 1 秒
-			uiold.setup_mac_app() // 设置 mac 应用
-			uiold.reg_ved_insert_cb(ved_insert_text) // 注册插入回调
-			uiold.reg_ved_marked_cb(ved_marked_text) // 注册标记回调
-		}()
-	}
-	$if debug {
-		println('args:')
-		println(args)
+		if os.getenv('VED_TEST') == '' {
+			spawn fn () { // 异步执行
+				time.sleep(1 * time.second) // 等待 1 秒
+				uiold.setup_mac_app() // 设置 mac 应用
+				uiold.reg_ved_insert_cb(ved_insert_text) // 注册插入回调
+				uiold.reg_ved_marked_cb(ved_marked_text) // 注册标记回调
+			}()
+		}
 	}
 	mut cur_dir := os.getwd() // 获取当前工作目录
 	if cur_dir.ends_with('/ved.app/Contents/Resources') { // 如果在 app 包内，调整路径
 		cur_dir = cur_dir.replace('/ved.app/Contents/Resources', '')
 	}
 	mut first_launch := false // 是否首次启动
-	if args.len == 1 {
+	mut paths := []string{}
+	for i, arg in args {
+		if i == 0 {
+			continue
+		}
+		if arg.starts_with('-') {
+			continue
+		}
+		paths << arg
+	}
+	if paths.len == 0 {
 		// 无参数启动，加载上次保存的工作区
 		if workspaces := os.read_lines(workspaces_path) {
 			for workspace in workspaces {
@@ -343,8 +350,8 @@ fn main() {
 		ved.open_workspace(0)
 	}
 	// 打开单个文件
-	else if args.len == 2 && os.is_file(args.last()) {
-		path := args[args.len - 1] // 获取文件路径
+	else if paths.len == 1 && os.is_file(paths[0]) {
+		path := paths[0] // 获取文件路径
 		if !os.exists(path) { // 如果文件不存在
 			println('file "${path}" does not exist')
 			exit(1)
@@ -360,14 +367,8 @@ fn main() {
 	// 打开多个工作区
 	else {
 		println('open multiple workspaces')
-		for i, arg in args {
+		for arg in paths {
 			println(arg)
-			if i == 0 {
-				continue // 跳过程序名
-			}
-			if arg.starts_with('-') {
-				continue // 跳过选项
-			}
 			// 相对路径
 			if !arg.starts_with('/') {
 				ved.add_workspace(cur_dir + '/' + arg) // 添加相对路径工作区
