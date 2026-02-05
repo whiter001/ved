@@ -31,23 +31,22 @@ enum QueryType { // QueryType 枚举，查询类型
 fn (mut ved Ved) key_query(key gg.KeyCode, super bool) { // key_query 函数，查询键
 	match key {
 		// 匹配键
-		.backspace { // 退格
+		.backspace, .delete { // 退格
 			ved.gg_pos = -1 // gg_pos = -1
-			ved.just_switched = true // just_switched = true
-			if ved.query_type != .search && ved.query_type != .grep { // 如果查询类型不是搜索且不是 grep
+			if ved.query_type !in [.search, .search_in_folder, .grep] { // 如果查询类型不属于搜索类
 				if ved.query.len == 0 { // 如果查询长度为 0
 					return
 				}
-				ved.query = ved.query[..ved.query.len - 1] // 查询 = 查询[..查询长度 - 1]
-				// Re-filter ctrlp results on backspace to update the list immediately // 在退格时重新过滤 ctrlp 结果以立即更新列表
-				if ved.query_type == .ctrlp { // 如果查询类型为 ctrlp
-					ved.filter_ctrlp_results() // 过滤 ctrlp 结果
+				ved.query = ved.query[..ved.query.len - 1] // 移除最后一个字符
+				// Re-filter ctrlp results on backspace to update the list immediately
+				if ved.query_type == .ctrlp {
+					ved.filter_ctrlp_results()
 				}
-			} else { // 否则
-				if ved.search_query.len == 0 { // 如果搜索查询长度为 0
+			} else { // 搜索类查询
+				if ved.search_query.len == 0 {
 					return
 				}
-				ved.search_query = ved.search_query[..ved.search_query.len - 1] // 搜索查询 = 搜索查询[..搜索查询长度 - 1]
+				ved.search_query = ved.search_query[..ved.search_query.len - 1]
 			}
 			return
 		}

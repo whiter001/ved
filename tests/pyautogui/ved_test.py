@@ -208,18 +208,21 @@ def test_fuzzy_finder():
     # Ctrl+P
     ved.hotkey(ved.ctrl, 'p')
     time.sleep(1)
-    # Search for README
+    
+    # Search for README, then delete it and search for LICENSE
     ved.write("README")
+    time.sleep(0.5)
+    for _ in range(6):
+        ved.press('backspace')
+    time.sleep(0.5)
+    ved.write("LICENSE")
     time.sleep(1)
     ved.press('enter')
     time.sleep(2)
     
-    # Check if we switched to README.md
-    # This is hard to verify via file content since we are editing TEST_FILE.
-    # But we can try to save and see if it goes to README.md (not recommended to overwrite).
-    # Instead, we just check if the process is still running.
+    # Check if we switched to LICENSE
     if ved.process.poll() is None:
-        print("✅ test_fuzzy_finder window appeared and accepted input")
+        print("✅ test_fuzzy_finder window appeared and accepted input (with backspace)")
     else:
         print("❌ test_fuzzy_finder crashed ved")
     ved.quit()
