@@ -55,7 +55,9 @@ fn ved_insert_text(ved_ptr voidptr, text &char) {
 				ved.view.shift_f() // 向下翻页
 			}
 			else {
-				ved.view.insert_text(s) // 插入文本
+				if ved.mode == .insert || ved.mode == .autocomplete {
+					ved.view.insert_text(s) // 插入文本
+				}
 			}
 		}
 		ved.marked_text = '' // 清空标记文本
@@ -145,7 +147,6 @@ mut:
 	now                time.Time                      // 缓存的 time.now() 值，避免每帧调用
 	search_history     []string                       // 搜索历史
 	search_idx         int                            // 搜索索引
-	cq_in_a_row        int                            // 连续 cq
 	search_dir         string                         // 用于 cmd+/ 在当前文件所在目录中搜索
 	search_dir_idx     int                            // 用于循环搜索目录文件
 	error_line         string                         // 显示在底部

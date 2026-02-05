@@ -472,15 +472,12 @@ fn (mut ved Ved) draw_query_results(kind QueryType, x int, y int, width int) {
 fn (mut ved Ved) ctrlp_open() {
 	println('ctrlpopen gg_pos=${ved.gg_pos}')
 	if ved.gg_pos < 0 || ved.gg_pos >= ved.ctrlp_results.len {
-		println(1)
-		// Attempt to open if only one result and selection is invalid (e.g., -1)
-		// if ved.ctrlp_results.len == 1 {
-		println('set to 0')
-		ved.gg_pos = 0
-		//} else {
-		// println('invalid index')
-		// return // Invalid selection index
-		//}
+		if ved.ctrlp_results.len > 0 {
+			ved.gg_pos = 0
+		} else {
+			ved.mode = .normal
+			return
+		}
 	}
 	// Get the selected result
 	selected_result := ved.ctrlp_results[ved.gg_pos]

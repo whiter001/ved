@@ -577,11 +577,6 @@ fn (mut ved Ved) key_normal(key gg.KeyCode, mod gg.Modifier) {
 		ved.prev_key = key
 	}
 	if key == .q && super {
-		ved.cq_in_a_row++
-	} else {
-		ved.cq_in_a_row = 0
-	}
-	if ved.cq_in_a_row == 2 {
 		exit(0)
 	}
 }
@@ -598,7 +593,7 @@ fn on_char(code u32, mut ved Ved) {
 	s := unsafe { utf32_to_str_no_malloc(code, mut &buf[0]) }
 	if ved.just_switched {
 		ved.just_switched = false
-		if s in ['i', 'a', 'o', 'I', 'A', 'O'] {
+		if s in ['i', 'a', 'o', 'I', 'A', 'O', '/', ':', '?', ' '] {
 			return
 		}
 	}

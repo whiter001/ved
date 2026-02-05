@@ -313,14 +313,6 @@ fn test_ved_search_idx() {
 	assert ved.search_idx == 5
 }
 
-// Test cq_in_a_row
-fn test_ved_cq_in_a_row() {
-	mut ved := create_test_ved()
-
-	ved.cq_in_a_row = 3
-	assert ved.cq_in_a_row == 3
-}
-
 // Test search_dir
 fn test_ved_search_dir() {
 	mut ved := create_test_ved()

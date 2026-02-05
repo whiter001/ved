@@ -1,0 +1,4 @@
+line 1: hello
+line 2: world
+line 3: vlang
+line 4: ved editor
