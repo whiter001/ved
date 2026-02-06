@@ -164,12 +164,18 @@ fn (mut view View) open_file(path string, line_nr int) {
 	}
 	mut ved := view.ved
 	ved.set_current_syntax_idx(os.file_ext(path))
-	if view.short_path !in ['out', ''] && view.short_path !in ved.open_paths[ved.workspace_idx] {
-		if ved.open_paths[ved.workspace_idx].len == 0 {
-			ved.open_paths[ved.workspace_idx] = []string{cap: ved.nr_splits}
+
+	if view.short_path !in ['out', ''] {
+		mut current_paths := ved.open_paths[ved.workspace_idx]
+		if view.short_path in current_paths {
+			// Move to the front (MRU order)
+			idx := current_paths.index(view.short_path)
+			current_paths.delete(idx)
 		}
-		ved.open_paths[ved.workspace_idx] << view.short_path
+		current_paths.insert(0, view.short_path)
+		ved.open_paths[ved.workspace_idx] = current_paths
 	}
+
 	if path != view.path {
 		view.ved.file_y_pos[view.path] = view.y
 		view.prev_path = view.path

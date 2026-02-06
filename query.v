@@ -41,6 +41,8 @@ fn (mut ved Ved) key_query(key gg.KeyCode, super bool) { // key_query 函数，�
 				// Re-filter results on backspace to update the list immediately
 				if ved.query_type == .ctrlp {
 					ved.filter_ctrlp_results()
+				} else if ved.query_type == .ctrlj {
+					ved.filter_ctrlj_results()
 				}
 			} else { // 搜索类查询
 				s_runes := ved.search_query.runes()
@@ -194,9 +196,11 @@ fn (mut ved Ved) key_query(key gg.KeyCode, super bool) { // key_query 函数，�
 			if super { // 如果 super
 				clip := ved.cb.paste() // 粘贴剪贴板
 				ved.query += clip // 添加到查询
-				// Re-filter ctrlp results after paste // 粘贴后重新过滤 ctrlp 结果
+				// Re-filter results after paste // 粘贴后重新过滤
 				if ved.query_type == .ctrlp { // 如果查询类型为 ctrlp
 					ved.filter_ctrlp_results() // 过滤 ctrlp 结果
+				} else if ved.query_type == .ctrlj {
+					ved.filter_ctrlj_results()
 				}
 			}
 		}
@@ -215,6 +219,9 @@ fn (mut ved Ved) char_query(s string) { // char_query 函数，查询字符
 	} else if ved.query_type == .ctrlp { // 否则如果查询类型为 ctrlp
 		ved.query += s // 添加到查询
 		ved.filter_ctrlp_results() // Filter results as user types // 随着用户输入过滤结果
+	} else if ved.query_type == .ctrlj {
+		ved.query += s
+		ved.filter_ctrlj_results()
 	} else { // 否则
 		ved.query += s // 添加到查询
 	}
@@ -259,6 +266,8 @@ fn (mut ved Ved) load_git_tree() { // load_git_tree 函数，加载 git 树
 	// Also filter results initially when Ctrl+P is pressed
 	if ved.query_type == .ctrlp {
 		ved.filter_ctrlp_results()
+	} else if ved.query_type == .ctrlj {
+		ved.filter_ctrlj_results()
 	}
 }
 
@@ -315,6 +324,20 @@ fn (mut ved Ved) filter_ctrlp_results() {
 
 	// Optionally sort results here if needed (e.g., by length, alphabetically)
 	// ved.ctrlp_results.sort(...)
+}
+
+// Filters open files for Ctrl+J based on the current query.
+fn (mut ved Ved) filter_ctrlj_results() {
+	ved.ctrlj_results = []
+	ved.gg_pos = 0
+	query_lower := ved.query.to_lower()
+	current_open_paths := ved.open_paths[ved.workspace_idx]
+
+	for p in current_open_paths {
+		if p.to_lower().contains(query_lower) {
+			ved.ctrlj_results << p
+		}
+	}
 }
 
 fn (mut ved Ved) is_git_tree() bool {
@@ -459,8 +482,20 @@ fn (mut ved Ved) draw_query_results(kind QueryType, x int, y int, width int) {
 			}
 		}
 		.ctrlj {
-			// TODO: Implement drawing for ctrlj if needed, similar to ctrlp
-			// using ved.open_paths[ved.workspace_idx]
+			// Draw filtered open files list using pre-calculated results
+			for i, path in ved.ctrlj_results {
+				// Stop drawing if we exceed the display limit
+				if j >= nr_ctrlp_results {
+					break
+				}
+				yy := line_y_start + (ved.cfg.line_height + line_padding) * j
+				if i == ved.gg_pos { // Use index `i` for selection highlight
+					ved.gg.draw_rect_filled(x, yy, width, ved.cfg.line_height + line_padding,
+						ved.cfg.vcolor)
+				}
+				ved.gg.draw_text(x + 10, yy + line_padding / 2, path, ved.cfg.txt_cfg)
+				j++
+			}
 		}
 		else {
 			// No list for other query types
@@ -499,50 +534,45 @@ fn (mut ved Ved) ctrlp_open() {
 
 // TODO merge with fn above
 fn (mut ved Ved) ctrlj_open() {
-	// Ensure gg_pos is valid for the open_paths list
-	current_open_paths := ved.open_paths[ved.workspace_idx]
-	if ved.gg_pos < 0 || ved.gg_pos >= current_open_paths.len {
-		// Attempt to open if only one result and selection is invalid
-		if current_open_paths.len == 1 && ved.query == '' { // Assuming only one open file if query is empty
+	// Ensure gg_pos is valid for the pre-filtered list
+	if ved.gg_pos < 0 || ved.gg_pos >= ved.ctrlj_results.len {
+		// If no valid selection and only one file matches, select it
+		if ved.ctrlj_results.len == 1 {
 			ved.gg_pos = 0
 		} else {
-			// Need filtering logic here if query is used for ctrlj
 			return
 		}
 	}
 
-	// Filter open paths based on query to find the actual selected path
-	// (gg_pos relates to the *filtered* list shown, not the full list)
-	// This part needs careful implementation matching how ctrlj filtering works.
-	// Simple filtering for demonstration:
-	mut filtered_paths := []string{}
-	for p in current_open_paths {
-		if p.to_lower().contains(ved.query.to_lower()) {
-			filtered_paths << p
-		}
-	}
-
-	if ved.gg_pos < 0 || ved.gg_pos >= filtered_paths.len {
-		return
-	}
-
-	selected_relative_path := filtered_paths[ved.gg_pos].trim_space()
+	selected_relative_path := ved.ctrlj_results[ved.gg_pos].trim_space()
 
 	if selected_relative_path == '' {
 		return
 	}
 
-	// Construct full path (assuming ctrlj shows files relative to current workspace)
+	// Construct full path
 	mut space := ved.workspace
 	if space == '' {
 		space = '.'
 	}
-	full_path := os.join_path(space, selected_relative_path)
+
+	mut path_to_open := selected_relative_path
+	if path_to_open.starts_with('~/') {
+		path_to_open = path_to_open.replace('~', os.home_dir())
+	}
+
+	full_path := if os.is_abs_path(path_to_open) {
+		path_to_open
+	} else {
+		os.join_path(space, path_to_open)
+	}
+
 	ved.view.open_file(full_path, 0)
 
 	// Reset state
 	ved.gg_pos = -1
 	ved.query = ''
+	ved.ctrlj_results = []
 	ved.save_session()
 }
 

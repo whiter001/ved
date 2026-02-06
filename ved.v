@@ -115,6 +115,7 @@ mut:
 	prev_insert        string        // 用于 `.` （重新输入刚刚通过 cw 等输入的文本）
 	all_git_files      []string      // 当前工作区的所有 Git 文件
 	ctrlp_results      []CtrlPResult // 跨工作区的 Ctrl+P 过滤结果
+	ctrlj_results      []string      // Ctrl+J 过滤结果 (打开的文件)
 	top_tasks          []string      // 顶部任务
 	gg                 &gg.Context = unsafe { nil } // GG 上下文指针
 	query              string    // 查询字符串

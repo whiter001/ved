@@ -357,6 +357,7 @@ fn (mut ved Ved) key_normal(key gg.KeyCode, mod gg.Modifier) {
 				ved.mode = .query
 				ved.query_type = .ctrlj
 				ved.query = ''
+				ved.filter_ctrlj_results()
 				ved.just_switched = true
 			} else {
 				ved.view.j()
