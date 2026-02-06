@@ -386,8 +386,8 @@ fn (mut ved Ved) key_normal(key gg.KeyCode, mod gg.Modifier) {
 			} else if super {
 				ved.mode = .query
 				ved.query_type = .ctrlp
-				ved.load_git_tree()
 				ved.query = ''
+				ved.load_git_tree()
 				ved.just_switched = true
 				return
 			} else {
@@ -613,7 +613,6 @@ fn on_char(code u32, mut ved Ved) {
 			ved.char_insert(s)
 		}
 		.query {
-			ved.gg_pos = -1
 			ved.char_query(s)
 		}
 		.normal {

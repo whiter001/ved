@@ -32,21 +32,22 @@ fn (mut ved Ved) key_query(key gg.KeyCode, super bool) { // key_query 函数，�
 	match key {
 		// 匹配键
 		.backspace, .delete { // 退格
-			ved.gg_pos = -1 // gg_pos = -1
 			if ved.query_type !in [.search, .search_in_folder, .grep] { // 如果查询类型不属于搜索类
-				if ved.query.len == 0 { // 如果查询长度为 0
+				q_runes := ved.query.runes()
+				if q_runes.len == 0 { // 如果查询长度为 0
 					return
 				}
-				ved.query = ved.query[..ved.query.len - 1] // 移除最后一个字符
-				// Re-filter ctrlp results on backspace to update the list immediately
+				ved.query = q_runes[..q_runes.len - 1].string() // 移除最后一个字符 (支持 Unicode)
+				// Re-filter results on backspace to update the list immediately
 				if ved.query_type == .ctrlp {
 					ved.filter_ctrlp_results()
 				}
 			} else { // 搜索类查询
-				if ved.search_query.len == 0 {
+				s_runes := ved.search_query.runes()
+				if s_runes.len == 0 {
 					return
 				}
-				ved.search_query = ved.search_query[..ved.search_query.len - 1]
+				ved.search_query = s_runes[..s_runes.len - 1].string()
 			}
 			return
 		}
@@ -204,7 +205,7 @@ fn (mut ved Ved) key_query(key gg.KeyCode, super bool) { // key_query 函数，�
 }
 
 fn (mut ved Ved) char_query(s string) { // char_query 函数，查询字符
-	if int(s[0]) < 32 { // 如果字符码 < 32
+	if s.len == 0 || s[0] < 32 || s[0] == 127 { // 如果长度为 0 或字符码 < 32 或为 127 (Delete)
 		return
 	}
 	// println('char q(${s}) ${ved.query_type}') // 打印（注释）
@@ -223,7 +224,7 @@ fn (mut ved Ved) char_query(s string) { // char_query 函数，查询字符
 fn (mut ved Ved) load_git_tree() { // load_git_tree 函数，加载 git 树
 	ved.query = '' // Reset query when loading tree // 加载树时重置查询
 	ved.ctrlp_results = [] // Reset ctrlp results as well // 也重置 ctrlp 结果
-	ved.gg_pos = -1 // gg_pos = -1
+	ved.gg_pos = 0 // Reset selection to first item
 
 	mut dir := ved.workspace // 目录
 	if dir == '' { // 如果目录为空
@@ -265,7 +266,7 @@ fn (mut ved Ved) load_git_tree() { // load_git_tree 函数，加载 git 树
 // Searches current workspace first, then others if no results found.
 fn (mut ved Ved) filter_ctrlp_results() {
 	ved.ctrlp_results = [] // Clear previous results
-	ved.gg_pos = -1 // Reset selection
+	ved.gg_pos = 0 // Reset selection to first item
 	query_lower := ved.query.to_lower()
 
 	// 1. Search current workspace
@@ -387,9 +388,9 @@ fn (mut ved Ved) draw_query() {
 
 	ved.gg.draw_text(x + 10, y + ved.cfg.line_height, query_to_draw, ved.cfg.txt_cfg)
 	// Draw cursor
-	cursor_x := x + 10 + query_to_draw.len * ved.cfg.char_width + 1 // cursor
+	cursor_x := x + 10 + ved.gg.text_width(query_to_draw) + 1 // cursor
 	cursor_y := y + ved.cfg.line_height + 2
-	ved.gg.draw_rect(x: cursor_x, y: cursor_y, w: 2, h: ved.cfg.line_height - 4)
+	ved.gg.draw_rect_filled(cursor_x, cursor_y, 2, ved.cfg.line_height - 4, ved.cfg.cursor_color)
 	// Draw separator between query and files
 	if ved.query_type !in [.search, .cam, .run, .alert] { // Exclude alert too
 		ved.gg.draw_rect(
