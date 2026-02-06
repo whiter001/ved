@@ -1,0 +1,2715 @@
+AAA SIZE=gg.Size{
+    width: 1440
+    height: 900
+}
+size=gg.Size{
+    width: 1440
+    height: 900
+}
+CONFIG
+Config{
+    dark_mode: false
+    cursor_style: block
+    text_size: 18
+    line_height: 20
+    char_width: 8
+    tab_size: 4
+    tab: 9
+    backspace_go_up: false
+    vcolor: Color{0, 0, 0, 255}
+    split_color: Color{0, 0, 0, 255}
+    bgcolor: Color{0, 0, 0, 255}
+    errorbgcolor: Color{0, 0, 0, 255}
+    title_color: Color{0, 0, 0, 255}
+    cursor_color: Color{0, 0, 0, 255}
+    string_color: Color{0, 0, 0, 255}
+    string_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    key_color: Color{0, 0, 0, 255}
+    key_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    lit_color: Color{0, 0, 0, 255}
+    lit_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    text_color: Color{0, 0, 0, 255}
+    txt_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    comment_color: Color{0, 0, 0, 255}
+    comment_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    file_name_color: Color{0, 0, 0, 255}
+    file_name_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    plus_color: Color{0, 0, 0, 255}
+    plus_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    minus_color: Color{0, 0, 0, 255}
+    minus_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    line_nr_color: Color{0, 0, 0, 255}
+    line_nr_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    green_color: Color{0, 0, 0, 255}
+    green_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    red_color: Color{0, 0, 0, 255}
+    red_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    disable_mouse: false
+    show_file_tree: false
+    disable_fmt: false
+}
+screen_width=1440
+MAX=880
+screen_width=1440
+MAX=880
+splits per w = 1
+height=900
+loading syntax files...
+1 syntax files loaded + the compile time builtin syntax for .v
+PATH="/Users/byf/bl/gitee/ved/tests/pyautogui/test_output.txt" cur_dir="/Users/byf/bl/gitee/ved"
+add_workspace("/Users/byf/bl/gitee/ved/tests/pyautogui")
+open workspace(0)
+saving session...
+load session "/Users/byf/.ved/session"
+['/Users/byf/bl/gitee/ved/tests/pyautogui/test_output.txt:0']
+saving session...
+['task=asdf', 'task_start=1768090849']
+init tree workspace=/Users/byf/bl/gitee/ved/tests/pyautogui
+load children 0
+node=Node{
+    path: '/Users/byf/bl/gitee/ved/tests/pyautogui'
+    is_dir: true
+    expanded: true
+    children: []
+    depth: 0
+}
+entries=['test_results.txt', 'out', 'README.md', 'ved_test.py', 'PIP_MIRROR.md', 'test_output.txt', 'TODO_VED.md']
+visible afer compute
+[0, 1, 2, 3, 4, 5, 6, 7]
+first_launch=false
+KEY DOWN: backspace mod=gg.Modifier{} mode=normal
+KEY DOWN: j mod=gg.Modifier{} mode=normal
+KEY DOWN: left_shift mod=gg.Modifier{.shift} mode=normal
+KEY DOWN: g mod=gg.Modifier{.shift} mode=normal
+KEY DOWN: left_shift mod=gg.Modifier{.shift} mode=normal
+KEY DOWN: a mod=gg.Modifier{.shift} mode=normal
+KEY DOWN: enter mod=gg.Modifier{} mode=insert
+KEY DOWN: n mod=gg.Modifier{} mode=insert
+KEY DOWN: e mod=gg.Modifier{} mode=insert
+KEY DOWN: w mod=gg.Modifier{} mode=insert
+KEY DOWN: space mod=gg.Modifier{} mode=insert
+KEY DOWN: l mod=gg.Modifier{} mode=insert
+KEY DOWN: i mod=gg.Modifier{} mode=insert
+KEY DOWN: n mod=gg.Modifier{} mode=insert
+KEY DOWN: e mod=gg.Modifier{} mode=insert
+KEY DOWN: space mod=gg.Modifier{} mode=insert
+KEY DOWN: a mod=gg.Modifier{} mode=insert
+KEY DOWN: d mod=gg.Modifier{} mode=insert
+KEY DOWN: d mod=gg.Modifier{} mode=insert
+KEY DOWN: e mod=gg.Modifier{} mode=insert
+KEY DOWN: d mod=gg.Modifier{} mode=insert
+KEY DOWN: escape mod=gg.Modifier{} mode=insert
+KEY DOWN: left_super mod=gg.Modifier{.super} mode=normal
+KEY DOWN: s mod=gg.Modifier{.super} mode=normal
+KEY DOWN: escape mod=gg.Modifier{} mode=normal
+KEY DOWN: escape mod=gg.Modifier{} mode=normal
+KEY DOWN: left_super mod=gg.Modifier{.super} mode=normal
+AAA SIZE=gg.Size{
+    width: 1440
+    height: 900
+}
+size=gg.Size{
+    width: 1440
+    height: 900
+}
+CONFIG
+Config{
+    dark_mode: false
+    cursor_style: block
+    text_size: 18
+    line_height: 20
+    char_width: 8
+    tab_size: 4
+    tab: 9
+    backspace_go_up: false
+    vcolor: Color{0, 0, 0, 255}
+    split_color: Color{0, 0, 0, 255}
+    bgcolor: Color{0, 0, 0, 255}
+    errorbgcolor: Color{0, 0, 0, 255}
+    title_color: Color{0, 0, 0, 255}
+    cursor_color: Color{0, 0, 0, 255}
+    string_color: Color{0, 0, 0, 255}
+    string_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    key_color: Color{0, 0, 0, 255}
+    key_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    lit_color: Color{0, 0, 0, 255}
+    lit_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    text_color: Color{0, 0, 0, 255}
+    txt_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    comment_color: Color{0, 0, 0, 255}
+    comment_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    file_name_color: Color{0, 0, 0, 255}
+    file_name_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    plus_color: Color{0, 0, 0, 255}
+    plus_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    minus_color: Color{0, 0, 0, 255}
+    minus_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    line_nr_color: Color{0, 0, 0, 255}
+    line_nr_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    green_color: Color{0, 0, 0, 255}
+    green_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    red_color: Color{0, 0, 0, 255}
+    red_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    disable_mouse: false
+    show_file_tree: false
+    disable_fmt: false
+}
+screen_width=1440
+MAX=880
+screen_width=1440
+MAX=880
+splits per w = 1
+height=900
+loading syntax files...
+1 syntax files loaded + the compile time builtin syntax for .v
+PATH="/Users/byf/bl/gitee/ved/tests/pyautogui/test_output.txt" cur_dir="/Users/byf/bl/gitee/ved"
+add_workspace("/Users/byf/bl/gitee/ved/tests/pyautogui")
+open workspace(0)
+saving session...
+load session "/Users/byf/.ved/session"
+['/Users/byf/bl/gitee/ved/tests/pyautogui/test_output.txt:0']
+saving session...
+['task=asdf', 'task_start=1768090849']
+init tree workspace=/Users/byf/bl/gitee/ved/tests/pyautogui
+load children 0
+node=Node{
+    path: '/Users/byf/bl/gitee/ved/tests/pyautogui'
+    is_dir: true
+    expanded: true
+    children: []
+    depth: 0
+}
+entries=['test_results.txt', 'out', 'README.md', 'ved_test.py', 'PIP_MIRROR.md', 'test_output.txt', 'TODO_VED.md']
+visible afer compute
+[0, 1, 2, 3, 4, 5, 6, 7]
+first_launch=false
+KEY DOWN: g mod=gg.Modifier{} mode=normal
+KEY DOWN: g mod=gg.Modifier{} mode=normal
+KEY DOWN: j mod=gg.Modifier{} mode=normal
+KEY DOWN: x mod=gg.Modifier{} mode=normal
+KEY DOWN: left_super mod=gg.Modifier{.super} mode=normal
+KEY DOWN: s mod=gg.Modifier{.super} mode=normal
+KEY DOWN: escape mod=gg.Modifier{} mode=normal
+KEY DOWN: escape mod=gg.Modifier{} mode=normal
+KEY DOWN: left_super mod=gg.Modifier{.super} mode=normal
+AAA SIZE=gg.Size{
+    width: 1440
+    height: 900
+}
+size=gg.Size{
+    width: 1440
+    height: 900
+}
+CONFIG
+Config{
+    dark_mode: false
+    cursor_style: block
+    text_size: 18
+    line_height: 20
+    char_width: 8
+    tab_size: 4
+    tab: 9
+    backspace_go_up: false
+    vcolor: Color{0, 0, 0, 255}
+    split_color: Color{0, 0, 0, 255}
+    bgcolor: Color{0, 0, 0, 255}
+    errorbgcolor: Color{0, 0, 0, 255}
+    title_color: Color{0, 0, 0, 255}
+    cursor_color: Color{0, 0, 0, 255}
+    string_color: Color{0, 0, 0, 255}
+    string_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    key_color: Color{0, 0, 0, 255}
+    key_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    lit_color: Color{0, 0, 0, 255}
+    lit_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    text_color: Color{0, 0, 0, 255}
+    txt_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    comment_color: Color{0, 0, 0, 255}
+    comment_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    file_name_color: Color{0, 0, 0, 255}
+    file_name_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    plus_color: Color{0, 0, 0, 255}
+    plus_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    minus_color: Color{0, 0, 0, 255}
+    minus_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    line_nr_color: Color{0, 0, 0, 255}
+    line_nr_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    green_color: Color{0, 0, 0, 255}
+    green_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    red_color: Color{0, 0, 0, 255}
+    red_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    disable_mouse: false
+    show_file_tree: false
+    disable_fmt: false
+}
+screen_width=1440
+MAX=880
+screen_width=1440
+MAX=880
+splits per w = 1
+height=900
+loading syntax files...
+1 syntax files loaded + the compile time builtin syntax for .v
+PATH="/Users/byf/bl/gitee/ved/tests/pyautogui/test_output.txt" cur_dir="/Users/byf/bl/gitee/ved"
+add_workspace("/Users/byf/bl/gitee/ved/tests/pyautogui")
+open workspace(0)
+saving session...
+load session "/Users/byf/.ved/session"
+['/Users/byf/bl/gitee/ved/tests/pyautogui/test_output.txt:0']
+saving session...
+['task=asdf', 'task_start=1768090849']
+init tree workspace=/Users/byf/bl/gitee/ved/tests/pyautogui
+load children 0
+node=Node{
+    path: '/Users/byf/bl/gitee/ved/tests/pyautogui'
+    is_dir: true
+    expanded: true
+    children: []
+    depth: 0
+}
+entries=['test_results.txt', 'out', 'README.md', 'ved_test.py', 'PIP_MIRROR.md', 'test_output.txt', 'TODO_VED.md']
+visible afer compute
+[0, 1, 2, 3, 4, 5, 6, 7]
+first_launch=false
+KEY DOWN: g mod=gg.Modifier{} mode=normal
+KEY DOWN: g mod=gg.Modifier{} mode=normal
+KEY DOWN: d mod=gg.Modifier{} mode=normal
+KEY DOWN: d mod=gg.Modifier{} mode=normal
+KEY DOWN: left_super mod=gg.Modifier{.super} mode=normal
+KEY DOWN: s mod=gg.Modifier{.super} mode=normal
+KEY DOWN: escape mod=gg.Modifier{} mode=normal
+KEY DOWN: escape mod=gg.Modifier{} mode=normal
+KEY DOWN: left_super mod=gg.Modifier{.super} mode=normal
+AAA SIZE=gg.Size{
+    width: 1440
+    height: 900
+}
+size=gg.Size{
+    width: 1440
+    height: 900
+}
+CONFIG
+Config{
+    dark_mode: false
+    cursor_style: block
+    text_size: 18
+    line_height: 20
+    char_width: 8
+    tab_size: 4
+    tab: 9
+    backspace_go_up: false
+    vcolor: Color{0, 0, 0, 255}
+    split_color: Color{0, 0, 0, 255}
+    bgcolor: Color{0, 0, 0, 255}
+    errorbgcolor: Color{0, 0, 0, 255}
+    title_color: Color{0, 0, 0, 255}
+    cursor_color: Color{0, 0, 0, 255}
+    string_color: Color{0, 0, 0, 255}
+    string_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    key_color: Color{0, 0, 0, 255}
+    key_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    lit_color: Color{0, 0, 0, 255}
+    lit_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    text_color: Color{0, 0, 0, 255}
+    txt_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    comment_color: Color{0, 0, 0, 255}
+    comment_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    file_name_color: Color{0, 0, 0, 255}
+    file_name_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    plus_color: Color{0, 0, 0, 255}
+    plus_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    minus_color: Color{0, 0, 0, 255}
+    minus_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    line_nr_color: Color{0, 0, 0, 255}
+    line_nr_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    green_color: Color{0, 0, 0, 255}
+    green_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    red_color: Color{0, 0, 0, 255}
+    red_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    disable_mouse: false
+    show_file_tree: false
+    disable_fmt: false
+}
+screen_width=1440
+MAX=880
+screen_width=1440
+MAX=880
+splits per w = 1
+height=900
+loading syntax files...
+1 syntax files loaded + the compile time builtin syntax for .v
+PATH="/Users/byf/bl/gitee/ved/tests/pyautogui/test_output.txt" cur_dir="/Users/byf/bl/gitee/ved"
+add_workspace("/Users/byf/bl/gitee/ved/tests/pyautogui")
+open workspace(0)
+saving session...
+load session "/Users/byf/.ved/session"
+['/Users/byf/bl/gitee/ved/tests/pyautogui/test_output.txt:0']
+saving session...
+['task=asdf', 'task_start=1768090849']
+init tree workspace=/Users/byf/bl/gitee/ved/tests/pyautogui
+load children 0
+node=Node{
+    path: '/Users/byf/bl/gitee/ved/tests/pyautogui'
+    is_dir: true
+    expanded: true
+    children: []
+    depth: 0
+}
+entries=['test_results.txt', 'out', 'README.md', 'ved_test.py', 'PIP_MIRROR.md', 'test_output.txt', 'TODO_VED.md']
+visible afer compute
+[0, 1, 2, 3, 4, 5, 6, 7]
+first_launch=false
+KEY DOWN: g mod=gg.Modifier{} mode=normal
+KEY DOWN: g mod=gg.Modifier{} mode=normal
+KEY DOWN: x mod=gg.Modifier{} mode=normal
+KEY DOWN: u mod=gg.Modifier{} mode=normal
+KEY DOWN: left_super mod=gg.Modifier{.super} mode=normal
+KEY DOWN: s mod=gg.Modifier{.super} mode=normal
+KEY DOWN: escape mod=gg.Modifier{} mode=normal
+KEY DOWN: escape mod=gg.Modifier{} mode=normal
+KEY DOWN: left_super mod=gg.Modifier{.super} mode=normal
+AAA SIZE=gg.Size{
+    width: 1440
+    height: 900
+}
+size=gg.Size{
+    width: 1440
+    height: 900
+}
+CONFIG
+Config{
+    dark_mode: false
+    cursor_style: block
+    text_size: 18
+    line_height: 20
+    char_width: 8
+    tab_size: 4
+    tab: 9
+    backspace_go_up: false
+    vcolor: Color{0, 0, 0, 255}
+    split_color: Color{0, 0, 0, 255}
+    bgcolor: Color{0, 0, 0, 255}
+    errorbgcolor: Color{0, 0, 0, 255}
+    title_color: Color{0, 0, 0, 255}
+    cursor_color: Color{0, 0, 0, 255}
+    string_color: Color{0, 0, 0, 255}
+    string_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    key_color: Color{0, 0, 0, 255}
+    key_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    lit_color: Color{0, 0, 0, 255}
+    lit_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    text_color: Color{0, 0, 0, 255}
+    txt_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    comment_color: Color{0, 0, 0, 255}
+    comment_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    file_name_color: Color{0, 0, 0, 255}
+    file_name_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    plus_color: Color{0, 0, 0, 255}
+    plus_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    minus_color: Color{0, 0, 0, 255}
+    minus_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    line_nr_color: Color{0, 0, 0, 255}
+    line_nr_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    green_color: Color{0, 0, 0, 255}
+    green_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    red_color: Color{0, 0, 0, 255}
+    red_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    disable_mouse: false
+    show_file_tree: false
+    disable_fmt: false
+}
+screen_width=1440
+MAX=880
+screen_width=1440
+MAX=880
+splits per w = 1
+height=900
+loading syntax files...
+1 syntax files loaded + the compile time builtin syntax for .v
+PATH="/Users/byf/bl/gitee/ved/tests/pyautogui/test_output.txt" cur_dir="/Users/byf/bl/gitee/ved"
+add_workspace("/Users/byf/bl/gitee/ved/tests/pyautogui")
+open workspace(0)
+saving session...
+load session "/Users/byf/.ved/session"
+['/Users/byf/bl/gitee/ved/tests/pyautogui/test_output.txt:0']
+saving session...
+['task=asdf', 'task_start=1768090849']
+init tree workspace=/Users/byf/bl/gitee/ved/tests/pyautogui
+load children 0
+node=Node{
+    path: '/Users/byf/bl/gitee/ved/tests/pyautogui'
+    is_dir: true
+    expanded: true
+    children: []
+    depth: 0
+}
+entries=['test_results.txt', 'out', 'README.md', 'ved_test.py', 'PIP_MIRROR.md', 'test_output.txt', 'TODO_VED.md']
+visible afer compute
+[0, 1, 2, 3, 4, 5, 6, 7]
+first_launch=false
+KEY DOWN: g mod=gg.Modifier{} mode=normal
+KEY DOWN: g mod=gg.Modifier{} mode=normal
+KEY DOWN: slash mod=gg.Modifier{} mode=normal
+KEY DOWN: v mod=gg.Modifier{} mode=query
+new sq=v
+KEY DOWN: l mod=gg.Modifier{} mode=query
+new sq=vl
+KEY DOWN: a mod=gg.Modifier{} mode=query
+new sq=vla
+KEY DOWN: n mod=gg.Modifier{} mode=query
+new sq=vlan
+KEY DOWN: g mod=gg.Modifier{} mode=query
+new sq=vlang
+KEY DOWN: enter mod=gg.Modifier{} mode=query
+search() query=vlang
+KEY DOWN: d mod=gg.Modifier{} mode=normal
+KEY DOWN: d mod=gg.Modifier{} mode=normal
+KEY DOWN: left_super mod=gg.Modifier{.super} mode=normal
+KEY DOWN: s mod=gg.Modifier{.super} mode=normal
+KEY DOWN: escape mod=gg.Modifier{} mode=normal
+KEY DOWN: escape mod=gg.Modifier{} mode=normal
+KEY DOWN: left_super mod=gg.Modifier{.super} mode=normal
+AAA SIZE=gg.Size{
+    width: 1440
+    height: 900
+}
+size=gg.Size{
+    width: 1440
+    height: 900
+}
+CONFIG
+Config{
+    dark_mode: false
+    cursor_style: block
+    text_size: 18
+    line_height: 20
+    char_width: 8
+    tab_size: 4
+    tab: 9
+    backspace_go_up: false
+    vcolor: Color{0, 0, 0, 255}
+    split_color: Color{0, 0, 0, 255}
+    bgcolor: Color{0, 0, 0, 255}
+    errorbgcolor: Color{0, 0, 0, 255}
+    title_color: Color{0, 0, 0, 255}
+    cursor_color: Color{0, 0, 0, 255}
+    string_color: Color{0, 0, 0, 255}
+    string_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    key_color: Color{0, 0, 0, 255}
+    key_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    lit_color: Color{0, 0, 0, 255}
+    lit_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    text_color: Color{0, 0, 0, 255}
+    txt_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    comment_color: Color{0, 0, 0, 255}
+    comment_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    file_name_color: Color{0, 0, 0, 255}
+    file_name_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    plus_color: Color{0, 0, 0, 255}
+    plus_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    minus_color: Color{0, 0, 0, 255}
+    minus_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    line_nr_color: Color{0, 0, 0, 255}
+    line_nr_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    green_color: Color{0, 0, 0, 255}
+    green_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    red_color: Color{0, 0, 0, 255}
+    red_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    disable_mouse: false
+    show_file_tree: false
+    disable_fmt: false
+}
+screen_width=1440
+MAX=880
+screen_width=1440
+MAX=880
+splits per w = 1
+height=900
+loading syntax files...
+1 syntax files loaded + the compile time builtin syntax for .v
+PATH="/Users/byf/bl/gitee/ved/tests/pyautogui/test_output.txt" cur_dir="/Users/byf/bl/gitee/ved"
+add_workspace("/Users/byf/bl/gitee/ved/tests/pyautogui")
+open workspace(0)
+saving session...
+load session "/Users/byf/.ved/session"
+['/Users/byf/bl/gitee/ved/tests/pyautogui/test_output.txt:0']
+saving session...
+['task=asdf', 'task_start=1768090849']
+init tree workspace=/Users/byf/bl/gitee/ved/tests/pyautogui
+load children 0
+node=Node{
+    path: '/Users/byf/bl/gitee/ved/tests/pyautogui'
+    is_dir: true
+    expanded: true
+    children: []
+    depth: 0
+}
+entries=['test_results.txt', 'out', 'README.md', 'ved_test.py', 'PIP_MIRROR.md', 'test_output.txt', 'TODO_VED.md']
+visible afer compute
+[0, 1, 2, 3, 4, 5, 6, 7]
+first_launch=false
+KEY DOWN: left_super mod=gg.Modifier{.super} mode=normal
+KEY DOWN: p mod=gg.Modifier{.super} mode=normal
+KEY DOWN: left_shift mod=gg.Modifier{.shift} mode=query
+KEY DOWN: r mod=gg.Modifier{.shift} mode=query
+KEY DOWN: left_shift mod=gg.Modifier{.shift} mode=query
+KEY DOWN: e mod=gg.Modifier{.shift} mode=query
+KEY DOWN: left_shift mod=gg.Modifier{.shift} mode=query
+KEY DOWN: a mod=gg.Modifier{.shift} mode=query
+KEY DOWN: left_shift mod=gg.Modifier{.shift} mode=query
+KEY DOWN: d mod=gg.Modifier{.shift} mode=query
+KEY DOWN: left_shift mod=gg.Modifier{.shift} mode=query
+KEY DOWN: m mod=gg.Modifier{.shift} mode=query
+KEY DOWN: left_shift mod=gg.Modifier{.shift} mode=query
+KEY DOWN: e mod=gg.Modifier{.shift} mode=query
+KEY DOWN: backspace mod=gg.Modifier{} mode=query
+KEY DOWN: backspace mod=gg.Modifier{} mode=query
+KEY DOWN: backspace mod=gg.Modifier{} mode=query
+KEY DOWN: backspace mod=gg.Modifier{} mode=query
+KEY DOWN: backspace mod=gg.Modifier{} mode=query
+KEY DOWN: backspace mod=gg.Modifier{} mode=query
+KEY DOWN: left_shift mod=gg.Modifier{.shift} mode=query
+KEY DOWN: l mod=gg.Modifier{.shift} mode=query
+KEY DOWN: left_shift mod=gg.Modifier{.shift} mode=query
+KEY DOWN: i mod=gg.Modifier{.shift} mode=query
+KEY DOWN: left_shift mod=gg.Modifier{.shift} mode=query
+KEY DOWN: c mod=gg.Modifier{.shift} mode=query
+KEY DOWN: left_shift mod=gg.Modifier{.shift} mode=query
+KEY DOWN: e mod=gg.Modifier{.shift} mode=query
+KEY DOWN: left_shift mod=gg.Modifier{.shift} mode=query
+KEY DOWN: n mod=gg.Modifier{.shift} mode=query
+KEY DOWN: left_shift mod=gg.Modifier{.shift} mode=query
+KEY DOWN: s mod=gg.Modifier{.shift} mode=query
+KEY DOWN: left_shift mod=gg.Modifier{.shift} mode=query
+KEY DOWN: e mod=gg.Modifier{.shift} mode=query
+KEY DOWN: enter mod=gg.Modifier{} mode=query
+ctrlpopen gg_pos=-1
+KEY DOWN: escape mod=gg.Modifier{} mode=normal
+KEY DOWN: escape mod=gg.Modifier{} mode=normal
+KEY DOWN: left_super mod=gg.Modifier{.super} mode=normal
+AAA SIZE=gg.Size{
+    width: 1440
+    height: 900
+}
+size=gg.Size{
+    width: 1440
+    height: 900
+}
+CONFIG
+Config{
+    dark_mode: false
+    cursor_style: block
+    text_size: 18
+    line_height: 20
+    char_width: 8
+    tab_size: 4
+    tab: 9
+    backspace_go_up: false
+    vcolor: Color{0, 0, 0, 255}
+    split_color: Color{0, 0, 0, 255}
+    bgcolor: Color{0, 0, 0, 255}
+    errorbgcolor: Color{0, 0, 0, 255}
+    title_color: Color{0, 0, 0, 255}
+    cursor_color: Color{0, 0, 0, 255}
+    string_color: Color{0, 0, 0, 255}
+    string_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    key_color: Color{0, 0, 0, 255}
+    key_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    lit_color: Color{0, 0, 0, 255}
+    lit_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    text_color: Color{0, 0, 0, 255}
+    txt_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    comment_color: Color{0, 0, 0, 255}
+    comment_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    file_name_color: Color{0, 0, 0, 255}
+    file_name_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    plus_color: Color{0, 0, 0, 255}
+    plus_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    minus_color: Color{0, 0, 0, 255}
+    minus_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    line_nr_color: Color{0, 0, 0, 255}
+    line_nr_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    green_color: Color{0, 0, 0, 255}
+    green_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    red_color: Color{0, 0, 0, 255}
+    red_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    disable_mouse: false
+    show_file_tree: false
+    disable_fmt: false
+}
+screen_width=1440
+MAX=880
+screen_width=1440
+MAX=880
+splits per w = 1
+height=900
+loading syntax files...
+1 syntax files loaded + the compile time builtin syntax for .v
+PATH="/Users/byf/bl/gitee/ved/tests/pyautogui/test_output.txt" cur_dir="/Users/byf/bl/gitee/ved"
+add_workspace("/Users/byf/bl/gitee/ved/tests/pyautogui")
+open workspace(0)
+saving session...
+load session "/Users/byf/.ved/session"
+['/Users/byf/bl/gitee/ved/tests/pyautogui/test_output.txt:0']
+saving session...
+['task=asdf', 'task_start=1768090849']
+init tree workspace=/Users/byf/bl/gitee/ved/tests/pyautogui
+load children 0
+node=Node{
+    path: '/Users/byf/bl/gitee/ved/tests/pyautogui'
+    is_dir: true
+    expanded: true
+    children: []
+    depth: 0
+}
+entries=['test_results.txt', 'out', 'README.md', 'ved_test.py', 'PIP_MIRROR.md', 'test_output.txt', 'TODO_VED.md']
+visible afer compute
+[0, 1, 2, 3, 4, 5, 6, 7]
+first_launch=false
+KEY DOWN: v mod=gg.Modifier{} mode=normal
+KEY DOWN: l mod=gg.Modifier{} mode=visual
+KEY DOWN: l mod=gg.Modifier{} mode=visual
+KEY DOWN: y mod=gg.Modifier{} mode=visual
+KEY DOWN: j mod=gg.Modifier{} mode=normal
+KEY DOWN: p mod=gg.Modifier{} mode=normal
+KEY DOWN: left_super mod=gg.Modifier{.super} mode=normal
+KEY DOWN: s mod=gg.Modifier{.super} mode=normal
+KEY DOWN: escape mod=gg.Modifier{} mode=normal
+KEY DOWN: escape mod=gg.Modifier{} mode=normal
+KEY DOWN: left_super mod=gg.Modifier{.super} mode=normal
+AAA SIZE=gg.Size{
+    width: 1440
+    height: 900
+}
+size=gg.Size{
+    width: 1440
+    height: 900
+}
+CONFIG
+Config{
+    dark_mode: false
+    cursor_style: block
+    text_size: 18
+    line_height: 20
+    char_width: 8
+    tab_size: 4
+    tab: 9
+    backspace_go_up: false
+    vcolor: Color{0, 0, 0, 255}
+    split_color: Color{0, 0, 0, 255}
+    bgcolor: Color{0, 0, 0, 255}
+    errorbgcolor: Color{0, 0, 0, 255}
+    title_color: Color{0, 0, 0, 255}
+    cursor_color: Color{0, 0, 0, 255}
+    string_color: Color{0, 0, 0, 255}
+    string_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    key_color: Color{0, 0, 0, 255}
+    key_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    lit_color: Color{0, 0, 0, 255}
+    lit_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    text_color: Color{0, 0, 0, 255}
+    txt_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    comment_color: Color{0, 0, 0, 255}
+    comment_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    file_name_color: Color{0, 0, 0, 255}
+    file_name_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    plus_color: Color{0, 0, 0, 255}
+    plus_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    minus_color: Color{0, 0, 0, 255}
+    minus_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    line_nr_color: Color{0, 0, 0, 255}
+    line_nr_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    green_color: Color{0, 0, 0, 255}
+    green_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    red_color: Color{0, 0, 0, 255}
+    red_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    disable_mouse: false
+    show_file_tree: false
+    disable_fmt: false
+}
+screen_width=1440
+MAX=880
+screen_width=1440
+MAX=880
+splits per w = 1
+height=900
+loading syntax files...
+1 syntax files loaded + the compile time builtin syntax for .v
+PATH="/Users/byf/bl/gitee/ved/tests/pyautogui/test_output.txt" cur_dir="/Users/byf/bl/gitee/ved"
+add_workspace("/Users/byf/bl/gitee/ved/tests/pyautogui")
+open workspace(0)
+saving session...
+load session "/Users/byf/.ved/session"
+['/Users/byf/bl/gitee/ved/tests/pyautogui/test_output.txt:0']
+saving session...
+['task=asdf', 'task_start=1768090849']
+init tree workspace=/Users/byf/bl/gitee/ved/tests/pyautogui
+load children 0
+node=Node{
+    path: '/Users/byf/bl/gitee/ved/tests/pyautogui'
+    is_dir: true
+    expanded: true
+    children: []
+    depth: 0
+}
+entries=['test_results.txt', 'out', 'README.md', 'ved_test.py', 'PIP_MIRROR.md', 'test_output.txt', 'TODO_VED.md']
+visible afer compute
+[0, 1, 2, 3, 4, 5, 6, 7]
+first_launch=false
+KEY DOWN: y mod=gg.Modifier{} mode=normal
+KEY DOWN: y mod=gg.Modifier{} mode=normal
+KEY DOWN: p mod=gg.Modifier{} mode=normal
+KEY DOWN: left_super mod=gg.Modifier{.super} mode=normal
+KEY DOWN: s mod=gg.Modifier{.super} mode=normal
+KEY DOWN: escape mod=gg.Modifier{} mode=normal
+KEY DOWN: escape mod=gg.Modifier{} mode=normal
+KEY DOWN: left_super mod=gg.Modifier{.super} mode=normal
+AAA SIZE=gg.Size{
+    width: 1440
+    height: 900
+}
+size=gg.Size{
+    width: 1440
+    height: 900
+}
+CONFIG
+Config{
+    dark_mode: false
+    cursor_style: block
+    text_size: 18
+    line_height: 20
+    char_width: 8
+    tab_size: 4
+    tab: 9
+    backspace_go_up: false
+    vcolor: Color{0, 0, 0, 255}
+    split_color: Color{0, 0, 0, 255}
+    bgcolor: Color{0, 0, 0, 255}
+    errorbgcolor: Color{0, 0, 0, 255}
+    title_color: Color{0, 0, 0, 255}
+    cursor_color: Color{0, 0, 0, 255}
+    string_color: Color{0, 0, 0, 255}
+    string_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    key_color: Color{0, 0, 0, 255}
+    key_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    lit_color: Color{0, 0, 0, 255}
+    lit_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    text_color: Color{0, 0, 0, 255}
+    txt_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    comment_color: Color{0, 0, 0, 255}
+    comment_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    file_name_color: Color{0, 0, 0, 255}
+    file_name_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    plus_color: Color{0, 0, 0, 255}
+    plus_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    minus_color: Color{0, 0, 0, 255}
+    minus_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    line_nr_color: Color{0, 0, 0, 255}
+    line_nr_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    green_color: Color{0, 0, 0, 255}
+    green_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    red_color: Color{0, 0, 0, 255}
+    red_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    disable_mouse: false
+    show_file_tree: false
+    disable_fmt: false
+}
+screen_width=1440
+MAX=880
+screen_width=1440
+MAX=880
+splits per w = 1
+height=900
+loading syntax files...
+1 syntax files loaded + the compile time builtin syntax for .v
+PATH="/Users/byf/bl/gitee/ved/tests/pyautogui/test_output.txt" cur_dir="/Users/byf/bl/gitee/ved"
+add_workspace("/Users/byf/bl/gitee/ved/tests/pyautogui")
+open workspace(0)
+saving session...
+load session "/Users/byf/.ved/session"
+['/Users/byf/bl/gitee/ved/tests/pyautogui/test_output.txt:0']
+saving session...
+['task=asdf', 'task_start=1768090849']
+init tree workspace=/Users/byf/bl/gitee/ved/tests/pyautogui
+load children 0
+node=Node{
+    path: '/Users/byf/bl/gitee/ved/tests/pyautogui'
+    is_dir: true
+    expanded: true
+    children: []
+    depth: 0
+}
+entries=['test_results.txt', 'out', 'README.md', 'ved_test.py', 'PIP_MIRROR.md', 'test_output.txt', 'TODO_VED.md']
+visible afer compute
+[0, 1, 2, 3, 4, 5, 6, 7]
+first_launch=false
+KEY DOWN: left_shift mod=gg.Modifier{.shift} mode=normal
+KEY DOWN: g mod=gg.Modifier{.shift} mode=normal
+KEY DOWN: left_shift mod=gg.Modifier{.shift} mode=normal
+KEY DOWN: a mod=gg.Modifier{.shift} mode=normal
+KEY DOWN: escape mod=gg.Modifier{} mode=insert
+KEY DOWN: left_super mod=gg.Modifier{.super} mode=normal
+KEY DOWN: s mod=gg.Modifier{.super} mode=normal
+KEY DOWN: escape mod=gg.Modifier{} mode=normal
+KEY DOWN: escape mod=gg.Modifier{} mode=normal
+KEY DOWN: left_super mod=gg.Modifier{.super} mode=normal
+AAA SIZE=gg.Size{
+    width: 1440
+    height: 900
+}
+size=gg.Size{
+    width: 1440
+    height: 900
+}
+CONFIG
+Config{
+    dark_mode: false
+    cursor_style: block
+    text_size: 18
+    line_height: 20
+    char_width: 8
+    tab_size: 4
+    tab: 9
+    backspace_go_up: false
+    vcolor: Color{0, 0, 0, 255}
+    split_color: Color{0, 0, 0, 255}
+    bgcolor: Color{0, 0, 0, 255}
+    errorbgcolor: Color{0, 0, 0, 255}
+    title_color: Color{0, 0, 0, 255}
+    cursor_color: Color{0, 0, 0, 255}
+    string_color: Color{0, 0, 0, 255}
+    string_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    key_color: Color{0, 0, 0, 255}
+    key_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    lit_color: Color{0, 0, 0, 255}
+    lit_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    text_color: Color{0, 0, 0, 255}
+    txt_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    comment_color: Color{0, 0, 0, 255}
+    comment_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    file_name_color: Color{0, 0, 0, 255}
+    file_name_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    plus_color: Color{0, 0, 0, 255}
+    plus_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    minus_color: Color{0, 0, 0, 255}
+    minus_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    line_nr_color: Color{0, 0, 0, 255}
+    line_nr_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    green_color: Color{0, 0, 0, 255}
+    green_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    red_color: Color{0, 0, 0, 255}
+    red_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    disable_mouse: false
+    show_file_tree: false
+    disable_fmt: false
+}
+screen_width=1440
+MAX=880
+screen_width=1440
+MAX=880
+splits per w = 1
+height=900
+loading syntax files...
+1 syntax files loaded + the compile time builtin syntax for .v
+PATH="/Users/byf/bl/gitee/ved/tests/pyautogui/test_output.txt" cur_dir="/Users/byf/bl/gitee/ved"
+add_workspace("/Users/byf/bl/gitee/ved/tests/pyautogui")
+open workspace(0)
+saving session...
+load session "/Users/byf/.ved/session"
+['/Users/byf/bl/gitee/ved/tests/pyautogui/test_output.txt:0']
+saving session...
+['task=asdf', 'task_start=1768090849']
+init tree workspace=/Users/byf/bl/gitee/ved/tests/pyautogui
+load children 0
+node=Node{
+    path: '/Users/byf/bl/gitee/ved/tests/pyautogui'
+    is_dir: true
+    expanded: true
+    children: []
+    depth: 0
+}
+entries=['test_results.txt', 'out', 'README.md', 'ved_test.py', 'PIP_MIRROR.md', 'test_output.txt', 'TODO_VED.md']
+visible afer compute
+[0, 1, 2, 3, 4, 5, 6, 7]
+first_launch=false
+KEY DOWN: g mod=gg.Modifier{} mode=normal
+KEY DOWN: g mod=gg.Modifier{} mode=normal
+KEY DOWN: left_shift mod=gg.Modifier{.shift} mode=normal
+KEY DOWN: j mod=gg.Modifier{.shift} mode=normal
+KEY DOWN: left_super mod=gg.Modifier{.super} mode=normal
+KEY DOWN: s mod=gg.Modifier{.super} mode=normal
+KEY DOWN: escape mod=gg.Modifier{} mode=normal
+KEY DOWN: escape mod=gg.Modifier{} mode=normal
+KEY DOWN: left_super mod=gg.Modifier{.super} mode=normal
+AAA SIZE=gg.Size{
+    width: 1440
+    height: 900
+}
+size=gg.Size{
+    width: 1440
+    height: 900
+}
+CONFIG
+Config{
+    dark_mode: false
+    cursor_style: block
+    text_size: 18
+    line_height: 20
+    char_width: 8
+    tab_size: 4
+    tab: 9
+    backspace_go_up: false
+    vcolor: Color{0, 0, 0, 255}
+    split_color: Color{0, 0, 0, 255}
+    bgcolor: Color{0, 0, 0, 255}
+    errorbgcolor: Color{0, 0, 0, 255}
+    title_color: Color{0, 0, 0, 255}
+    cursor_color: Color{0, 0, 0, 255}
+    string_color: Color{0, 0, 0, 255}
+    string_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    key_color: Color{0, 0, 0, 255}
+    key_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    lit_color: Color{0, 0, 0, 255}
+    lit_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    text_color: Color{0, 0, 0, 255}
+    txt_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    comment_color: Color{0, 0, 0, 255}
+    comment_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    file_name_color: Color{0, 0, 0, 255}
+    file_name_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    plus_color: Color{0, 0, 0, 255}
+    plus_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    minus_color: Color{0, 0, 0, 255}
+    minus_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    line_nr_color: Color{0, 0, 0, 255}
+    line_nr_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    green_color: Color{0, 0, 0, 255}
+    green_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    red_color: Color{0, 0, 0, 255}
+    red_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    disable_mouse: false
+    show_file_tree: false
+    disable_fmt: false
+}
+screen_width=1440
+MAX=880
+screen_width=1440
+MAX=880
+splits per w = 1
+height=900
+loading syntax files...
+1 syntax files loaded + the compile time builtin syntax for .v
+PATH="/Users/byf/bl/gitee/ved/tests/pyautogui/test_output.txt" cur_dir="/Users/byf/bl/gitee/ved"
+add_workspace("/Users/byf/bl/gitee/ved/tests/pyautogui")
+open workspace(0)
+saving session...
+load session "/Users/byf/.ved/session"
+['/Users/byf/bl/gitee/ved/tests/pyautogui/test_output.txt:0']
+saving session...
+['task=asdf', 'task_start=1768090849']
+init tree workspace=/Users/byf/bl/gitee/ved/tests/pyautogui
+load children 0
+node=Node{
+    path: '/Users/byf/bl/gitee/ved/tests/pyautogui'
+    is_dir: true
+    expanded: true
+    children: []
+    depth: 0
+}
+entries=['test_results.txt', 'out', 'README.md', 'ved_test.py', 'PIP_MIRROR.md', 'test_output.txt', 'TODO_VED.md']
+visible afer compute
+[0, 1, 2, 3, 4, 5, 6, 7]
+first_launch=false
+KEY DOWN: left_super mod=gg.Modifier{.super} mode=normal
+KEY DOWN: j mod=gg.Modifier{.super} mode=normal
+KEY DOWN: enter mod=gg.Modifier{} mode=query
+KEY DOWN: escape mod=gg.Modifier{} mode=normal
+KEY DOWN: escape mod=gg.Modifier{} mode=normal
+KEY DOWN: left_super mod=gg.Modifier{.super} mode=normal
+AAA SIZE=gg.Size{
+    width: 1440
+    height: 900
+}
+size=gg.Size{
+    width: 1440
+    height: 900
+}
+CONFIG
+Config{
+    dark_mode: false
+    cursor_style: block
+    text_size: 18
+    line_height: 20
+    char_width: 8
+    tab_size: 4
+    tab: 9
+    backspace_go_up: false
+    vcolor: Color{0, 0, 0, 255}
+    split_color: Color{0, 0, 0, 255}
+    bgcolor: Color{0, 0, 0, 255}
+    errorbgcolor: Color{0, 0, 0, 255}
+    title_color: Color{0, 0, 0, 255}
+    cursor_color: Color{0, 0, 0, 255}
+    string_color: Color{0, 0, 0, 255}
+    string_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    key_color: Color{0, 0, 0, 255}
+    key_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    lit_color: Color{0, 0, 0, 255}
+    lit_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    text_color: Color{0, 0, 0, 255}
+    txt_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    comment_color: Color{0, 0, 0, 255}
+    comment_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    file_name_color: Color{0, 0, 0, 255}
+    file_name_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    plus_color: Color{0, 0, 0, 255}
+    plus_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    minus_color: Color{0, 0, 0, 255}
+    minus_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    line_nr_color: Color{0, 0, 0, 255}
+    line_nr_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    green_color: Color{0, 0, 0, 255}
+    green_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    red_color: Color{0, 0, 0, 255}
+    red_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    disable_mouse: false
+    show_file_tree: false
+    disable_fmt: false
+}
+screen_width=1440
+MAX=880
+screen_width=1440
+MAX=880
+splits per w = 1
+height=900
+loading syntax files...
+1 syntax files loaded + the compile time builtin syntax for .v
+PATH="/Users/byf/bl/gitee/ved/tests/pyautogui/test_output.txt" cur_dir="/Users/byf/bl/gitee/ved"
+add_workspace("/Users/byf/bl/gitee/ved/tests/pyautogui")
+open workspace(0)
+saving session...
+load session "/Users/byf/.ved/session"
+['/Users/byf/bl/gitee/ved/tests/pyautogui/test_output.txt:0']
+saving session...
+['task=asdf', 'task_start=1768090849']
+init tree workspace=/Users/byf/bl/gitee/ved/tests/pyautogui
+load children 0
+node=Node{
+    path: '/Users/byf/bl/gitee/ved/tests/pyautogui'
+    is_dir: true
+    expanded: true
+    children: []
+    depth: 0
+}
+entries=['test_results.txt', 'out', 'README.md', 'ved_test.py', 'PIP_MIRROR.md', 'test_output.txt', 'TODO_VED.md']
+visible afer compute
+[0, 1, 2, 3, 4, 5, 6, 7]
+first_launch=false
+KEY DOWN: w mod=gg.Modifier{} mode=normal
+KEY DOWN: w mod=gg.Modifier{} mode=normal
+KEY DOWN: x mod=gg.Modifier{} mode=normal
+KEY DOWN: left_super mod=gg.Modifier{.super} mode=normal
+KEY DOWN: s mod=gg.Modifier{.super} mode=normal
+KEY DOWN: escape mod=gg.Modifier{} mode=normal
+KEY DOWN: escape mod=gg.Modifier{} mode=normal
+KEY DOWN: left_super mod=gg.Modifier{.super} mode=normal
+AAA SIZE=gg.Size{
+    width: 1440
+    height: 900
+}
+size=gg.Size{
+    width: 1440
+    height: 900
+}
+CONFIG
+Config{
+    dark_mode: false
+    cursor_style: block
+    text_size: 18
+    line_height: 20
+    char_width: 8
+    tab_size: 4
+    tab: 9
+    backspace_go_up: false
+    vcolor: Color{0, 0, 0, 255}
+    split_color: Color{0, 0, 0, 255}
+    bgcolor: Color{0, 0, 0, 255}
+    errorbgcolor: Color{0, 0, 0, 255}
+    title_color: Color{0, 0, 0, 255}
+    cursor_color: Color{0, 0, 0, 255}
+    string_color: Color{0, 0, 0, 255}
+    string_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    key_color: Color{0, 0, 0, 255}
+    key_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    lit_color: Color{0, 0, 0, 255}
+    lit_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    text_color: Color{0, 0, 0, 255}
+    txt_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    comment_color: Color{0, 0, 0, 255}
+    comment_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    file_name_color: Color{0, 0, 0, 255}
+    file_name_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    plus_color: Color{0, 0, 0, 255}
+    plus_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    minus_color: Color{0, 0, 0, 255}
+    minus_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    line_nr_color: Color{0, 0, 0, 255}
+    line_nr_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    green_color: Color{0, 0, 0, 255}
+    green_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    red_color: Color{0, 0, 0, 255}
+    red_cfg: gg.TextCfg{
+        color: Color{0, 0, 0, 255}
+        size: 16
+        align: left
+        vertical_align: top
+        max_width: 0
+        family: ''
+        bold: false
+        mono: false
+        italic: false
+    }
+    disable_mouse: false
+    show_file_tree: false
+    disable_fmt: false
+}
+screen_width=1440
+MAX=880
+screen_width=1440
+MAX=880
+splits per w = 1
+height=900
+loading syntax files...
+1 syntax files loaded + the compile time builtin syntax for .v
+PATH="/Users/byf/bl/gitee/ved/tests/pyautogui/test_output.txt" cur_dir="/Users/byf/bl/gitee/ved"
+add_workspace("/Users/byf/bl/gitee/ved/tests/pyautogui")
+open workspace(0)
+saving session...
+load session "/Users/byf/.ved/session"
+['/Users/byf/bl/gitee/ved/tests/pyautogui/test_output.txt:0']
+saving session...
+['task=asdf', 'task_start=1768090849']
+init tree workspace=/Users/byf/bl/gitee/ved/tests/pyautogui
+load children 0
+node=Node{
+    path: '/Users/byf/bl/gitee/ved/tests/pyautogui'
+    is_dir: true
+    expanded: true
+    children: []
+    depth: 0
+}
+entries=['test_results.txt', 'out', 'README.md', 'ved_test.py', 'PIP_MIRROR.md', 'test_output.txt', 'TODO_VED.md']
+visible afer compute
+[0, 1, 2, 3, 4, 5, 6, 7]
+first_launch=false
+KEY DOWN: r mod=gg.Modifier{} mode=normal
+KEY DOWN: z mod=gg.Modifier{} mode=normal
+KEY DOWN: left_super mod=gg.Modifier{.super} mode=normal
+KEY DOWN: s mod=gg.Modifier{.super} mode=normal
+KEY DOWN: escape mod=gg.Modifier{} mode=normal
+KEY DOWN: escape mod=gg.Modifier{} mode=normal
+KEY DOWN: left_super mod=gg.Modifier{.super} mode=normal
+
+Running test_basic_editing...
+❌ test_basic_editing failed
+Content: line 1: hello
+line 2: world
+line 3: vlang
+line 4: ved editor
+
+
+Running test_vim_movements...
+✅ test_vim_movements passed
+
+Running test_vim_deletion...
+❌ test_vim_deletion failed
+Content: line 1: hello
+line 2: world
+line 3: vlang
+line 4: ved editor
+
+
+Running test_undo...
+✅ test_undo passed
+
+Running test_search...
+❌ test_search failed
+Content: line 1: hello
+line 2: world
+line 3: vlang
+line 4: ved editor
+
+
+Running test_fuzzy_finder...
+✅ test_fuzzy_finder window appeared and accepted input (with backspace)
+
+Running test_visual_mode...
+❌ test_visual_mode failed
+Content: line 1: hello
+line 2: world
+line 3: vlang
+line 4: ved editor
+
+
+Running test_copy_paste...
+❌ test_copy_paste failed
+Content: line 1: hello
+line 2: world
+line 3: vlang
+line 4: ved editor
+
+
+Running test_chinese_input...
+❌ test_chinese_input failed
+Content: line 1: hello
+line 2: world
+line 3: vlang
+line 4: ved editor
+
+
+Running test_line_merging...
+❌ test_line_merging failed
+Content: line 1: hello
+line 2: world
+line 3: vlang
+line 4: ved editor
+
+
+Running test_list_open_files...
+✅ test_list_open_files window appeared and accepted input
+
+Running test_word_movement...
+❌ test_word_movement failed
+Content: line 1: hello
+line 2: world
+line 3: vlang
+line 4: ved editor
+
+
+Running test_replace...
+❌ test_replace failed
+Content: line 1: hello
+line 2: world
+line 3: vlang
+line 4: ved editor
+

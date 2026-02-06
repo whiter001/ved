@@ -224,6 +224,9 @@ fn (mut view View) save_file() {
 	if view.path == '' {
 		return
 	}
+	if os.getenv('VED_TEST') != '' {
+		println('SAVING FILE: ${view.path} lines=${view.lines.len} first_line="${view.lines[0]}"')
+	}
 	path := view.path
 	view.ved.file_y_pos[view.path] = view.y
 	mut file := os.create(path) or { panic('fail') }
@@ -231,7 +234,9 @@ fn (mut view View) save_file() {
 		file.writeln(line.trim_right(' \t')) or { panic(err) }
 	}
 	file.close()
-	spawn view.format_file()
+	if os.getenv('VED_TEST') == '' {
+		spawn view.format_file()
+	}
 	for mut v in view.ved.views {
 		if v.path == view.path {
 			v.reopen()

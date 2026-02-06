@@ -1,0 +1,18 @@
+{
+    "results": {
+        "test_word_movement": true,
+        "test_basic_editing": true,
+        "test_vim_movements": true,
+        "test_vim_deletion": true,
+        "test_undo": true,
+        "test_search": true,
+        "test_visual_mode": true,
+        "test_copy_paste": true,
+        "test_fuzzy_finder": true,
+        "test_chinese_input": true,
+        "test_line_merging": true,
+        "test_list_open_files": true,
+        "test_replace": true
+    },
+    "last_run_time": "2026-02-06 23:38:30"
+}

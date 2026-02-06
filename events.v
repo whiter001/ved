@@ -142,6 +142,9 @@ fn (mut ved Ved) on_event(e &gg.Event) {
 
 // key_down 是按键按下时的总入口
 fn key_down(key gg.KeyCode, mod gg.Modifier, mut ved Ved) {
+	if os.getenv('VED_TEST') != '' {
+		println('KEY DOWN: $key mod=$mod mode=${ved.mode} cur_y=${ved.view.y} cur_x=${ved.view.x}')
+	}
 	super := mod.has(.super) || mod.has(.ctrl)
 	if key == .escape {
 		if ved.mode == .visual {
@@ -407,6 +410,11 @@ fn (mut ved Ved) key_normal(key gg.KeyCode, mod gg.Modifier) {
 				ved.prev_key = .r
 			}
 		}
+		.s {
+			if super {
+				ved.view.save_file()
+			}
+		}
 		.t {
 			if super {
 				ved.timer.load_tasks()
@@ -584,13 +592,16 @@ fn (mut ved Ved) key_normal(key gg.KeyCode, mod gg.Modifier) {
 // on_char 处理字符输入事件（通常用于非 macOS 系统或非插入模式）
 @[manualfree]
 fn on_char(code u32, mut ved Ved) {
+	mut buf := [5]u8{}
+	s := unsafe { utf32_to_str_no_malloc(code, mut &buf[0]) }
+	if os.getenv('VED_TEST') != '' {
+		println('ON CHAR: "$s" (code $code) mode=${ved.mode}')
+	}
 	$if macos {
 		if os.getenv('VED_TEST') == '' && (ved.mode == .insert || ved.mode == .autocomplete) {
 			return
 		}
 	}
-	mut buf := [5]u8{}
-	s := unsafe { utf32_to_str_no_malloc(code, mut &buf[0]) }
 	if ved.just_switched {
 		ved.just_switched = false
 		if s in ['i', 'a', 'o', 'I', 'A', 'O', '/', ':', '?', ' ', 'p'] {
