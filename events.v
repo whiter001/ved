@@ -141,11 +141,20 @@ fn (mut ved Ved) on_event(e &gg.Event) {
 }
 
 // key_down 是按键按下时的总入口
-fn key_down(key gg.KeyCode, mod gg.Modifier, mut ved Ved) {
+fn on_key_down(key gg.KeyCode, mod gg.Modifier, mut ved Ved) {
 	if os.getenv('VED_TEST') != '' {
 		println('KEY DOWN: $key mod=$mod mode=${ved.mode} cur_y=${ved.view.y} cur_x=${ved.view.x}')
 	}
-	super := mod.has(.super) || mod.has(.ctrl)
+	// 更新修饰键状态
+	if key in [.left_control, .right_control] {
+		ved.is_ctrl_pressed = true
+	} else if key in [.left_super, .right_super] {
+		ved.is_super_pressed = true
+	} else if key in [.left_shift, .right_shift] {
+		ved.is_shift_pressed = true
+	}
+
+	super := mod.has(.super) || mod.has(.ctrl) || ved.is_ctrl_pressed || ved.is_super_pressed
 	if key == .escape {
 		if ved.mode == .visual {
 			ved.exit_visual()
@@ -170,12 +179,23 @@ fn key_down(key gg.KeyCode, mod gg.Modifier, mut ved Ved) {
 	ved.gg.refresh_ui()
 }
 
+// on_key_up 是按键释放时的入口
+fn on_key_up(key gg.KeyCode, mod gg.Modifier, mut ved Ved) {
+	if key in [.left_control, .right_control] {
+		ved.is_ctrl_pressed = false
+	} else if key in [.left_super, .right_super] {
+		ved.is_super_pressed = false
+	} else if key in [.left_shift, .right_shift] {
+		ved.is_shift_pressed = false
+	}
+}
+
 // key_normal 处理 Normal 模式下的按键
 fn (mut ved Ved) key_normal(key gg.KeyCode, mod gg.Modifier) {
-	super := mod.has(.super) || mod.has(.ctrl)
-	shift := mod.has(.shift)
+	super := mod.has(.super) || mod.has(.ctrl) || ved.is_ctrl_pressed || ved.is_super_pressed
+	shift := mod.has(.shift) || ved.is_shift_pressed
 	// shift_and_super := int(mod) == 9 // 这种硬编码在不同平台可能不同，改为位运算判断
-	shift_and_super := mod.has(.shift) && (mod.has(.super) || mod.has(.ctrl))
+	shift_and_super := (mod.has(.shift) || ved.is_shift_pressed) && (mod.has(.super) || mod.has(.ctrl) || ved.is_ctrl_pressed || ved.is_super_pressed)
 	mut view := ved.view
 	ved.refresh = true
 	if ved.prev_key == .r {

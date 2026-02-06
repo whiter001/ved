@@ -157,6 +157,9 @@ mut:
 	cur_fn_name        string                         // 始终显示在顶部栏的当前函数名
 	grep_file_exts     map[string][]string            // m['workspace_path'] == ['v', 'go']
 	mouse_is_down      bool
+	is_ctrl_pressed    bool // 用于跟踪 Control 键状态
+	is_super_pressed   bool // 用于跟踪 Command (Mac) / Win (Windows) 键状态
+	is_shift_pressed   bool // 用于跟踪 Shift 键状态
 	// debugger_output      DebuggerOutput
 	tree Tree // 用于在左侧渲染文件树
 }
@@ -302,7 +305,8 @@ fn main() {
 		bg_color:      ved.cfg.bgcolor // 背景颜色
 		frame_fn:      frame           // 帧函数
 		on_event:      ved.on_event    // 事件处理
-		keydown_fn:    key_down        // 按键按下函数
+		keydown_fn:    on_key_down     // 按键按下函数
+		keyup_fn:      on_key_up       // 按键释放函数
 		char_fn:       on_char         // 字符输入函数
 		font_path:     fpath           // 字体路径
 		ui_mode:       true

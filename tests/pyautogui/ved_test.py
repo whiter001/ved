@@ -24,7 +24,9 @@ class VedAutomator:
     def __init__(self, file_path):
         self.file_path = file_path
         self.process = None
-        self.ctrl = 'command' if platform.system() == 'Darwin' else 'ctrl'
+        # Use 'ctrl' for tests as it's more reliable across platforms in automated environments
+        # and 'ved' handles both command and ctrl for its 'super' modifier.
+        self.ctrl = 'ctrl'
 
     def start(self):
         if self.file_path.exists():
