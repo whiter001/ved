@@ -101,71 +101,74 @@ struct CtrlPResult {
 @[heap]
 struct Ved {
 mut:
-	win_width          int    // 窗口宽度
-	win_height         int    // 窗口高度
-	nr_splits          int    // 分屏数量
-	page_height        int    // 页面高度
-	views              []View // 视图列表
-	cur_split          int    // 当前分屏索引
-	view               &View = unsafe { nil } // 当前视图指针
-	mode               EditorMode    // 编辑器模式
-	just_switched      bool          // 用于按键事件，避免重复按键
-	just_switched_from string        // 切换时记录触发字符，仅吞掉该字符以避免误吞正常输入
-	prev_key           gg.KeyCode    // 上一个按键
-	prev_key_str       string        // 用于 `ci(` 等，没有 `(` 在 gg.KeyCode 中
-	prev_cmd           string        // 上一个命令
-	prev_insert        string        // 用于 `.` （重新输入刚刚通过 cw 等输入的文本）
-	all_git_files      []string      // 当前工作区的所有 Git 文件
-	ctrlp_results      []CtrlPResult // 跨工作区的 Ctrl+P 过滤结果
-	ctrlj_results      []string      // Ctrl+J 过滤结果 (打开的文件)
-	top_tasks          []string      // 顶部任务
-	gg                 &gg.Context = unsafe { nil } // GG 上下文指针
-	query              string    // 查询字符串
-	search_query       string    // 搜索查询
-	query_type         QueryType // 查询类型
-	workspace          string    // 当前工作区的完整路径（在顶部右侧渲染其简短版本）
-	marked_text        string    // 中间 IME 文本
-	workspace_idx      int       // 工作区索引
-	workspaces         []string  // 工作区列表
-	ylines             []string  // 用于 y, yy
-	git_diff_plus      string    // 顶部右侧的简短 Git diff 统计
-	git_diff_minus     string
-	syntaxes           []Syntax       // 语法列表
-	current_syntax_idx int            // 当前语法索引
-	chunks             []Chunk        // 在高亮期间临时使用
-	is_building        bool           // 是否正在构建
-	is_git_pulling     bool           // 是否正在执行 git pull
-	is_test            bool           // 是否处于测试模式（环境变量 VED_TEST=1）
-	timer              Timer          // 计时器
-	task_start_unix    i64            // 任务开始时间戳
-	cur_task           string         // 当前任务
-	words              []string       // 单词列表
-	file_y_pos         map[string]int // 为每个文件保存当前行位置
-	refresh            bool = true // 刷新标志
-	char_width         int      // 字符宽度
-	gg_lines           []string // GG 行
-	gg_pos             int      // GG 位置
-	cfg                Config   // 配置
-	cb                 &clipboard.Clipboard = unsafe { nil } // 剪贴板指针
-	open_paths         [][]string                     // 所有打开的文件（每个工作区的标签页）：open_paths[workspace_idx] == ['a.txt', 'b.v']
-	prev_y             int                            // 用于跳转回（''）
-	now                time.Time                      // 缓存的 time.now() 值，避免每帧调用
-	search_history     []string                       // 搜索历史
-	search_idx         int                            // 搜索索引
-	search_dir         string                         // 用于 cmd+/ 在当前文件所在目录中搜索
-	search_dir_idx     int                            // 用于循环搜索目录文件
-	error_line         string                         // 显示在底部
-	autocomplete_info  AutocompleteInfo               // 自动补全信息
-	autocomplete_cache map[string][]AutocompleteField // 自动补全缓存
-	debug_info         string                         // 调试信息
-	debugger           Debugger                       // 调试器
-	cur_fn_name        string                         // 始终显示在顶部栏的当前函数名
-	grep_file_exts     map[string][]string            // m['workspace_path'] == ['v', 'go']
-	workspace_files    map[string][]string            // 缓存每个工作区的文件列表
-	mouse_is_down      bool
-	is_ctrl_pressed    bool // 用于跟踪 Control 键状态
-	is_super_pressed   bool // 用于跟踪 Command (Mac) / Win (Windows) 键状态
-	is_shift_pressed   bool // 用于跟踪 Shift 键状态
+	win_width            int    // 窗口宽度
+	win_height           int    // 窗口高度
+	nr_splits            int    // 分屏数量
+	page_height          int    // 页面高度
+	views                []View // 视图列表
+	cur_split            int    // 当前分屏索引
+	view                 &View = unsafe { nil } // 当前视图指针
+	mode                 EditorMode    // 编辑器模式
+	just_switched        bool          // 用于按键事件，避免重复按键
+	just_switched_from   string        // 切换时记录触发字符，仅吞掉该字符以避免误吞正常输入
+	prev_key             gg.KeyCode    // 上一个按键
+	prev_key_str         string        // 用于 `ci(` 等，没有 `(` 在 gg.KeyCode 中
+	prev_cmd             string        // 上一个命令
+	prev_insert          string        // 用于 `.` （重新输入刚刚通过 cw 等输入的文本）
+	all_git_files        []string      // 当前工作区的所有 Git 文件
+	ctrlp_results        []CtrlPResult // 跨工作区的 Ctrl+P 过滤结果
+	ctrlj_results        []string      // Ctrl+J 过滤结果 (打开的文件)
+	top_tasks            []string      // 顶部任务
+	gg                   &gg.Context = unsafe { nil } // GG 上下文指针
+	query                string    // 查询字符串
+	search_query         string    // 搜索查询
+	query_type           QueryType // 查询类型
+	workspace            string    // 当前工作区的完整路径（在顶部右侧渲染其简短版本）
+	marked_text          string    // 中间 IME 文本
+	workspace_idx        int       // 工作区索引
+	workspaces           []string  // 工作区列表
+	ylines               []string  // 用于 y, yy
+	git_diff_plus        string    // 顶部右侧的简短 Git diff 统计
+	git_diff_minus       string
+	syntaxes             []Syntax       // 语法列表
+	current_syntax_idx   int            // 当前语法索引
+	chunks               []Chunk        // 在高亮期间临时使用
+	is_building          bool           // 是否正在构建
+	is_git_pulling       bool           // 是否正在执行 git pull
+	git_pull_result      string         // 上一次 git pull 的结果信息（后台任务完成后在主线程显示）
+	git_pull_shown_until time.Time      // git pull 结果显示截止时间（3秒后自动清空）
+	is_test              bool           // 是否处于测试模式（环境变量 VED_TEST=1）
+	timer                Timer          // 计时器
+	task_start_unix      i64            // 任务开始时间戳
+	cur_task             string         // 当前任务
+	words                []string       // 单词列表
+	file_y_pos           map[string]int // 为每个文件保存当前行位置
+	refresh              bool = true // 刷新标志
+	char_width           int      // 字符宽度
+	gg_lines             []string // GG 行
+	gg_pos               int      // GG 位置
+	cfg                  Config   // 配置
+	cb                   &clipboard.Clipboard = unsafe { nil } // 剪贴板指针
+	open_paths           [][]string                     // 所有打开的文件（每个工作区的标签页）：open_paths[workspace_idx] == ['a.txt', 'b.v']
+	prev_y               int                            // 用于跳转回（''）
+	now                  time.Time                      // 缓存的 time.now() 值，避免每帧调用
+	search_history       []string                       // 搜索历史
+	search_idx           int                            // 搜索索引
+	search_dir           string                         // 用于 cmd+/ 在当前文件所在目录中搜索
+	search_dir_idx       int                            // 用于循环搜索目录文件
+	error_line           string                         // 显示在底部
+	autocomplete_info    AutocompleteInfo               // 自动补全信息
+	autocomplete_cache   map[string][]AutocompleteField // 自动补全缓存
+	debug_info           string                         // 调试信息
+	debugger             Debugger                       // 调试器
+	cur_fn_name          string                         // 始终显示在顶部栏的当前函数名
+	grep_file_exts       map[string][]string            // m['workspace_path'] == ['v', 'go']
+	workspace_files      map[string][]string            // 缓存每个工作区的文件列表
+	workspace_files_ttl  map[string]time.Time           // 缓存过期时间（TTL），用于驱逐策略
+	mouse_is_down        bool
+	is_ctrl_pressed      bool // 用于跟踪 Control 键状态
+	is_super_pressed     bool // 用于跟踪 Command (Mac) / Win (Windows) 键状态
+	is_shift_pressed     bool // 用于跟踪 Shift 键状态
 	// debugger_output      DebuggerOutput
 	tree Tree // 用于在左侧渲染文件树
 }
@@ -438,6 +441,7 @@ fn (ved &Ved) split_width() int {
 
 // 主绘制函数，由 gg 库在每一帧调用
 fn frame(mut ved Ved) {
+	ved.clear_git_pull_shown_if_expired()
 	if ved.is_git_pulling == false && ved.mode == .query && ved.query_type == .alert
 		&& ved.error_line == 'Running git pull...' {
 		// git pull finished in background
@@ -446,7 +450,7 @@ fn frame(mut ved Ved) {
 		}
 		ved.load_git_tree()
 		ved.mode = .normal
-		ved.error_line = ''
+		ved.show_git_pull_result()
 		ved.refresh = true
 	}
 	// if !ved.refresh {
@@ -467,6 +471,27 @@ fn (ved &Ved) is_in_blog() bool {
 	return ved.view.path.contains('/blog/') && ved.view.path.contains('20')
 }
 */
+
+// 在主线程显示后台 git pull 的结果（设置显示截止时间）
+fn (mut ved Ved) show_git_pull_result() {
+	if ved.git_pull_result != '' {
+		ved.error_line = ved.git_pull_result
+		ved.git_pull_result = ''
+		ved.git_pull_shown_until = time.now().add(3 * time.second)
+	} else {
+		ved.error_line = ''
+	}
+	ved.refresh = true
+}
+
+// 清理过期的 git pull 显示信息
+fn (mut ved Ved) clear_git_pull_shown_if_expired() {
+	if ved.git_pull_shown_until.unix() > 0 && time.now().unix() > ved.git_pull_shown_until.unix() {
+		ved.error_line = ''
+		ved.git_pull_shown_until = time.Time{}
+		ved.refresh = true
+	}
+}
 
 // 使用查询输入的消息提交当前工作区的更改
 fn (ved &Ved) git_commit() {
@@ -1195,7 +1220,16 @@ fn (mut ved Ved) git_pull() {
 	ved.error_line = 'Running git pull...'
 	ved.refresh = true
 	spawn fn (mut v Ved) {
-		os.execute('git -C "${v.workspace}" pull --rebase')
+		res := os.execute('git -C "${v.workspace}" pull --rebase')
+		if res.exit_code == 0 {
+			v.git_pull_result = 'Git pull succeeded.'
+		} else {
+			mut out := res.output.trim_space()
+			if out.len > 120 {
+				out = out[..120] + '...'
+			}
+			v.git_pull_result = 'Git pull failed: ${out}'
+		}
 		v.is_git_pulling = false
 	}(mut ved)
 }
@@ -1360,7 +1394,18 @@ fn (mut ved Ved) get_files_for_workspace(ws_path string) []string {
 	}
 	// 检查缓存
 	if ws_path in ved.workspace_files {
-		return ved.workspace_files[ws_path]
+		// 检查 TTL（10 分钟过期）
+		if ws_path in ved.workspace_files_ttl {
+			if time.now().unix() > ved.workspace_files_ttl[ws_path].unix() {
+				// 过期，删除缓存
+				ved.workspace_files.delete(ws_path)
+				ved.workspace_files_ttl.delete(ws_path)
+			} else {
+				return ved.workspace_files[ws_path]
+			}
+		} else {
+			return ved.workspace_files[ws_path]
+		}
 	}
 	// 首先检查是否是 git 仓库
 	mut is_git := false // 是否 git
@@ -1382,6 +1427,7 @@ fn (mut ved Ved) get_files_for_workspace(ws_path string) []string {
 		// files = os.walk_ext(ws_path, '')
 	}
 	ved.workspace_files[ws_path] = files
+	ved.workspace_files_ttl[ws_path] = time.now().add(10 * time.minute)
 	return files // 返回结果
 }
 

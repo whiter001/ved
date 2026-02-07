@@ -258,6 +258,7 @@ fn (mut ved Ved) load_git_tree() { // load_git_tree 函数，加载 git 树
 		ved.all_git_files = s.output.split_into_lines() // 分割输出为行
 		// Keep workspace_files cache in sync with the latest git tree
 		ved.workspace_files[dir] = ved.all_git_files
+		ved.workspace_files_ttl[dir] = time.now().add(10 * time.minute)
 	} else { // 否则
 		// Get all files if not a git repo // 如果不是 git 仓库，获取所有文件
 		mut files := []string{} // 文件

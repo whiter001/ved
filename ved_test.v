@@ -3,6 +3,8 @@
 // that can be found in the LICENSE file.
 module main
 
+import time
+
 // import os
 
 // create_test_ved 创建一个用于测试的 Ved 实例
@@ -238,6 +240,47 @@ fn test_ved_refresh_flag() {
 
 	ved.refresh = false
 	assert ved.refresh == false
+}
+
+// Test showing git pull result and auto-clear after TTL
+fn test_git_pull_result_shown_and_auto_cleared() {
+	mut ved := create_test_ved()
+
+	// Simulate a finished git pull
+	ved.git_pull_result = 'Git pull succeeded.'
+	// Show the result (what frame() would call when pull finished)
+	ved.show_git_pull_result()
+	assert ved.error_line == 'Git pull succeeded.'
+	assert ved.git_pull_shown_until.unix() > time.now().unix()
+
+	// Simulate time passing beyond TTL
+	ved.git_pull_shown_until = time.now().add(-5 * time.second)
+	ved.clear_git_pull_shown_if_expired()
+	assert ved.error_line == ''
+	// time.Time{} may have unix() <= 0 when zero; just assert it was cleared
+	assert ved.git_pull_shown_until.unix() <= 0
+}
+
+// Test workspace_files TTL eviction
+fn test_workspace_files_ttl_eviction() {
+	mut ved := create_test_ved()
+	ws := '/tmp/test_ws_ttl'
+
+	// Pre-fill cache with expired TTL
+	ved.workspace_files[ws] = ['old_file.v']
+	ved.workspace_files_ttl[ws] = time.now().add(-1 * time.minute)
+
+	// Access should cause eviction and refresh of TTL (even if new list empty)
+	_ = ved.get_files_for_workspace(ws)
+	assert ws in ved.workspace_files_ttl
+	assert ved.workspace_files_ttl[ws].unix() > time.now().unix()
+
+	// Now set a fresh cached value and ensure it is returned
+	ved.workspace_files[ws] = ['keep.v']
+	ved.workspace_files_ttl[ws] = time.now().add(10 * time.minute)
+	res := ved.get_files_for_workspace(ws)
+	assert res.len == 1
+	assert res[0] == 'keep.v'
 }
 
 // Test just_switched flag
