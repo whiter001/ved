@@ -150,7 +150,9 @@ fn (mut view View) open_file(path string, line_nr int) {
 	if path == '' {
 		return
 	}
+	is_new_file := path != view.path
 	view.x = 0 // Reset x when opening a new file
+	view.y = 0 // Reset y when opening a new file
 	if path.starts_with(view.ved.workspace + '/') {
 		view.short_path = path[view.ved.workspace.len..]
 		if view.short_path.starts_with('/') {
@@ -177,8 +179,10 @@ fn (mut view View) open_file(path string, line_nr int) {
 		ved.open_paths[ved.workspace_idx] = current_paths
 	}
 
-	if path != view.path {
-		view.ved.file_y_pos[view.path] = view.y
+	if is_new_file {
+		if view.path != '' {
+			view.ved.file_y_pos[view.path] = view.y
+		}
 		view.prev_path = view.path
 	}
 	view.lines = os.read_lines(path) or { []string{} }
@@ -201,9 +205,9 @@ fn (mut view View) open_file(path string, line_nr int) {
 	view.padding_left = s.len * ved.cfg.char_width + 8
 	view.ved.save_session()
 	y := view.ved.file_y_pos[view.path]
-	if y > 0 {
+	if y >= 0 {
 		view.set_y(y)
-		if path != view.path {
+		if is_new_file {
 			view.zz()
 		}
 	}
@@ -312,7 +316,14 @@ fn (mut view View) set_line(newline string) {
 
 // set_y 设置光标的行位置索引。
 fn (mut view View) set_y(new_y int) {
-	view.y = new_y
+	mut y := new_y
+	if y < 0 {
+		y = 0
+	}
+	if y >= view.lines.len && view.lines.len > 0 {
+		y = view.lines.len - 1
+	}
+	view.y = y
 	view.ved.update_cur_fn_name()
 }
 

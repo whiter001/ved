@@ -87,6 +87,7 @@ const timer_path = os.join_path(settings_dir, 'timer') // 计时器路径
 const tasks_path = os.join_path(settings_dir, 'tasks') // 任务路径
 const config_path = os.join_path(settings_dir, 'conf.toml') // TOML 配置文件路径
 const config_path2 = os.join_path(settings_dir, 'config.json') // JSON 配置文件路径
+const file_y_pos_path = os.join_path(settings_dir, 'file_y_pos') // 文件位置映射路径
 const max_nr_workspaces = 10 // 最大工作区数量
 
 // CtrlPResult 表示在 Ctrl+P 搜索中找到的文件
@@ -159,6 +160,7 @@ mut:
 	debugger           Debugger                       // 调试器
 	cur_fn_name        string                         // 始终显示在顶部栏的当前函数名
 	grep_file_exts     map[string][]string            // m['workspace_path'] == ['v', 'go']
+	workspace_files    map[string][]string            // 缓存每个工作区的文件列表
 	mouse_is_down      bool
 	is_ctrl_pressed    bool // 用于跟踪 Control 键状态
 	is_super_pressed   bool // 用于跟踪 Command (Mac) / Win (Windows) 键状态
@@ -275,11 +277,14 @@ fn main() {
 		win_height: height
 		// nr_splits: nr_splits
 		// nr_splits: nr_splits
-		cur_split:  0
-		mode:       .normal
-		is_test:    os.getenv('VED_TEST') == '1'
-		cb:         clipboard.new() // 新建剪贴板
-		open_paths: [][]string{len: max_nr_workspaces} // 初始化打开路径
+		cur_split:       0
+		mode:            .normal
+		is_test:         os.getenv('VED_TEST') == '1'
+		cb:              clipboard.new() // 新建剪贴板
+		open_paths:      [][]string{len: max_nr_workspaces} // 初始化打开路径
+		workspace_files: map[string][]string{}
+		file_y_pos:      map[string]int{}
+		grep_file_exts:  map[string][]string{}
 	}
 	$if macos {
 		uiold.reg_ved_instance(ved) // 注册 Ved 实例
@@ -292,6 +297,7 @@ fn main() {
 		println(ved.cfg)
 	}
 	ved.load_config2() // 加载配置
+	ved.load_file_y_pos() // 加载文件位置历史
 
 	ved.nr_splits = ved.get_nr_splits_from_screen_size(width, height) // 根据屏幕尺寸获取分屏数量
 	ved.calc_nr_splits_from_text_size() // 根据文本大小计算分屏数量
@@ -800,6 +806,39 @@ fn (ved &Ved) save_session() {
 		f_workspace.writeln(workspace) or { panic(err) } // 写入工作区
 	}
 	f_workspace.close() // 关闭文件
+	ved.save_file_y_pos()
+}
+
+// 保存每个文件的光标位置
+fn (ved &Ved) save_file_y_pos() {
+	mut f := os.create(file_y_pos_path) or { return }
+	for path, y in ved.file_y_pos {
+		if path == '' {
+			continue
+		}
+		f.writeln('${path}:${y}') or { break }
+	}
+	f.close()
+}
+
+// 加载每个文件的光标位置
+fn (mut ved Ved) load_file_y_pos() {
+	if !os.exists(file_y_pos_path) {
+		return
+	}
+	lines := os.read_lines(file_y_pos_path) or { return }
+	for line in lines {
+		if !line.contains(':') {
+			continue
+		}
+		parts := line.split(':')
+		if parts.len != 2 {
+			continue
+		}
+		path := parts[0]
+		y := parts[1].int()
+		ved.file_y_pos[path] = y
+	}
 }
 
 // 辅助函数，将字符串转换为 i64
@@ -1135,7 +1174,15 @@ fn (ved &Ved) task_minutes() int {
 
 // 在当前工作区目录执行 `git pull --rebase`
 fn (mut ved Ved) git_pull() {
+	// Run git pull and then invalidate/refresh the workspace file cache so searches
+	// pick up newly pulled files or deletions.
 	os.system('git -C "${ved.workspace}" pull --rebase') // 执行 git 命令
+	// Clear cached files for this workspace and reload the git tree
+	if ved.workspace in ved.workspace_files {
+		ved.workspace_files.delete(ved.workspace)
+	}
+	// Reload files for the workspace to refresh caches (safe if called from spawn)
+	ved.load_git_tree()
 	ved.mode = .normal // 设置模式为正常
 	ved.gg.refresh_ui() // 刷新 UI
 }
@@ -1255,12 +1302,16 @@ fn (mut ved Ved) update_cur_fn_name() {
 			break
 		}
 		if line.starts_with('fn ') || line.starts_with('pub fn ') { // 如果是函数定义
-			ved.cur_fn_name = line.find_between('fn ', '{').trim_space() // 提取函数名
-			// 获取函数名，在 ( 参数之前
-			pos := ved.cur_fn_name.last_index('(') or { 0 } // 查找 (
-			if pos > 0 { // 如果找到
-				ved.cur_fn_name = ved.cur_fn_name[..pos] // 截取
+			fn_pos := line.index('fn ') or { continue }
+			mut start := fn_pos + 3
+			mut end := line.index_after('(', start) or { -1 }
+			if end == -1 {
+				end = line.index_after('{', start) or { -1 }
 			}
+			if end == -1 {
+				end = line.len
+			}
+			ved.cur_fn_name = line[start..end].trim_space()
 			break
 		}
 	}
@@ -1290,10 +1341,13 @@ fn read_grep_file_exts(workspaces []string) map[string][]string {
 
 // 列出给定工作区路径的所有文件，最好使用 `git ls-files`
 // （类似于 load_git_tree 但针对性）
-// TODO: 缓存？现在每次加载。
-fn (ved &Ved) get_files_for_workspace(ws_path string) []string {
+fn (mut ved Ved) get_files_for_workspace(ws_path string) []string {
 	if ws_path == '' { // 如果路径为空
 		return [] // 返回空
+	}
+	// 检查缓存
+	if ws_path in ved.workspace_files {
+		return ved.workspace_files[ws_path]
 	}
 	// 首先检查是否是 git 仓库
 	mut is_git := false // 是否 git
@@ -1302,32 +1356,20 @@ fn (ved &Ved) get_files_for_workspace(ws_path string) []string {
 		is_git = out_git_check.output.trim_space() == 'true' // 设置为 true
 	}
 
+	mut files := []string{}
 	if is_git { // 如果是 git
 		s := os.execute('git -C ${ws_path} ls-files') // 执行 ls-files
 		if s.exit_code == -1 { // 如果失败
 			return []string{} // 返回空
 		}
-		mut files := s.output.split_into_lines() // 分割输出
-		files.sort_by_len() // 按长度排序
-		return files // 返回文件
-	} else {
-		/*
-		// 如果不是 git 仓库，回退到遍历目录
-		mut files := []string{}
-		os.walk_with_context(ws_path, &files, fn (mut fs []string, f string) {
-			if f == '.' || f == '..' {
-				return
-			}
-			if os.is_file(f) {
-				// 存储相对于工作区的路径
-				fs << f.replace(ws_path + os.path_separator, '')
-			}
-		})
+		files = s.output.split_into_lines() // 分割输出
 		files.sort_by_len()
-		return files
-		*/
+	} else {
+		// 如果不是 git，我们可以列出所有文件。TODO：排除一些目录
+		// files = os.walk_ext(ws_path, '')
 	}
-	return [] // 返回空
+	ved.workspace_files[ws_path] = files
+	return files // 返回结果
 }
 
 fn (mut ved Ved) enter_query_mode(query_type QueryType, initial_query string, trigger string) {

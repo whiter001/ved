@@ -252,9 +252,12 @@ fn (mut ved Ved) load_git_tree() { // load_git_tree 函数，加载 git 树
 		s := os.execute('git -C ${dir} ls-files') // 执行 git 命令
 		if s.exit_code == -1 { // 如果退出码为 -1
 			ved.all_git_files = [] // 设置为空
+			ved.workspace_files[dir] = ved.all_git_files
 			return
 		}
 		ved.all_git_files = s.output.split_into_lines() // 分割输出为行
+		// Keep workspace_files cache in sync with the latest git tree
+		ved.workspace_files[dir] = ved.all_git_files
 	} else { // 否则
 		// Get all files if not a git repo // 如果不是 git 仓库，获取所有文件
 		mut files := []string{} // 文件
