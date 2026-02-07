@@ -223,7 +223,9 @@ fn (mut ved Ved) char_query(s string) { // char_query 函数，查询字符
 
 	if ved.query_type in [.search, .search_in_folder, .grep] { // 如果查询类型在搜索相关
 		ved.search_query += normalized // 添加到搜索查询
-		println('new sq=${ved.search_query}') // 打印新搜索查询
+		if os.getenv('VED_TEST') != '' {
+			println('new sq=${ved.search_query}') // 打印新搜索查询
+		}
 	} else if ved.query_type == .ctrlp { // 否则如果查询类型为 ctrlp
 		ved.query += normalized // 添加到查询
 		ved.filter_ctrlp_results() // Filter results as user types // 随着用户输入过滤结果

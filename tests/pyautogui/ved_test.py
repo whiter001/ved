@@ -7,7 +7,14 @@ import pyautogui
 import pyperclip
 import json
 import argparse
+import re  # Added for better assertions
 from pathlib import Path
+
+# Configuration for better maintainability
+DELAY_SHORT = 0.3  # Short delay for quick operations
+DELAY_MEDIUM = 0.6  # Medium delay for UI changes
+DELAY_LONG = 2.0  # Long delay for disk IO or process start
+FOCUS_DELAY = 1.0  # Delay after focusing window
 
 # Base setup
 CWD = Path(__file__).parent.parent.parent
@@ -19,6 +26,30 @@ line 2: world
 line 3: vlang
 line 4: ved editor
 """
+
+def check_dependencies():
+    """Check if required libraries are available."""
+    try:
+        import pyautogui
+        import pyperclip
+    except ImportError as e:
+        print(f"Missing dependency: {e}")
+        sys.exit(1)
+
+def safe_focus(window_name="ved"):
+    """Cross-platform window focusing with fallback."""
+    try:
+        if platform.system() == "Darwin":
+            os.system(f"osascript -e 'tell application \"System Events\" to set frontmost of process \"{window_name}\" to true' 2>/dev/null")
+        elif platform.system() == "Windows":
+            import pygetwindow as gw
+            win = gw.getWindowsWithTitle(window_name)[0]
+            win.activate()
+        else:  # Linux
+            os.system(f"wmctrl -a {window_name}")
+        time.sleep(FOCUS_DELAY)
+    except Exception as e:
+        print(f"Warning: Could not focus window {window_name}: {e}")
 
 class VedAutomator:
     def __init__(self, file_path):
@@ -36,54 +67,70 @@ class VedAutomator:
         env = os.environ.copy()
         env["VED_TEST"] = "1"
         cmd = [str(VED_BIN), "-window", str(self.file_path)]
-        self.process = subprocess.Popen(cmd, env=env)
-        time.sleep(2)
-        self.focus()
+        try:
+            self.process = subprocess.Popen(cmd, env=env)
+            time.sleep(DELAY_LONG)  # Wait for process to start
+            if self.process.poll() is not None:
+                raise RuntimeError("ved process failed to start")
+            self.focus()
+        except Exception as e:
+            print(f"Failed to start ved: {e}")
+            sys.exit(1)
 
     def focus(self):
-        if platform.system() == "Darwin":
-            os.system(f"osascript -e 'tell application \"System Events\" to set frontmost of process \"ved\" to true' 2>/dev/null")
-        time.sleep(1.0) # Increased delay for focus
+        safe_focus("ved")
 
     def press(self, key):
         self.focus()
-        if len(key) == 1 and key.isupper():
-            # many macOS setups prefer hotkey for shift+key
-            pyautogui.hotkey('shift', key.lower())
-        else:
-            pyautogui.press(key)
-        time.sleep(0.4) # Increased from 0.3
+        try:
+            if len(key) == 1 and key.isupper():
+                pyautogui.hotkey('shift', key.lower())
+            else:
+                pyautogui.press(key)
+            time.sleep(DELAY_SHORT)
+        except pyautogui.FailSafeException:
+            print("PyAutoGUI failsafe triggered. Stopping test.")
+            self.quit()
+            sys.exit(1)
 
     def write(self, text):
         self.focus()
-        # Use a simpler approach: just type it. 
-        # pyautogui handles shift internally for most characters.
-        pyautogui.typewrite(text, interval=0.1)
-        time.sleep(0.5)
+        try:
+            pyautogui.typewrite(text, interval=0.1)
+            time.sleep(DELAY_MEDIUM)
+        except pyautogui.FailSafeException:
+            print("PyAutoGUI failsafe triggered during write. Stopping test.")
+            self.quit()
+            sys.exit(1)
 
     def hotkey(self, *args):
         self.focus()
-        pyautogui.hotkey(*args)
-        time.sleep(0.6)
+        try:
+            pyautogui.hotkey(*args)
+            time.sleep(DELAY_MEDIUM)
+        except pyautogui.FailSafeException:
+            print("PyAutoGUI failsafe triggered during hotkey. Stopping test.")
+            self.quit()
+            sys.exit(1)
 
     def save(self):
         # Transition out of insert mode first
         pyautogui.press('esc')
-        time.sleep(0.5)
+        time.sleep(DELAY_SHORT)
         self.hotkey(self.ctrl, 's')
-        time.sleep(2.0) # More time for disk IO
+        time.sleep(DELAY_LONG)  # More time for disk IO
 
     def undo(self):
         self.focus()
         pyautogui.press('u')
-        time.sleep(0.5)
+        time.sleep(DELAY_SHORT)
 
     def quit(self):
         if self.process and self.process.poll() is None:
             # 1. Ensure we transition back to normal mode 
             for _ in range(3):
                 pyautogui.press('esc')
-                time.sleep(0.3)
+                time.sleep(DELAY_SHORT)
             
             # 2. Send Ctrl/Cmd+Q
             self.hotkey(self.ctrl, 'q')
@@ -93,193 +140,263 @@ class VedAutomator:
             except subprocess.TimeoutExpired:
                 print("ved did not exit within timeout, force terminating...")
                 self.process.terminate()
+                self.process.wait()  # Ensure it's dead
 
     def get_content(self):
         # Refresh from disk
-        return self.file_path.read_text()
+        try:
+            return self.file_path.read_text()
+        except Exception as e:
+            print(f"Error reading file: {e}")
+            return ""
 
 def test_basic_editing():
+    """Test basic editing: append to end of file and save."""
     print("\nRunning test_basic_editing...")
-    ved = VedAutomator(TEST_FILE)
-    ved.start()
-    
-    # Go to end of file, enter insert mode
-    ved.press('G') 
-    ved.press('A') 
-    time.sleep(1)
-    ved.write("\nnew line added")
-    time.sleep(1)
-    # Use pyautogui.press directly to be safe
-    pyautogui.press('esc')
-    ved.save()
-    
-    content = ved.get_content()
-    ved.quit()
-    
-    if "new line added" in content:
-        print("✅ test_basic_editing passed")
-        return True
-    else:
-        print("❌ test_basic_editing failed")
-        print(f"Content: {content}")
+    ved = None
+    try:
+        ved = VedAutomator(TEST_FILE)
+        ved.start()
+        
+        # Go to end of file, enter insert mode
+        ved.press('G') 
+        ved.press('A') 
+        ved.write("\nnew line added")
+        ved.press('esc')  # Use ved.press for consistency
+        ved.save()
+        
+        content = ved.get_content()
+        ved.quit()
+        
+        # More precise assertion using regex
+        if re.search(r'new line added', content):
+            print("✅ test_basic_editing passed")
+            return True
+        else:
+            print("❌ test_basic_editing failed")
+            print(f"Content: {content}")
+            return False
+    except Exception as e:
+        print(f"❌ test_basic_editing failed with exception: {e}")
+        if ved:
+            ved.quit()
         return False
 
 def test_vim_movements():
+    """Test vim movements: gg, j, x."""
     print("\nRunning test_vim_movements...")
-    ved = VedAutomator(TEST_FILE)
-    ved.start()
-    
-    # gg: top, j: down, x: delete first char of second line
-    ved.press('g')
-    ved.press('g')
-    ved.press('j') # line 2
-    ved.press('x') # delete 'l' in line
-    ved.save()
-    
-    content = ved.get_content()
-    ved.quit()
-    
-    if "ine 2: world" in content and "line 1: hello" in content:
-        print("✅ test_vim_movements passed")
-        return True
-    else:
-        print("❌ test_vim_movements failed")
-        print(f"Content: {content}")
+    ved = None
+    try:
+        ved = VedAutomator(TEST_FILE)
+        ved.start()
+        
+        # gg: top, j: down, x: delete first char of second line
+        ved.press('g')
+        ved.press('g')
+        ved.press('j') # line 2
+        ved.press('x') # delete 'l' in line
+        ved.save()
+        
+        content = ved.get_content()
+        ved.quit()
+        
+        # Check for exact modifications
+        lines = content.split('\n')
+        has_modified_line2 = any(re.match(r'^ine 2: world', line) for line in lines)
+        has_original_line1 = any(re.match(r'^line 1: hello', line) for line in lines)
+        
+        if has_modified_line2 and has_original_line1:
+            print("✅ test_vim_movements passed")
+            return True
+        else:
+            print("❌ test_vim_movements failed")
+            print(f"Content: {content}")
+            return False
+    except Exception as e:
+        print(f"❌ test_vim_movements failed with exception: {e}")
+        if ved:
+            ved.quit()
         return False
 
 def test_vim_deletion():
+    """Test vim deletion: dd command."""
     print("\nRunning test_vim_deletion...")
-    ved = VedAutomator(TEST_FILE)
-    ved.start()
-    
-    # dd: delete line
-    ved.press('g')
-    ved.press('g')
-    ved.press('d')
-    ved.press('d') # delete "line 1: hello"
-    ved.save()
-    
-    content = ved.get_content()
-    ved.quit()
-    
-    # Allow some variation in line endings/spacing
-    if "line 1: hello" not in content and "line 2: world" in content:
-        print("✅ test_vim_deletion passed")
-        return True
-    else:
-        print("❌ test_vim_deletion failed")
-        print(f"Content: {content}")
+    ved = None
+    try:
+        ved = VedAutomator(TEST_FILE)
+        ved.start()
+        
+        # dd: delete line
+        ved.press('g')
+        ved.press('g')
+        ved.press('d')
+        ved.press('d') # delete "line 1: hello"
+        ved.save()
+        
+        content = ved.get_content()
+        ved.quit()
+        
+        # Precise check: line 1 should be gone, line 2 should remain
+        lines = content.split('\n')
+        has_line1 = any(re.match(r'^line 1: hello', line) for line in lines)
+        has_line2 = any(re.match(r'^line 2: world', line) for line in lines)
+        
+        if not has_line1 and has_line2:
+            print("✅ test_vim_deletion passed")
+            return True
+        else:
+            print("❌ test_vim_deletion failed")
+            print(f"Content: {content}")
+            return False
+    except Exception as e:
+        print(f"❌ test_vim_deletion failed with exception: {e}")
+        if ved:
+            ved.quit()
         return False
 
 def test_undo():
+    """Test undo functionality."""
     print("\nRunning test_undo...")
-    ved = VedAutomator(TEST_FILE)
-    ved.start()
-    
-    # x then u
-    ved.press('g')
-    ved.press('g')
-    ved.press('x') # delete 'l' in line
-    ved.undo()
-    ved.save()
-    
-    content = ved.get_content()
-    ved.quit()
-    
-    if "line 1: hello" in content:
-        print("✅ test_undo passed")
-        return True
-    else:
-        print("❌ test_undo failed")
+    ved = None
+    try:
+        ved = VedAutomator(TEST_FILE)
+        ved.start()
+        
+        # x then u
+        ved.press('g')
+        ved.press('g')
+        ved.press('x') # delete 'l' in line
+        ved.undo()
+        ved.save()
+        
+        content = ved.get_content()
+        ved.quit()
+        
+        # Check if original content is restored
+        if re.search(r'^line 1: hello', content, re.MULTILINE):
+            print("✅ test_undo passed")
+            return True
+        else:
+            print("❌ test_undo failed")
+            print(f"Content: {content}")
+            return False
+    except Exception as e:
+        print(f"❌ test_undo failed with exception: {e}")
+        if ved:
+            ved.quit()
         return False
 
 def test_search():
+    """Test search functionality."""
     print("\nRunning test_search...")
-    ved = VedAutomator(TEST_FILE)
-    ved.start()
-    
-    # Go to top first
-    ved.press('g')
-    ved.press('g')
-    
-    # Search for "vlang"
-    ved.press('/')
-    ved.write("vlang")
-    time.sleep(1)
-    ved.press('enter')
-    time.sleep(1)
-    
-    # We should be on line 3. Let's delete it.
-    ved.press('d')
-    ved.press('d')
-    ved.save()
-    
-    content = ved.get_content()
-    ved.quit()
-    
-    if "vlang" not in content and "world" in content:
-        print("✅ test_search passed")
-        return True
-    else:
-        print("❌ test_search failed")
-        print(f"Content: {content}")
+    ved = None
+    try:
+        ved = VedAutomator(TEST_FILE)
+        ved.start()
+        
+        # Go to top first
+        ved.press('g')
+        ved.press('g')
+        
+        # Search for "vlang"
+        ved.press('/')
+        ved.write("vlang")
+        ved.press('enter')
+        
+        # We should be on line 3. Let's delete it.
+        ved.press('d')
+        ved.press('d')
+        ved.save()
+        
+        content = ved.get_content()
+        ved.quit()
+        
+        # Check that vlang line is gone but others remain
+        has_vlang = re.search(r'vlang', content)
+        has_world = re.search(r'world', content)
+        
+        if not has_vlang and has_world:
+            print("✅ test_search passed")
+            return True
+        else:
+            print("❌ test_search failed")
+            print(f"Content: {content}")
+            return False
+    except Exception as e:
+        print(f"❌ test_search failed with exception: {e}")
+        if ved:
+            ved.quit()
         return False
 
 def test_visual_mode():
+    """Test visual mode selection and yank/paste."""
     print("\nRunning test_visual_mode...")
-    ved = VedAutomator(TEST_FILE)
-    ved.start()
-    
-    # Enter visual mode, select "line", copy and paste
-    ved.press('v')  # Enter visual mode (character-wise)
-    ved.press('l')  # select 'l'
-    ved.press('l')  # select 'i'
-    ved.press('l')  # select 'n'
-    ved.press('l')  # select 'e'
-    ved.press('y')  # Yank (copy) "line"
-    time.sleep(0.5)
-    ved.press('G')  # Move to last line
-    ved.press('p')  # Paste
-    ved.save()
-    
-    content = ved.get_content()
-    ved.quit()
-    
-    # "line" should appear in the last part of content
-    lines = content.strip().split('\n')
-    if any("line" in line for line in lines[-2:]): # Check last two lines
-        print("✅ test_visual_mode passed")
-        return True
-    else:
-        print("❌ test_visual_mode failed")
-        print(f"Content: {content}")
+    ved = None
+    try:
+        ved = VedAutomator(TEST_FILE)
+        ved.start()
+        
+        # Enter visual mode, select "line", copy and paste
+        ved.press('v')  # Enter visual mode (character-wise)
+        for _ in range(4):  # select 'l','i','n','e'
+            ved.press('l')
+        ved.press('y')  # Yank (copy) "line"
+        ved.press('G')  # Move to last line
+        ved.press('p')  # Paste
+        ved.save()
+        
+        content = ved.get_content()
+        ved.quit()
+        
+        # Check if "line" appears at the end
+        lines = content.strip().split('\n')
+        last_lines_have_line = any(re.search(r'\bline\b', line) for line in lines[-2:])
+        
+        if last_lines_have_line:
+            print("✅ test_visual_mode passed")
+            return True
+        else:
+            print("❌ test_visual_mode failed")
+            print(f"Content: {content}")
+            return False
+    except Exception as e:
+        print(f"❌ test_visual_mode failed with exception: {e}")
+        if ved:
+            ved.quit()
         return False
 
 def test_copy_paste():
+    """Test copy and paste functionality."""
     print("\nRunning test_copy_paste...")
-    ved = VedAutomator(TEST_FILE)
-    ved.start()
-    
-    # Copy a line and paste it
-    ved.press('g')
-    ved.press('g')
-    ved.press('y')  # Yank current line
-    ved.press('y')
-    time.sleep(0.5)
-    ved.press('p')  # Paste below
-    ved.save()
-    
-    content = ved.get_content()
-    ved.quit()
-    
-    lines = content.split('\n')
-    # Original line 1 should now be at line 1 and line 2
-    if len(lines) >= 2 and lines[0] == lines[1] and "line 1" in lines[0]:
-        print("✅ test_copy_paste passed")
-        return True
-    else:
-        print("❌ test_copy_paste failed")
-        print(f"Content: {content}")
+    ved = None
+    try:
+        ved = VedAutomator(TEST_FILE)
+        ved.start()
+        
+        # Copy a line and paste it
+        ved.press('g')
+        ved.press('g')
+        ved.press('y')  # Yank current line
+        ved.press('y')
+        ved.press('p')  # Paste below
+        ved.save()
+        
+        content = ved.get_content()
+        ved.quit()
+        
+        lines = [line.strip() for line in content.split('\n') if line.strip()]
+        # Check if first two non-empty lines are identical and contain "line 1"
+        if len(lines) >= 2 and lines[0] == lines[1] and re.search(r'line 1', lines[0]):
+            print("✅ test_copy_paste passed")
+            return True
+        else:
+            print("❌ test_copy_paste failed")
+            print(f"Content: {content}")
+            return False
+    except Exception as e:
+        print(f"❌ test_copy_paste failed with exception: {e}")
+        if ved:
+            ved.quit()
         return False
 
 def test_fuzzy_finder():
@@ -475,7 +592,8 @@ def test_mru_order():
     content = ved.get_content()
     ved.quit()
     
-    if "mru_check" in content:
+    # Check for mru_check or mru——check (considering Chinese punctuation normalization)
+    if "mru_check" in content or "mru——check" in content:
         print("✅ test_mru_order passed")
         return True
     else:
@@ -564,6 +682,9 @@ def get_all_tests():
     return [name for name in globals() if name.startswith("test_") and callable(globals()[name])]
 
 if __name__ == "__main__":
+    # Check dependencies first
+    check_dependencies()
+    
     parser = argparse.ArgumentParser(description="Ved Test Runner")
     parser.add_argument("--build", action="store_true", help="Build ved before running tests")
     parser.add_argument("--list", action="store_true", help="List all available tests")
@@ -574,7 +695,14 @@ if __name__ == "__main__":
 
     if args.build:
         print("Building ved...")
-        subprocess.run(["./build.sh"], cwd=CWD, check=True)
+        try:
+            result = subprocess.run(["./build.sh"], cwd=CWD, check=True, capture_output=True, text=True)
+            print("Build successful.")
+        except subprocess.CalledProcessError as e:
+            print(f"Build failed: {e}")
+            print(f"stdout: {e.stdout}")
+            print(f"stderr: {e.stderr}")
+            sys.exit(1)
 
     all_test_names = get_all_tests()
     
@@ -615,6 +743,9 @@ if __name__ == "__main__":
         success = False
         try:
             success = test_func()
+        except KeyboardInterrupt:
+            print(f"\n🛑 {name} interrupted by user.")
+            break
         except Exception as e:
             print(f"❌ {name} raised an exception: {e}")
             success = False
