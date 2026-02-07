@@ -134,6 +134,7 @@ mut:
 	current_syntax_idx int            // 当前语法索引
 	chunks             []Chunk        // 在高亮期间临时使用
 	is_building        bool           // 是否正在构建
+	is_git_pulling     bool           // 是否正在执行 git pull
 	is_test            bool           // 是否处于测试模式（环境变量 VED_TEST=1）
 	timer              Timer          // 计时器
 	task_start_unix    i64            // 任务开始时间戳
@@ -437,6 +438,17 @@ fn (ved &Ved) split_width() int {
 
 // 主绘制函数，由 gg 库在每一帧调用
 fn frame(mut ved Ved) {
+	if ved.is_git_pulling == false && ved.mode == .query && ved.query_type == .alert
+		&& ved.error_line == 'Running git pull...' {
+		// git pull finished in background
+		if ved.workspace in ved.workspace_files {
+			ved.workspace_files.delete(ved.workspace)
+		}
+		ved.load_git_tree()
+		ved.mode = .normal
+		ved.error_line = ''
+		ved.refresh = true
+	}
 	// if !ved.refresh {
 	// return
 	// }
@@ -1174,17 +1186,18 @@ fn (ved &Ved) task_minutes() int {
 
 // 在当前工作区目录执行 `git pull --rebase`
 fn (mut ved Ved) git_pull() {
-	// Run git pull and then invalidate/refresh the workspace file cache so searches
-	// pick up newly pulled files or deletions.
-	os.system('git -C "${ved.workspace}" pull --rebase') // 执行 git 命令
-	// Clear cached files for this workspace and reload the git tree
-	if ved.workspace in ved.workspace_files {
-		ved.workspace_files.delete(ved.workspace)
+	if ved.is_git_pulling {
+		return
 	}
-	// Reload files for the workspace to refresh caches (safe if called from spawn)
-	ved.load_git_tree()
-	ved.mode = .normal // 设置模式为正常
-	ved.gg.refresh_ui() // 刷新 UI
+	ved.is_git_pulling = true
+	ved.mode = .query
+	ved.query_type = .alert
+	ved.error_line = 'Running git pull...'
+	ved.refresh = true
+	spawn fn (mut v Ved) {
+		os.execute('git -C "${v.workspace}" pull --rebase')
+		v.is_git_pulling = false
+	}(mut ved)
 }
 
 const text_scale = 1.2 // 文本缩放

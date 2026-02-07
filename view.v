@@ -77,8 +77,13 @@ fn (mut view View) save_snapshot() {
 	if view.undo_stack.len >= 100 {
 		view.undo_stack.delete(0)
 	}
+	// 浅拷贝行数组，V 的字符串是不可变的，所以只需拷贝数组描述符和字符串指针
+	mut lines_copy := []string{cap: view.lines.len}
+	for line in view.lines {
+		lines_copy << line
+	}
 	view.undo_stack << Snapshot{
-		lines: view.lines.clone()
+		lines: lines_copy
 		x:     view.x
 		y:     view.y
 	}
@@ -92,14 +97,23 @@ fn (mut view View) undo() {
 		return
 	}
 	// 将当前状态保存到重做栈
+	mut lines_copy_redo := []string{cap: view.lines.len}
+	for line in view.lines {
+		lines_copy_redo << line
+	}
 	view.redo_stack << Snapshot{
-		lines: view.lines.clone()
+		lines: lines_copy_redo
 		x:     view.x
 		y:     view.y
 	}
 	// 从撤销栈恢复
 	last := view.undo_stack.pop()
-	view.lines = last.lines.clone()
+	// 恢复时也使用浅拷贝
+	mut lines_copy_undo := []string{cap: last.lines.len}
+	for line in last.lines {
+		lines_copy_undo << line
+	}
+	view.lines = lines_copy_undo
 	view.x = last.x
 	view.y = last.y
 	view.sync_visual_x()
@@ -112,14 +126,23 @@ fn (mut view View) redo() {
 		return
 	}
 	// 将当前状态存回撤销栈
+	mut lines_copy_undo := []string{cap: view.lines.len}
+	for line in view.lines {
+		lines_copy_undo << line
+	}
 	view.undo_stack << Snapshot{
-		lines: view.lines.clone()
+		lines: lines_copy_undo
 		x:     view.x
 		y:     view.y
 	}
 	// 从重做栈恢复
 	last := view.redo_stack.pop()
-	view.lines = last.lines.clone()
+	// 恢复时也使用浅拷贝
+	mut lines_copy_redo := []string{cap: last.lines.len}
+	for line in last.lines {
+		lines_copy_redo << line
+	}
+	view.lines = lines_copy_redo
 	view.x = last.x
 	view.y = last.y
 	view.sync_visual_x()
