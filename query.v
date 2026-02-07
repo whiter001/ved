@@ -123,14 +123,19 @@ fn (mut ved Ved) key_query(key gg.KeyCode, super bool) { // key_query 函数，�
 							ved.gg_pos = ved.gg_lines.len - 1 // 设置为长度 - 1
 						}
 					}
-					.ctrlp { // ctrlp
+					.ctrlp, .ctrlj { // ctrlp
 						ved.gg_pos++ // gg_pos 加一
-						// Use ctrlp_results length for boundary check // 使用 ctrlp_results 长度进行边界检查
-						if ved.gg_pos >= ved.ctrlp_results.len { // 如果 gg_pos >= ctrlp_results 长度
-							ved.gg_pos = ved.ctrlp_results.len - 1 // 设置为长度 - 1
+						// Use results length for boundary check
+						res_len := if ved.query_type == .ctrlp {
+							ved.ctrlp_results.len
+						} else {
+							ved.ctrlj_results.len
 						}
-						if ved.gg_pos < 0 && ved.ctrlp_results.len > 0 { // Handle empty case // 处理空情况
-							ved.gg_pos = 0 // 设置为 0
+						if ved.gg_pos >= res_len {
+							ved.gg_pos = res_len - 1
+						}
+						if ved.gg_pos < 0 && res_len > 0 {
+							ved.gg_pos = 0
 						}
 					}
 					.search { // search
@@ -151,7 +156,7 @@ fn (mut ved Ved) key_query(key gg.KeyCode, super bool) { // key_query 函数，�
 			if ved.mode == .query { // 如果模式为查询
 				match ved.query_type {
 					// 匹配查询类型
-					.grep, .ctrlp { // Apply same logic to ctrlp // 对 ctrlp 应用相同逻辑
+					.grep, .ctrlp, .ctrlj { // Apply same logic to ctrlp // 对 ctrlp 应用相同逻辑
 						ved.gg_pos-- // gg_pos 减一
 						if ved.gg_pos < 0 { // 如果 gg_pos < 0
 							ved.gg_pos = 0 // 设置为 0
@@ -175,15 +180,16 @@ fn (mut ved Ved) key_query(key gg.KeyCode, super bool) { // key_query 函数，�
 			if ved.mode == .query { // 如果模式为查询
 				match ved.query_type {
 					// 匹配查询类型
-					.grep { // grep
+					.grep, .ctrlp, .ctrlj { // ctrlp
 						ved.gg_pos++ // gg_pos 加一
-						if ved.gg_pos >= ved.gg_lines.len { // 如果 gg_pos >= gg_lines 长度
-							ved.gg_pos = 0 // wrap around? or stop? // 环绕？还是停止？
+						res_len := if ved.query_type == .grep {
+							ved.gg_lines.len
+						} else if ved.query_type == .ctrlp {
+							ved.ctrlp_results.len
+						} else {
+							ved.ctrlj_results.len
 						}
-					}
-					.ctrlp { // ctrlp
-						ved.gg_pos++ // gg_pos 加一
-						if ved.gg_pos >= ved.ctrlp_results.len { // 如果 gg_pos >= ctrlp_results 长度
+						if ved.gg_pos >= res_len {
 							ved.gg_pos = 0 // wrap around? or stop? // 环绕？还是停止？
 						}
 					}
@@ -209,21 +215,23 @@ fn (mut ved Ved) key_query(key gg.KeyCode, super bool) { // key_query 函数，�
 }
 
 fn (mut ved Ved) char_query(s string) { // char_query 函数，查询字符
-	if s.len == 0 || s[0] < 32 || s[0] == 127 { // 如果长度为 0 或字符码 < 32 或为 127 (Delete)
+	if s.len == 0 || (s.len == 1 && (s[0] < 32 || s[0] == 127)) {
 		return
 	}
-	// println('char q(${s}) ${ved.query_type}') // 打印（注释）
+	// Normalize common Chinese symbols to ASCII for search/query
+	normalized := normalize_punctuation(s)
+
 	if ved.query_type in [.search, .search_in_folder, .grep] { // 如果查询类型在搜索相关
-		ved.search_query += s // 添加到搜索查询
+		ved.search_query += normalized // 添加到搜索查询
 		println('new sq=${ved.search_query}') // 打印新搜索查询
 	} else if ved.query_type == .ctrlp { // 否则如果查询类型为 ctrlp
-		ved.query += s // 添加到查询
+		ved.query += normalized // 添加到查询
 		ved.filter_ctrlp_results() // Filter results as user types // 随着用户输入过滤结果
 	} else if ved.query_type == .ctrlj {
-		ved.query += s
+		ved.query += normalized
 		ved.filter_ctrlj_results()
 	} else { // 否则
-		ved.query += s // 添加到查询
+		ved.query += normalized // 添加到查询
 	}
 }
 
@@ -329,14 +337,19 @@ fn (mut ved Ved) filter_ctrlp_results() {
 // Filters open files for Ctrl+J based on the current query.
 fn (mut ved Ved) filter_ctrlj_results() {
 	ved.ctrlj_results = []
-	ved.gg_pos = 0
 	query_lower := ved.query.to_lower()
 	current_open_paths := ved.open_paths[ved.workspace_idx]
 
 	for p in current_open_paths {
-		if p.to_lower().contains(query_lower) {
+		if query_lower == '' || p.to_lower().contains(query_lower) {
 			ved.ctrlj_results << p
 		}
+	}
+
+	if ved.query == '' && ved.ctrlj_results.len > 1 {
+		ved.gg_pos = 1 // Default to previous file for quick toggle
+	} else {
+		ved.gg_pos = 0
 	}
 }
 

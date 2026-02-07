@@ -56,15 +56,9 @@ class VedAutomator:
 
     def write(self, text):
         self.focus()
-        for char in text:
-            if char == '\n':
-                pyautogui.press('enter')
-            elif char.isupper():
-                pyautogui.hotkey('shift', char.lower())
-            else:
-                pyautogui.typewrite(char)
-            # small delay between chars to be more like human
-            time.sleep(0.05)
+        # Use a simpler approach: just type it. 
+        # pyautogui handles shift internally for most characters.
+        pyautogui.typewrite(text, interval=0.1)
         time.sleep(0.5)
 
     def hotkey(self, *args):
@@ -73,8 +67,11 @@ class VedAutomator:
         time.sleep(0.6)
 
     def save(self):
+        # Transition out of insert mode first
+        pyautogui.press('esc')
+        time.sleep(0.5)
         self.hotkey(self.ctrl, 's')
-        time.sleep(1.5) # More time for disk IO
+        time.sleep(2.0) # More time for disk IO
 
     def undo(self):
         self.focus()
@@ -83,13 +80,12 @@ class VedAutomator:
 
     def quit(self):
         if self.process and self.process.poll() is None:
-            # 1. Ensure we transition back to normal mode from any sub-mode (query, insert, etc.)
-            # This handles the "transition exit" requirement.
-            for _ in range(2):
-                self.press('esc')
-                time.sleep(0.2)
+            # 1. Ensure we transition back to normal mode 
+            for _ in range(3):
+                pyautogui.press('esc')
+                time.sleep(0.3)
             
-            # 2. Send Ctrl/Cmd+Q to exit (now only requires one press)
+            # 2. Send Ctrl/Cmd+Q
             self.hotkey(self.ctrl, 'q')
             
             try:
@@ -99,6 +95,7 @@ class VedAutomator:
                 self.process.terminate()
 
     def get_content(self):
+        # Refresh from disk
         return self.file_path.read_text()
 
 def test_basic_editing():
@@ -107,12 +104,13 @@ def test_basic_editing():
     ved.start()
     
     # Go to end of file, enter insert mode
-    ved.press('G') # Use press('G') for Shift+G
-    ved.press('A') # Use press('A') for Shift+A
+    ved.press('G') 
+    ved.press('A') 
     time.sleep(1)
     ved.write("\nnew line added")
     time.sleep(1)
-    ved.press('esc')
+    # Use pyautogui.press directly to be safe
+    pyautogui.press('esc')
     ved.save()
     
     content = ved.get_content()
@@ -297,7 +295,7 @@ def test_fuzzy_finder():
     ved.write("README")
     time.sleep(0.5)
     for _ in range(6):
-        ved.press('backspace')
+        pyautogui.press('backspace')
     time.sleep(0.5)
     ved.write("LICENSE")
     time.sleep(1)
@@ -430,6 +428,125 @@ def test_replace():
     else:
         print("❌ test_replace failed")
         print(f"Content: {content}")
+        return False
+
+def test_mru_order():
+    print("\nRunning test_mru_order...")
+    ved = VedAutomator(TEST_FILE)
+    ved.start()
+    
+    # Ensure we are in test_output.txt
+    ved.press('i')
+    ved.write("initial")
+    ved.press('esc')
+    ved.save()
+
+    # 1. Open README.md via Ctrl+P
+    ved.hotkey(ved.ctrl, 'p')
+    time.sleep(1)
+    # Type slowly to ensure normalization works
+    for c in "readme.md":
+        pyautogui.write(c)
+        time.sleep(0.1)
+    time.sleep(1)
+    ved.press('enter')
+    time.sleep(2)
+    
+    # 2. Switch back to test_output.txt via Ctrl+J
+    ved.hotkey(ved.ctrl, 'j')
+    time.sleep(1.5)
+    # test_output.txt should be the second one (previously opened)
+    # Now that ved.gg_pos = 1 is default, we don't need 'down'
+    # pyautogui.press('down')
+    # time.sleep(1)
+    pyautogui.press('enter')
+    time.sleep(3) # Wait for file to open and UI to settle
+    
+    # 3. Verify we are back
+    ved.press('g')
+    ved.press('g')
+    ved.press('0') # Go to line start
+    ved.press('i')
+    time.sleep(1)
+    ved.write("mru_check ")
+    time.sleep(1)
+    ved.save()
+    
+    content = ved.get_content()
+    ved.quit()
+    
+    if "mru_check" in content:
+        print("✅ test_mru_order passed")
+        return True
+    else:
+        print("❌ test_mru_order failed")
+        print(f"Content: {content[:100]}")
+        return False
+
+def test_ci_bracket():
+    print("\nRunning test_ci_bracket...")
+    ved = VedAutomator(TEST_FILE)
+    ved.start()
+    
+    # Insert a line with brackets
+    ved.press('G')
+    ved.press('o')
+    ved.write("func(old_data)")
+    ved.press('esc')
+    
+    # Move cursor inside brackets
+    for _ in range(5):
+        ved.press('h')
+    
+    # Execute ci(
+    ved.press('c')
+    ved.press('i')
+    # Directly write ( to test our improved write method
+    ved.write("(")
+    time.sleep(1.0) # wait more
+    
+    # Write new data
+    ved.write("new")
+    ved.save()
+    
+    content = ved.get_content()
+    ved.quit()
+    
+    if "func(new)" in content or "func（new）" in content:
+        print("✅ test_ci_bracket passed")
+        return True
+    else:
+        print("❌ test_ci_bracket failed")
+        print(f"Content: {content}")
+        return False
+
+def test_indentation():
+    print("\nRunning test_indentation...")
+    ved = VedAutomator(TEST_FILE)
+    ved.start()
+    
+    # Select lines and indent
+    ved.press('g')
+    ved.press('g')
+    ved.press('V') # Line-wise visual mode
+    ved.press('j') # Select 2 lines
+    ved.write(">") # Use our improved write for >
+    time.sleep(1.0)
+    ved.save()
+    
+    content = ved.get_content()
+    ved.quit()
+    
+    if "\tline 1" in content:
+        print("✅ test_indentation passed")
+        return True
+    else:
+        print("❌ test_indentation failed")
+        # In some setups it might use spaces, check for that too
+        if "    line 1" in content or "  line 1" in content:
+             print("✅ test_indentation passed (spaces)")
+             return True
+        print(f"Content start: {repr(content[:30])}")
         return False
 
 def load_state():

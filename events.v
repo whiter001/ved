@@ -143,7 +143,7 @@ fn (mut ved Ved) on_event(e &gg.Event) {
 // key_down 是按键按下时的总入口
 fn on_key_down(key gg.KeyCode, mod gg.Modifier, mut ved Ved) {
 	if os.getenv('VED_TEST') != '' {
-		println('KEY DOWN: $key mod=$mod mode=${ved.mode} cur_y=${ved.view.y} cur_x=${ved.view.x}')
+		println('KEY DOWN: ${key} mod=${mod} mode=${ved.mode} cur_y=${ved.view.y} cur_x=${ved.view.x}')
 	}
 	// 更新修饰键状态
 	if key in [.left_control, .right_control] {
@@ -195,14 +195,16 @@ fn (mut ved Ved) key_normal(key gg.KeyCode, mod gg.Modifier) {
 	super := mod.has(.super) || mod.has(.ctrl) || ved.is_ctrl_pressed || ved.is_super_pressed
 	shift := mod.has(.shift) || ved.is_shift_pressed
 	// shift_and_super := int(mod) == 9 // 这种硬编码在不同平台可能不同，改为位运算判断
-	shift_and_super := (mod.has(.shift) || ved.is_shift_pressed) && (mod.has(.super) || mod.has(.ctrl) || ved.is_ctrl_pressed || ved.is_super_pressed)
+	shift_and_super := (mod.has(.shift) || ved.is_shift_pressed)
+		&& (mod.has(.super) || mod.has(.ctrl) || ved.is_ctrl_pressed
+		|| ved.is_super_pressed)
 	mut view := ved.view
 	ved.refresh = true
 	if ved.prev_key == .r {
 		return
 	}
 	if ved.prev_cmd == 'ci' {
-		view.ci(key)
+		// view.ci(key) // Let on_char handle it for better full-width support
 		return
 	}
 	match key {
@@ -227,16 +229,14 @@ fn (mut ved Ved) key_normal(key gg.KeyCode, mod gg.Modifier) {
 		}
 		.slash {
 			ved.search_query = ''
-			ved.mode = .query
-			ved.just_switched = true
 			ved.search_dir = ''
 			if shift {
-				ved.query_type = .grep
+				ved.enter_query_mode(.grep, '')
 			} else if super {
-				ved.query_type = .search_in_folder
 				ved.search_dir = os.dir(ved.view.path)
+				ved.enter_query_mode(.search_in_folder, '')
 			} else {
-				ved.query_type = .search
+				ved.enter_query_mode(.search, '')
 			}
 		}
 		.f5 {
@@ -270,20 +270,14 @@ fn (mut ved Ved) key_normal(key gg.KeyCode, mod gg.Modifier) {
 		}
 		._0 {
 			if super {
-				ved.query = ''
-				ved.mode = .query
-				ved.query_type = .task
-				ved.just_switched = true
+				ved.enter_query_mode(.task, '')
 			} else {
 				view.zero()
 			}
 		}
 		._9 {
 			if super {
-				ved.query = '@'
-				ved.mode = .query
-				ved.query_type = .task
-				ved.just_switched = true
+				ved.enter_query_mode(.task, '@')
 			}
 		}
 		.a {
@@ -303,10 +297,7 @@ fn (mut ved Ved) key_normal(key gg.KeyCode, mod gg.Modifier) {
 		}
 		.c {
 			if super {
-				ved.query = ''
-				ved.mode = .query
-				ved.query_type = .cam
-				ved.just_switched = true
+				ved.enter_query_mode(.cam, '')
 			} else if shift {
 				ved.prev_insert = ved.view.shift_c()
 				ved.set_insert()
@@ -344,6 +335,7 @@ fn (mut ved Ved) key_normal(key gg.KeyCode, mod gg.Modifier) {
 			} else {
 				if ved.prev_key == .c {
 					ved.prev_cmd = 'ci'
+					ved.just_switched = true
 				} else {
 					view.save_snapshot()
 					ved.set_insert()
@@ -354,11 +346,8 @@ fn (mut ved Ved) key_normal(key gg.KeyCode, mod gg.Modifier) {
 			if shift {
 				ved.view.join()
 			} else if super {
-				ved.mode = .query
-				ved.query_type = .ctrlj
-				ved.query = ''
+				ved.enter_query_mode(.ctrlj, '')
 				ved.filter_ctrlj_results()
-				ved.just_switched = true
 			} else {
 				ved.view.j()
 			}
@@ -377,14 +366,9 @@ fn (mut ved Ved) key_normal(key gg.KeyCode, mod gg.Modifier) {
 		}
 		.o {
 			if shift_and_super {
-				ved.mode = .query
-				ved.query_type = .open_workspace
-				ved.query = ''
+				ved.enter_query_mode(.open_workspace, '')
 			} else if super {
-				ved.mode = .query
-				ved.query_type = .open
-				ved.query = ''
-				ved.just_switched = true
+				ved.enter_query_mode(.open, '')
 				return
 			} else if shift {
 				view.save_snapshot()
@@ -398,18 +382,12 @@ fn (mut ved Ved) key_normal(key gg.KeyCode, mod gg.Modifier) {
 		}
 		.p {
 			if shift_and_super {
-				ved.mode = .query
-				ved.query_type = .alert
-				ved.query = 'Running git pull...'
-				ved.just_switched = true
+				ved.enter_query_mode(.alert, 'Running git pull...')
 				spawn ved.git_pull()
 				return
 			} else if super {
-				ved.mode = .query
-				ved.query_type = .ctrlp
-				ved.query = ''
 				ved.load_git_tree()
-				ved.just_switched = true
+				ved.enter_query_mode(.ctrlp, '')
 				return
 			} else {
 				view.p()
@@ -417,10 +395,7 @@ fn (mut ved Ved) key_normal(key gg.KeyCode, mod gg.Modifier) {
 		}
 		.r {
 			if shift_and_super {
-				ved.query = ''
-				ved.mode = .query
-				ved.query_type = .run
-				ved.just_switched = true
+				ved.enter_query_mode(.run, '')
 			} else if super {
 				if view.redo_stack.len > 0 {
 					view.redo()
@@ -613,10 +588,13 @@ fn (mut ved Ved) key_normal(key gg.KeyCode, mod gg.Modifier) {
 // on_char 处理字符输入事件（通常用于非 macOS 系统或非插入模式）
 @[manualfree]
 fn on_char(code u32, mut ved Ved) {
+	if code < 32 { // Ignore control characters (backspace, enter, etc. are handled in key_down)
+		return
+	}
 	mut buf := [5]u8{}
 	s := unsafe { utf32_to_str_no_malloc(code, mut &buf[0]) }
 	if os.getenv('VED_TEST') != '' {
-		println('ON CHAR: "$s" (code $code) mode=${ved.mode}')
+		println('ON CHAR: "${s}" (code ${code}) mode=${ved.mode}')
 	}
 	$if macos {
 		if os.getenv('VED_TEST') == '' && (ved.mode == .insert || ved.mode == .autocomplete) {
@@ -625,7 +603,7 @@ fn on_char(code u32, mut ved Ved) {
 	}
 	if ved.just_switched {
 		ved.just_switched = false
-		if s in ['i', 'a', 'o', 'I', 'A', 'O', '/', ':', '?', ' ', 'p'] {
+		if s in ['i', 'a', 'o', 'I', 'A', 'O', '/', ':', '?', ' ', 'p', '0', '9', 'c', 'j', 'r', 't'] {
 			return
 		}
 	}
@@ -644,6 +622,11 @@ fn on_char(code u32, mut ved Ved) {
 					ved.prev_cmd = 'r'
 					ved.prev_insert = s.clone()
 				}
+				return
+			}
+			if ved.prev_cmd == 'ci' {
+				ved.view.ci_char(normalize_punctuation(s))
+				ved.prev_cmd = ''
 				return
 			}
 			ved.prev_key_str = s

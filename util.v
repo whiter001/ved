@@ -43,3 +43,25 @@ fn string_width(s string) int { // string_width 函数
 	}
 	return width // 返回宽度
 }
+
+// normalize_punctuation converts CJK full-width punctuation to ASCII equivalents
+fn normalize_punctuation(s string) string {
+	return match s {
+		'（' { '(' }
+		'）' { ')' }
+		'【' { '[' }
+		'】' { ']' }
+		'《' { '<' }
+		'》' { '>' }
+		'“', '”' { '"' }
+		'‘', '’' { "'" }
+		'。' { '.' }
+		'，' { ',' }
+		'；' { ';' }
+		'：' { ':' }
+		'！' { '!' }
+		'？' { '?' }
+		'—' { '-' } // Em-dash to hyphen
+		else { s }
+	}
+}

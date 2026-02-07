@@ -150,6 +150,7 @@ fn (mut view View) open_file(path string, line_nr int) {
 	if path == '' {
 		return
 	}
+	view.x = 0 // Reset x when opening a new file
 	if path.starts_with(view.ved.workspace + '/') {
 		view.short_path = path[view.ved.workspace.len..]
 		if view.short_path.starts_with('/') {
@@ -562,7 +563,9 @@ fn (mut view View) shift_right() {
 		view.set_line('\t${view.line()}')
 		return
 	}
-	for i := view.vstart; i <= view.vend; i++ {
+	start_y := int_min(view.vstart, view.vend)
+	end_y := int_max(view.vstart, view.vend)
+	for i := start_y; i <= end_y; i++ {
 		line := view.lines[i]
 		view.lines[i] = '\t${line}'
 	}
@@ -579,7 +582,9 @@ fn (mut view View) shift_left() {
 		view.set_line(line[1..])
 		return
 	}
-	for i := view.vstart; i <= view.vend; i++ {
+	start_y := int_min(view.vstart, view.vend)
+	end_y := int_max(view.vstart, view.vend)
+	for i := start_y; i <= end_y; i++ {
 		line := view.lines[i]
 		if !line.starts_with('\t') {
 			continue
@@ -1165,32 +1170,127 @@ fn (mut view View) de() {
 }
 
 // ci 快速修改成对符号内的内容。
+fn (mut view View) ci_char(s string) {
+	if s.len == 0 {
+		return
+	}
+	r := s.runes()[0]
+	view.ci_rune(r)
+}
+
 fn (mut view View) ci(key gg.KeyCode) {
+	mut r := rune(0)
+	match key {
+		.apostrophe {
+			r = `'`
+		}
+		._9 {
+			r = `(`
+		}
+		.left_bracket {
+			r = `[`
+		}
+		else {
+			k := u32(key)
+			if k == 34 {
+				r = `"`
+			} else if k == 123 {
+				r = `{`
+			} else if k == 65288 || k == 65289 {
+				r = `(`
+			}
+		}
+	}
+	if r != rune(0) {
+		view.ci_rune(r)
+	}
+}
+
+fn (mut view View) ci_rune(r rune) {
 	mut ved := view.ved
 	line := view.line()
 	defer {
 		ved.prev_cmd = ''
 	}
-	match key {
-		.apostrophe {
-			if !line.contains("'") {
-				return
-			}
-			mut start := view.x
-			for line[start] != `'` {
-				start--
-			}
-			mut end := view.x
-			for line[end] != `'` {
-				end++
-			}
-			view.set_line(line[..start + 1] + line[end..])
-			view.x = start + 1
-			view.ved.set_insert()
-		}
-		._9 {}
-		else {}
+
+	mut open_rune := rune(0)
+	mut close_rune := rune(0)
+
+	if r == `'` {
+		open_rune = `'`
+		close_rune = `'`
+	} else if r == `(` || r == rune(65288) || r == rune(65289) {
+		open_rune = `(`
+		close_rune = `)`
+	} else if r == `[` {
+		open_rune = `[`
+		close_rune = `]`
+	} else if r == `"` {
+		open_rune = `"`
+		close_rune = `"`
+	} else if r == `{` {
+		open_rune = `{`
+		close_rune = `}`
 	}
+
+	if open_rune == rune(0) {
+		return
+	}
+
+	runes := line.runes()
+	mut rx := 0
+	mut bc := 0
+	for i, ru in runes {
+		if bc >= view.x {
+			rx = i
+			break
+		}
+		bc += ru.length_in_bytes()
+		if i == runes.len - 1 {
+			rx = runes.len
+		}
+	}
+
+	is_match := fn (ru rune, target rune) bool {
+		if ru == target {
+			return true
+		}
+		if target == `(` && ru == rune(65288) {
+			return true
+		}
+		if target == `)` && ru == rune(65289) {
+			return true
+		}
+		return false
+	}
+
+	mut start := -1
+	for i := int_min(rx, runes.len - 1); i >= 0; i-- {
+		if is_match(runes[i], open_rune) {
+			start = i
+			break
+		}
+	}
+	mut end := -1
+	if start != -1 {
+		for i := start + 1; i < runes.len; i++ {
+			if is_match(runes[i], close_rune) {
+				end = i
+				break
+			}
+		}
+	}
+
+	if end == -1 {
+		return
+	}
+
+	view.save_snapshot()
+	left := runes[..start + 1].string()
+	right := runes[end..].string()
+	view.set_line(left + right)
+	view.x = left.len
+	view.ved.set_insert()
 }
 
 // zz 居中显示当前行。

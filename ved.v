@@ -1312,3 +1312,11 @@ fn (ved &Ved) get_files_for_workspace(ws_path string) []string {
 	}
 	return [] // 返回空
 }
+
+fn (mut ved Ved) enter_query_mode(query_type QueryType, initial_query string) {
+	ved.mode = .query
+	ved.query_type = query_type
+	ved.query = initial_query
+	ved.just_switched = true
+	ved.refresh = true
+}
