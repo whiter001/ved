@@ -191,7 +191,9 @@ fn (mut ved Ved) draw_split(i int, split_from int) { // draw_split 函数，绘�
 	for j := view.from; j < view.from + ved.page_height && j < view.lines.len; j++ { // 循环绘制行
 		line := view.lines[j] // 获取行
 		if line.len > 5000 { // 如果行长度 > 5000
-			println('line len too big! views[${i}].lines[${j}] (${line.len}) path=${ved.view.path}') // 打印警告
+			if ved.is_test {
+				println('line len too big! views[${i}].lines[${j}] (${line.len}) path=${ved.view.path}') // 打印警告
+			}
 			continue // 继续
 		}
 		x := split_x + view.padding_left // x 坐标

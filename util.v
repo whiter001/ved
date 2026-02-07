@@ -62,6 +62,7 @@ fn normalize_punctuation(s string) string {
 		'！' { '!' }
 		'？' { '?' }
 		'—' { '-' } // Em-dash to hyphen
+		'——' { '_' } // Double em-dash to underscore (common in Chinese IM for _)
 		else { s }
 	}
 }

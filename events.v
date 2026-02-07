@@ -142,7 +142,7 @@ fn (mut ved Ved) on_event(e &gg.Event) {
 
 // key_down 是按键按下时的总入口
 fn on_key_down(key gg.KeyCode, mod gg.Modifier, mut ved Ved) {
-	if os.getenv('VED_TEST') != '' {
+	if os.getenv('VED_DEBUG') != '' {
 		println('KEY DOWN: ${key} mod=${mod} mode=${ved.mode} cur_y=${ved.view.y} cur_x=${ved.view.x}')
 	}
 	// 更新修饰键状态
@@ -593,11 +593,11 @@ fn on_char(code u32, mut ved Ved) {
 	}
 	mut buf := [5]u8{}
 	s := unsafe { utf32_to_str_no_malloc(code, mut &buf[0]) }
-	if os.getenv('VED_TEST') != '' {
+	if os.getenv('VED_DEBUG') != '' {
 		println('ON CHAR: "${s}" (code ${code}) mode=${ved.mode}')
 	}
 	$if macos {
-		if os.getenv('VED_TEST') == '' && (ved.mode == .insert || ved.mode == .autocomplete) {
+		if !ved.is_test && (ved.mode == .insert || ved.mode == .autocomplete) {
 			return
 		}
 	}

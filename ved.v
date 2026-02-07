@@ -133,6 +133,7 @@ mut:
 	current_syntax_idx int            // 当前语法索引
 	chunks             []Chunk        // 在高亮期间临时使用
 	is_building        bool           // 是否正在构建
+	is_test            bool           // 是否处于测试模式（环境变量 VED_TEST=1）
 	timer              Timer          // 计时器
 	task_start_unix    i64            // 任务开始时间戳
 	cur_task           string         // 当前任务
@@ -234,9 +235,8 @@ const is_window = '-window' in args // 是否为窗口模式
 // 获取屏幕尺寸
 fn get_screen_size() (int, int) {
 	mut size := gg.screen_size() // 获取屏幕大小
-	println('AAA SIZE=${size}')
-	if unsafe { true } {
-		// exit(0)
+	if os.getenv('VED_TEST') == '' {
+		println('AAA SIZE=${size}')
 	}
 	if size.width == 0 || size.height == 0 { // 如果获取失败，使用默认大小
 		size = $if small_window ? { gg.Size{770, 480} } $else { gg.Size{2560, 1440} }
@@ -248,7 +248,9 @@ fn get_screen_size() (int, int) {
 			size.height -= 32 // ved.cfg.line_height
 		}
 	}
-	println('size=${size}')
+	if os.getenv('VED_TEST') == '' {
+		println('size=${size}')
+	}
 	return size.width, size.height // 返回宽度和高度
 }
 
@@ -275,6 +277,7 @@ fn main() {
 		// nr_splits: nr_splits
 		cur_split:  0
 		mode:       .normal
+		is_test:    os.getenv('VED_TEST') == '1'
 		cb:         clipboard.new() // 新建剪贴板
 		open_paths: [][]string{len: max_nr_workspaces} // 初始化打开路径
 	}
@@ -284,15 +287,18 @@ fn main() {
 	ved.handle_segfault() // 处理段错误
 
 	// ved.cfg.set_settings(config_path)
-	println('CONFIG')
-	println(ved.cfg)
+	if !ved.is_test {
+		println('CONFIG')
+		println(ved.cfg)
+	}
 	ved.load_config2() // 加载配置
 
 	ved.nr_splits = ved.get_nr_splits_from_screen_size(width, height) // 根据屏幕尺寸获取分屏数量
 	ved.calc_nr_splits_from_text_size() // 根据文本大小计算分屏数量
-	println('splits per w = ${ved.nr_splits}')
-
-	println('height=${height}')
+	if !ved.is_test {
+		println('splits per w = ${ved.nr_splits}')
+		println('height=${height}')
+	}
 
 	ved.load_syntaxes() // 加载语法
 
@@ -361,10 +367,14 @@ fn main() {
 	else if paths.len == 1 && os.is_file(paths[0]) {
 		path := paths[0] // 获取文件路径
 		if !os.exists(path) { // 如果文件不存在
-			println('file "${path}" does not exist')
+			if ved.is_test {
+				println('file "${path}" does not exist')
+			}
 			exit(1)
 		}
-		println('PATH="${path}" cur_dir="${cur_dir}"')
+		if ved.is_test {
+			println('PATH="${path}" cur_dir="${cur_dir}"')
+		}
 		if !os.is_dir(path) && !path.starts_with('-') { // 如果是文件
 			mut workspace := os.dir(path) // 获取目录
 			ved.add_workspace(workspace) // 添加工作区
@@ -374,9 +384,13 @@ fn main() {
 	}
 	// 打开多个工作区
 	else {
-		println('open multiple workspaces')
+		if ved.is_test {
+			println('open multiple workspaces')
+		}
 		for arg in paths {
-			println(arg)
+			if ved.is_test {
+				println(arg)
+			}
 			// 相对路径
 			if !arg.starts_with('/') {
 				ved.add_workspace(cur_dir + '/' + arg) // 添加相对路径工作区
@@ -395,7 +409,9 @@ fn main() {
 	ved.load_session() // 加载会话
 	ved.load_timer() // 加载计时器
 	ved.init_tree() // 初始化树
-	println('first_launch=${first_launch}')
+	if ved.is_test {
+		println('first_launch=${first_launch}')
+	}
 	if ved.workspaces.len == 1 && first_launch && !os.exists(session_path) { // 如果是首次启动
 		ved.view.open_file(os.join_path(exe_dir, 'welcome.txt'), 0) // 打开欢迎文件
 	}

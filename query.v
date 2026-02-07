@@ -223,7 +223,7 @@ fn (mut ved Ved) char_query(s string) { // char_query 函数，查询字符
 
 	if ved.query_type in [.search, .search_in_folder, .grep] { // 如果查询类型在搜索相关
 		ved.search_query += normalized // 添加到搜索查询
-		if os.getenv('VED_TEST') != '' {
+		if ved.is_test {
 			println('new sq=${ved.search_query}') // 打印新搜索查询
 		}
 	} else if ved.query_type == .ctrlp { // 否则如果查询类型为 ctrlp
@@ -256,21 +256,19 @@ fn (mut ved Ved) load_git_tree() { // load_git_tree 函数，加载 git 树
 		}
 		ved.all_git_files = s.output.split_into_lines() // 分割输出为行
 	} else { // 否则
-		/*
 		// Get all files if not a git repo // 如果不是 git 仓库，获取所有文件
 		mut files := []string{} // 文件
-		os.walk_with_context(dir, &files, fn (mut fs []string, f string) { // 遍历
-			if f == '.' || f == '..' { // 如果是 . 或 ..
-				return // 返回
+		os.walk_with_context(dir, &files, fn [dir] (mut fs []string, f string) { // 遍历
+			if f == '.' || f == '..' || f == '.git' { // 如果是 . 或 .. 或 .git
+				return
 			}
 			full_path := os.join_path(dir, f) // Need full path for is_file check // 需要完整路径进行文件检查
-			if os.is_file(full_path) { // 如果是文件
+			if os.is_file(full_path) && !f.contains('/.') { // 如果是文件且不是隐藏文件
 				// Store relative path // 存储相对路径
 				fs << f.replace(dir + os.path_separator, '') // 添加
 			}
 		})
 		ved.all_git_files = files // 设置所有 git 文件
-		*/
 	}
 	ved.all_git_files.sort_by_len()
 	// Also filter results initially when Ctrl+P is pressed
@@ -520,7 +518,9 @@ fn (mut ved Ved) draw_query_results(kind QueryType, x int, y int, width int) {
 
 // Open file on enter for Ctrl+P
 fn (mut ved Ved) ctrlp_open() {
-	println('ctrlpopen gg_pos=${ved.gg_pos}')
+	if ved.is_test {
+		println('ctrlpopen gg_pos=${ved.gg_pos}')
+	}
 	if ved.gg_pos < 0 || ved.gg_pos >= ved.ctrlp_results.len {
 		if ved.ctrlp_results.len > 0 {
 			ved.gg_pos = 0
@@ -629,7 +629,9 @@ enum SearchType {
 }
 
 fn (mut ved Ved) search(search_type SearchType) {
-	println('search() query=${ved.search_query}')
+	if ved.is_test {
+		println('search() query=${ved.search_query}')
+	}
 	if ved.search_query == '' {
 		return
 	}
@@ -700,7 +702,9 @@ fn (mut ved Ved) search(search_type SearchType) {
 		ext := '.' + ved.view.path.after('.')
 		// Ensure search_dir exists and is a directory
 		if !os.is_dir(ved.search_dir) {
-			println('Search directory "${ved.search_dir}" not found or is not a directory.')
+			if ved.is_test {
+				println('Search directory "${ved.search_dir}" not found or is not a directory.')
+			}
 			ved.search_dir = '' // Reset search dir if invalid
 			return
 		}
@@ -715,7 +719,9 @@ fn (mut ved Ved) search(search_type SearchType) {
 			// Should not happen, but safe check
 
 			text := os.read_file(file_path) or {
-				println('Error reading file: ${file_path}')
+				if ved.is_test {
+					println('Error reading file: ${file_path}')
+				}
 				continue // Skip file if cannot read
 			}
 			if _ := text.index(ved.search_query) {
@@ -727,9 +733,13 @@ fn (mut ved Ved) search(search_type SearchType) {
 			}
 		}
 		// If search reaches end of directory without finding, maybe wrap around? (Optional)
-		println('Search query "${ved.search_query}" not found in folder "${ved.search_dir}".')
+		if ved.is_test {
+			println('Search query "${ved.search_query}" not found in folder "${ved.search_dir}".')
+		}
 	} else {
-		println('Search query "${ved.search_query}" not found in current file.')
+		if ved.is_test {
+			println('Search query "${ved.search_query}" not found in current file.')
+		}
 	}
 }
 

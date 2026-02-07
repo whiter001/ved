@@ -18,7 +18,9 @@ struct Syntax { // Syntax 结构体
 }
 
 fn (mut ved Ved) load_syntaxes() { // load_syntaxes 函数，加载语法
-	println('loading syntax files...') // 打印加载语法文件
+	if !ved.is_test {
+		println('loading syntax files...') // 打印加载语法文件
+	}
 	vsyntax := json2.decode[Syntax](builtin_v_syntax_file_content) or { // 解码内置 V 语法
 		panic('the builtin syntax file "${builtin_v_syntax_file_content}" can not be decoded ${err}') // 恐慌
 	}
@@ -40,13 +42,17 @@ fn (mut ved Ved) load_syntaxes() { // load_syntaxes 函数，加载语法
 		}
 		ved.syntaxes << syntax // 添加语法
 	}
-	println('${files.len} syntax files loaded + the compile time builtin syntax for .v') // 打印加载的语法文件数量
+	if !ved.is_test {
+		println('${files.len} syntax files loaded + the compile time builtin syntax for .v') // 打印加载的语法文件数量
+	}
 }
 
 fn (mut ved Ved) set_current_syntax_idx(ext string) { // set_current_syntax_idx 函数，设置当前语法索引
 	for i, syntax in ved.syntaxes { // 循环语法
 		if ext in syntax.extensions { // 如果扩展名在语法扩展名中
-			println('selected syntax ${syntax.name} for extension ${ext}') // 打印选择的语法
+			if !ved.is_test {
+				println('selected syntax ${syntax.name} for extension ${ext}') // 打印选择的语法
+			}
 			ved.current_syntax_idx = i // 设置当前语法索引
 			break // 跳出
 		}

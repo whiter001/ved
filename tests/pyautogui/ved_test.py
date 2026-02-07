@@ -19,8 +19,17 @@ FOCUS_DELAY = 1.0  # Delay after focusing window
 # Base setup
 CWD = Path(__file__).parent.parent.parent
 VED_BIN = CWD / "ved"
-TEST_FILE = CWD / "tests" / "pyautogui" / "test_output.txt"
+TEST_FOLDER = CWD / "tests" / "pyautogui" / "sandbox"
+TEST_FILE = TEST_FOLDER / "test_output.txt"
 STATE_FILE = CWD / "tests" / "pyautogui" / ".test_state.json"
+
+# Create dummy files for testing
+DUMMY_FILES = {
+    "dummyfilea.txt": "This is content for file A",
+    "dummyfileb.txt": "This is content for file B",
+    "dummy_markdown.md": "# Markdown header\nContent here",
+}
+
 BASE_CONTENT = """line 1: hello
 line 2: world
 line 3: vlang
@@ -79,6 +88,12 @@ class VedAutomator:
             self.ctrl = 'command'  # macOS uses Command
         else:
             self.ctrl = 'ctrl'     # Windows/Linux use Ctrl
+        
+        # Ensure sandbox exists
+        TEST_FOLDER.mkdir(parents=True, exist_ok=True)
+        # Create dummy files for navigation tests
+        for name, content in DUMMY_FILES.items():
+            (TEST_FOLDER / name).write_text(content)
 
     def start(self):
         if self.file_path.exists():
@@ -437,27 +452,41 @@ def test_fuzzy_finder():
     
     # Ctrl+P
     ved.hotkey(ved.ctrl, 'p')
-    time.sleep(1)
+    time.sleep(2) # Mac needs more time
     
-    # Search for README, then delete it and search for LICENSE
-    ved.write("README")
-    time.sleep(0.5)
-    for _ in range(6):
-        pyautogui.press('backspace')
-    time.sleep(0.5)
-    ved.write("LICENSE")
-    time.sleep(1)
+    # Search for dummyfileb.txt
+    ved.write("dummyfileb") 
+    time.sleep(2)
     ved.press('enter')
     time.sleep(2)
     
-    # Check if we switched to LICENSE
-    if ved.process.poll() is None:
-        print("✅ test_fuzzy_finder window appeared and accepted input (with backspace)")
-        ved.quit()
+    # If we switched correctly, we should be able to write and save to dummyfileb.txt
+    ved.press('esc')
+    ved.press('g')
+    ved.press('g')
+    ved.press('i')
+    ved.write("updated——b ") # test normalization as well
+    ved.press('esc')
+    ved.save()
+    time.sleep(1)
+    
+    # Read directly from file to verify
+    try:
+        content = (TEST_FOLDER / "dummyfileb.txt").read_text()
+        # On macOS IME the inserted punctuation may be normalized differently
+        success = ("updated_b" in content) or ("updatedb" in content)
+    except:
+        success = False
+
+    ved.quit()
+    
+    if success:
+        print("✅ test_fuzzy_finder passed (switched to dummyfileb.txt)")
         return True
     else:
-        print("❌ test_fuzzy_finder crashed ved")
-        ved.quit()
+        print("❌ test_fuzzy_finder failed to switch or save correctly")
+        if (TEST_FOLDER / "dummyfileb.txt").exists():
+            print(f"Content of dummyfileb.txt: {(TEST_FOLDER / 'dummyfileb.txt').read_text()}")
         return False
 
 def test_chinese_input():
@@ -589,11 +618,11 @@ def test_mru_order():
     ved.press('esc')
     ved.save()
 
-    # 1. Open README.md via Ctrl+P
+    # 1. Open dummy_markdown.md via Ctrl+P
     ved.hotkey(ved.ctrl, 'p')
     time.sleep(1)
     # Type slowly to ensure normalization works
-    for c in "readme.md":
+    for c in "dummy_markdown.md":
         pyautogui.write(c)
         time.sleep(0.1)
     time.sleep(1)
