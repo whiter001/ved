@@ -231,12 +231,12 @@ fn (mut ved Ved) key_normal(key gg.KeyCode, mod gg.Modifier) {
 			ved.search_query = ''
 			ved.search_dir = ''
 			if shift {
-				ved.enter_query_mode(.grep, '')
+				ved.enter_query_mode(.grep, '', '/')
 			} else if super {
 				ved.search_dir = os.dir(ved.view.path)
-				ved.enter_query_mode(.search_in_folder, '')
+				ved.enter_query_mode(.search_in_folder, '', '/')
 			} else {
-				ved.enter_query_mode(.search, '')
+				ved.enter_query_mode(.search, '', '/')
 			}
 		}
 		.f5 {
@@ -270,14 +270,14 @@ fn (mut ved Ved) key_normal(key gg.KeyCode, mod gg.Modifier) {
 		}
 		._0 {
 			if super {
-				ved.enter_query_mode(.task, '')
+				ved.enter_query_mode(.task, '', '')
 			} else {
 				view.zero()
 			}
 		}
 		._9 {
 			if super {
-				ved.enter_query_mode(.task, '@')
+				ved.enter_query_mode(.task, '@', '')
 			}
 		}
 		.a {
@@ -297,7 +297,7 @@ fn (mut ved Ved) key_normal(key gg.KeyCode, mod gg.Modifier) {
 		}
 		.c {
 			if super {
-				ved.enter_query_mode(.cam, '')
+				ved.enter_query_mode(.cam, '', '')
 			} else if shift {
 				ved.prev_insert = ved.view.shift_c()
 				ved.set_insert()
@@ -346,7 +346,7 @@ fn (mut ved Ved) key_normal(key gg.KeyCode, mod gg.Modifier) {
 			if shift {
 				ved.view.join()
 			} else if super {
-				ved.enter_query_mode(.ctrlj, '')
+				ved.enter_query_mode(.ctrlj, '', 'j')
 				ved.filter_ctrlj_results()
 			} else {
 				ved.view.j()
@@ -366,9 +366,9 @@ fn (mut ved Ved) key_normal(key gg.KeyCode, mod gg.Modifier) {
 		}
 		.o {
 			if shift_and_super {
-				ved.enter_query_mode(.open_workspace, '')
+				ved.enter_query_mode(.open_workspace, '', '')
 			} else if super {
-				ved.enter_query_mode(.open, '')
+				ved.enter_query_mode(.open, '', 'o')
 				return
 			} else if shift {
 				view.save_snapshot()
@@ -382,12 +382,12 @@ fn (mut ved Ved) key_normal(key gg.KeyCode, mod gg.Modifier) {
 		}
 		.p {
 			if shift_and_super {
-				ved.enter_query_mode(.alert, 'Running git pull...')
+				ved.enter_query_mode(.alert, 'Running git pull...', '')
 				spawn ved.git_pull()
 				return
 			} else if super {
 				ved.load_git_tree()
-				ved.enter_query_mode(.ctrlp, '')
+				ved.enter_query_mode(.ctrlp, '', 'p')
 				return
 			} else {
 				view.p()
@@ -395,7 +395,7 @@ fn (mut ved Ved) key_normal(key gg.KeyCode, mod gg.Modifier) {
 		}
 		.r {
 			if shift_and_super {
-				ved.enter_query_mode(.run, '')
+				ved.enter_query_mode(.run, '', '')
 			} else if super {
 				if view.redo_stack.len > 0 {
 					view.redo()
@@ -603,9 +603,16 @@ fn on_char(code u32, mut ved Ved) {
 	}
 	if ved.just_switched {
 		ved.just_switched = false
-		if s in ['i', 'a', 'o', 'I', 'A', 'O', '/', ':', '?', ' ', 'p', '0', '9', 'c', 'j', 'r', 't'] {
+		// 吞掉常见的插入模式触发键（避免按下 i/a/o 后多出一次字符）
+		if s in ['i', 'a', 'o', 'I', 'A', 'O', ' '] {
 			return
 		}
+		// 仅吞掉确切触发查询的字符（例如 Ctrl+P 导致的 'p'）
+		if ved.just_switched_from != '' && s == ved.just_switched_from {
+			ved.just_switched_from = ''
+			return
+		}
+		ved.just_switched_from = ''
 	}
 	match ved.mode {
 		.insert, .autocomplete {

@@ -109,6 +109,7 @@ mut:
 	view               &View = unsafe { nil } // 当前视图指针
 	mode               EditorMode    // 编辑器模式
 	just_switched      bool          // 用于按键事件，避免重复按键
+	just_switched_from string        // 切换时记录触发字符，仅吞掉该字符以避免误吞正常输入
 	prev_key           gg.KeyCode    // 上一个按键
 	prev_key_str       string        // 用于 `ci(` 等，没有 `(` 在 gg.KeyCode 中
 	prev_cmd           string        // 上一个命令
@@ -1313,10 +1314,11 @@ fn (ved &Ved) get_files_for_workspace(ws_path string) []string {
 	return [] // 返回空
 }
 
-fn (mut ved Ved) enter_query_mode(query_type QueryType, initial_query string) {
+fn (mut ved Ved) enter_query_mode(query_type QueryType, initial_query string, trigger string) {
 	ved.mode = .query
 	ved.query_type = query_type
 	ved.query = initial_query
 	ved.just_switched = true
+	ved.just_switched_from = trigger
 	ved.refresh = true
 }
