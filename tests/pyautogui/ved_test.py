@@ -36,6 +36,25 @@ def check_dependencies():
         print(f"Missing dependency: {e}")
         sys.exit(1)
 
+def wait_until(predicate, timeout=5.0, interval=0.1):
+    """Wait until predicate returns True or timeout."""
+    start = time.time()
+    while time.time() - start < timeout:
+        if predicate():
+            return True
+        time.sleep(interval)
+    return False
+
+def wait_for_content(file_path, expected_content, timeout=5.0):
+    """Wait until file contains expected content."""
+    def check():
+        try:
+            content = file_path.read_text()
+            return expected_content in content
+        except:
+            return False
+    return wait_until(check, timeout)
+
 def safe_focus(window_name="ved"):
     """Cross-platform window focusing with fallback."""
     try:
@@ -55,9 +74,11 @@ class VedAutomator:
     def __init__(self, file_path):
         self.file_path = file_path
         self.process = None
-        # Use 'ctrl' for tests as it's more reliable across platforms in automated environments
-        # and 'ved' handles both command and ctrl for its 'super' modifier.
-        self.ctrl = 'ctrl'
+        # Use platform-appropriate modifier key
+        if platform.system() == "Darwin":
+            self.ctrl = 'command'  # macOS uses Command
+        else:
+            self.ctrl = 'ctrl'     # Windows/Linux use Ctrl
 
     def start(self):
         if self.file_path.exists():
@@ -72,6 +93,9 @@ class VedAutomator:
             time.sleep(DELAY_LONG)  # Wait for process to start
             if self.process.poll() is not None:
                 raise RuntimeError("ved process failed to start")
+            # Wait for window to be ready
+            if not wait_until(lambda: self.process.poll() is None, timeout=5.0):
+                raise RuntimeError("ved process did not stay running")
             self.focus()
         except Exception as e:
             print(f"Failed to start ved: {e}")
@@ -118,7 +142,10 @@ class VedAutomator:
         pyautogui.press('esc')
         time.sleep(DELAY_SHORT)
         self.hotkey(self.ctrl, 's')
-        time.sleep(DELAY_LONG)  # More time for disk IO
+        # Wait for file to be saved instead of fixed delay
+        if not wait_for_content(self.file_path, "", timeout=3.0):  # Just check file exists and is readable
+            print("Warning: Could not verify save operation")
+        time.sleep(DELAY_SHORT)  # Small buffer
 
     def undo(self):
         self.focus()
@@ -135,10 +162,9 @@ class VedAutomator:
             # 2. Send Ctrl/Cmd+Q
             self.hotkey(self.ctrl, 'q')
             
-            try:
-                self.process.wait(timeout=3)
-            except subprocess.TimeoutExpired:
-                print("ved did not exit within timeout, force terminating...")
+            # Wait for process to exit
+            if not wait_until(lambda: self.process.poll() is not None, timeout=3.0):
+                print("Warning: ved did not exit within timeout, force terminating...")
                 self.process.terminate()
                 self.process.wait()  # Ensure it's dead
 
@@ -303,9 +329,14 @@ def test_search():
         ved.write("vlang")
         ved.press('enter')
         
+        # Wait a bit for search to complete and cursor to move
+        time.sleep(1.0)
+        
         # We should be on line 3. Let's delete it.
         ved.press('d')
+        time.sleep(0.5)  # Small delay between d presses
         ved.press('d')
+        time.sleep(0.5)  # Wait for delete to complete
         ved.save()
         
         content = ved.get_content()
@@ -588,6 +619,10 @@ def test_mru_order():
     ved.write("mru_check ")
     time.sleep(1)
     ved.save()
+    
+    # Wait for the content to be saved
+    if not wait_for_content(ved.file_path, "mru", timeout=3.0):  # Check for partial content
+        print("Warning: mru content not found in saved content")
     
     content = ved.get_content()
     ved.quit()
